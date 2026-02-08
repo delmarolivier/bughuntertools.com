@@ -57,6 +57,21 @@ article h1 {
     border-bottom: 2px solid #eee;
 }
 
+/* Affiliate Disclosure */
+.affiliate-disclosure {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px 20px;
+    margin-bottom: 30px;
+    border-radius: 6px;
+}
+
+.affiliate-disclosure p {
+    margin: 0;
+    color: #856404;
+    font-size: 0.95rem;
+}
+
 .intro {
     background: #f8f9fa;
     padding: 20px;
