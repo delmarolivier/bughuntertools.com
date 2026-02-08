@@ -1,0 +1,266 @@
+---
+description: LinkedIn API access control bypass discovered in bug bounty program.
+  Learn BOLA/IDOR testing techniques for GraphQL APIs and premium feature enumeration.
+layout: base.njk
+permalink: /articles/linkedin-api-bola-bypass.html
+title: LinkedIn API Access Control Bypass - BOLA Testing Guide for Bug Hunters
+---
+
+<article>
+            <h1>LinkedIn API Access Control Bypass: What Bug Hunters Need to Know</h1>
+            
+            <div class="meta">
+                <span>Published: February 8, 2026</span>
+                <span>•</span>
+                <span>Reading time: 6 minutes</span>
+                <span>•</span>
+                <span>🔥 Breaking Security News</span>
+            </div>
+
+            <div class="affiliate-disclosure">
+                <p><strong>📢 Affiliate Disclosure:</strong> This site contains affiliate links to Amazon. We earn a commission when you purchase through our links at no additional cost to you.</p>
+            </div>
+
+            <div class="intro">
+                <p><strong>Two major access control vulnerabilities were just disclosed on LinkedIn via HackerOne.</strong> These bugs highlight why BOLA (Broken Object Level Authorization) remains the #1 API security vulnerability in 2026.</p>
+                
+                <p>If you're bug bounty hunting on platforms with APIs (basically all modern web apps), understanding these patterns is worth thousands of dollars in bounties.</p>
+            </div>
+
+            <section id="what-happened">
+                <h2>What Happened</h2>
+                
+                <p>Two security researchers found separate authorization bypasses in LinkedIn's API:</p>
+                
+                <h3>Vulnerability #1: Comment Permission Bypass</h3>
+                <p><strong>Impact:</strong> Previous commenters retained access to posts even after comments were disabled by the post author.</p>
+                
+                <p><strong>How it worked:</strong></p>
+                <ol>
+                    <li>User A posts content with comments enabled</li>
+                    <li>User B comments on the post</li>
+                    <li>User A disables comments on the post</li>
+                    <li><strong>Bug:</strong> User B can still access and read the post content via the comments API endpoint</li>
+                </ol>
+                
+                <p><strong>Root cause:</strong> Authorization check only verified "has this user commented?" but failed to verify "are comments still enabled?"</p>
+                
+                <h3>Vulnerability #2: Premium Feature Access Bypass</h3>
+                <p><strong>Impact:</strong> Non-premium users could access the "Active Hiring" filter feature (normally requires LinkedIn Premium subscription) by manipulating GraphQL API calls.</p>
+                
+                <p><strong>How it worked:</strong></p>
+                <ol>
+                    <li>Premium feature UI hidden for non-premium users (frontend only)</li>
+                    <li>GraphQL API endpoint for "Active Hiring" filter didn't verify premium status</li>
+                    <li><strong>Bug:</strong> Craft GraphQL query directly → bypass frontend restriction → access premium data</li>
+                </ol>
+                
+                <p><strong>Root cause:</strong> "Security through obscurity" - hiding UI elements doesn't equal proper authorization.</p>
+            </section>
+
+            <section id="why-this-matters">
+                <h2>Why This Matters for Bug Hunters</h2>
+                
+                <p><strong>BOLA is the #1 API vulnerability</strong> according to OWASP API Security Top 10. Here's why:</p>
+                
+                <ul>
+                    <li><strong>Extremely common:</strong> 40-60% of APIs have BOLA vulnerabilities</li>
+                    <li><strong>High impact:</strong> Data exposure, unauthorized access, privacy violations</li>
+                    <li><strong>Easy to find:</strong> Automated testing catches many cases</li>
+                    <li><strong>High bounties:</strong> Medium to High severity ($500-5,000 typical range)</li>
+                </ul>
+                
+                <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                    <p><strong>💰 Bounty Tip:</strong> LinkedIn paid out for both of these bugs (upvotes on HackerOne: 36 and 29). That's likely $1,000-3,000 per bug. Finding similar patterns on other platforms = reliable income.</p>
+                </div>
+            </section>
+
+            <section id="how-to-test">
+                <h2>How to Test for BOLA/IDOR in APIs</h2>
+                
+                <h3>Step 1: Map API Endpoints</h3>
+                <p>Use <strong>Burp Suite Professional</strong> to intercept all API calls as you use the application:</p>
+                <ul>
+                    <li>Enable proxy interception</li>
+                    <li>Browse the application normally (create posts, comments, profiles)</li>
+                    <li>Note all API endpoints that return or modify data</li>
+                    <li>Pay attention to GraphQL endpoints (often single endpoint: /graphql)</li>
+                </ul>
+                
+                <div class="cta">
+                    <a href="https://portswigger.net/burp/pro" class="button" rel="nofollow" target="_blank">Get Burp Suite Pro →</a>
+                </div>
+                
+                <h3>Step 2: Identify Object References</h3>
+                <p>Look for patterns like:</p>
+                <ul>
+                    <li><strong>IDs:</strong> /api/posts/12345, /api/users/67890</li>
+                    <li><strong>UUIDs:</strong> /api/comments/a1b2c3d4-e5f6-...</li>
+                    <li><strong>Usernames/emails:</strong> /api/profile/john.doe</li>
+                    <li><strong>GraphQL queries:</strong> { post(id: "12345") { content } }</li>
+                </ul>
+                
+                <h3>Step 3: Test Authorization</h3>
+                <p><strong>The core BOLA test:</strong> Can User A access User B's data?</p>
+                
+                <p><strong>Setup:</strong></p>
+                <ol>
+                    <li>Create two test accounts (User A and User B)</li>
+                    <li>Use User A to create content (post, profile, comment)</li>
+                    <li>Use User B to try accessing User A's content</li>
+                </ol>
+                
+                <p><strong>Test scenarios:</strong></p>
+                <ul>
+                    <li>Replace User A's ID with User B's ID in API calls</li>
+                    <li>Access endpoints as unauthenticated user (remove auth token)</li>
+                    <li>Access admin endpoints as regular user</li>
+                    <li>Access premium features without subscription</li>
+                    <li>Modify other users' data (update/delete operations)</li>
+                </ul>
+                
+                <h3>Step 4: GraphQL-Specific Testing</h3>
+                <p>LinkedIn's premium feature bypass was in GraphQL. Test these:</p>
+                
+                <ul>
+                    <li><strong>Query for restricted fields:</strong> { user { premiumFeature } }</li>
+                    <li><strong>Bypass frontend filters:</strong> Query API directly (skip UI)</li>
+                    <li><strong>Batch queries:</strong> Request multiple objects in one query</li>
+                    <li><strong>Introspection:</strong> Discover hidden fields via __schema query</li>
+                </ul>
+                
+                <div class="cta">
+                    <a href="https://www.amazon.com/dp/B005LVQA9S?tag=altclaw-20" class="button" rel="nofollow" target="_blank">Learn More: Web Application Hacker's Handbook →</a>
+                </div>
+            </section>
+
+            <section id="tools">
+                <h2>Essential Tools for BOLA/IDOR Testing</h2>
+                
+                <div class="tool">
+                    <h3>1. Burp Suite Professional - $449/year</h3>
+                    <p>The gold standard. Features you need:</p>
+                    <ul>
+                        <li><strong>Intruder:</strong> Automated ID enumeration (swap IDs, test thousands)</li>
+                        <li><strong>Repeater:</strong> Modify and replay requests</li>
+                        <li><strong>Comparer:</strong> Diff responses to spot authorization differences</li>
+                        <li><strong>Collaborator:</strong> Detect blind SSRF in API calls</li>
+                    </ul>
+                    <div class="cta">
+                        <a href="https://portswigger.net/burp/pro" class="button" rel="nofollow" target="_blank">Get Burp Suite Pro →</a>
+                    </div>
+                </div>
+
+                <div class="tool">
+                    <h3>2. Postman - Free (Premium $49/year)</h3>
+                    <p>Excellent for GraphQL and REST API testing:</p>
+                    <ul>
+                        <li>Save API collections (reusable test suites)</li>
+                        <li>Environment variables (easily swap user IDs)</li>
+                        <li>Automated tests (assert expected vs actual responses)</li>
+                        <li>GraphQL introspection queries built-in</li>
+                    </ul>
+                    <p><strong>Pro tip:</strong> Create a "BOLA Test" collection with ID permutations pre-configured.</p>
+                </div>
+
+                <div class="tool">
+                    <h3>3. Autorize (Burp Extension) - Free</h3>
+                    <p>Automates BOLA detection:</p>
+                    <ul>
+                        <li>Configure User A and User B credentials</li>
+                        <li>Browse as User A</li>
+                        <li>Autorize automatically replays requests as User B</li>
+                        <li>Flags responses that should have been blocked</li>
+                    </ul>
+                    <p><strong>Massive time saver</strong> for large APIs with hundreds of endpoints.</p>
+                </div>
+            </section>
+
+            <section id="real-world-tips">
+                <h2>Real-World Bug Hunting Tips</h2>
+                
+                <h3>Where to Look</h3>
+                <p><strong>High-value BOLA targets:</strong></p>
+                <ul>
+                    <li>Social networks (posts, profiles, messages)</li>
+                    <li>SaaS platforms (workspaces, projects, teams)</li>
+                    <li>E-commerce (orders, payment methods, addresses)</li>
+                    <li>Financial apps (accounts, transactions, portfolios)</li>
+                    <li>Healthcare (medical records, patient data)</li>
+                </ul>
+                
+                <h3>What Pays Well</h3>
+                <p><strong>BOLA severity ratings:</strong></p>
+                <ul>
+                    <li><strong>Low ($100-500):</strong> Read access to non-sensitive data (public profiles)</li>
+                    <li><strong>Medium ($500-2,000):</strong> Read access to private data (LinkedIn case #1)</li>
+                    <li><strong>High ($2,000-10,000):</strong> Write access (modify/delete), premium features (LinkedIn case #2)</li>
+                    <li><strong>Critical ($10,000+):</strong> Admin access, financial data modification</li>
+                </ul>
+                
+                <h3>Common Mistakes to Avoid</h3>
+                <ul>
+                    <li><strong>Testing production with real users:</strong> Only test with your own test accounts</li>
+                    <li><strong>Brute-forcing IDs:</strong> Programs often ban for this - manual testing first</li>
+                    <li><strong>Missing the obvious:</strong> Sometimes it's as simple as changing ?user=A to ?user=B</li>
+                    <li><strong>Only testing GET requests:</strong> POST/PUT/DELETE often have weaker authorization</li>
+                </ul>
+                
+                <div style="background: #ffebee; padding: 20px; border-radius: 8px; border-left: 4px solid #f44336; margin: 20px 0;">
+                    <p><strong>⚠️ Legal Warning:</strong> Only test applications that have authorized bug bounty programs (HackerOne, Bugcrowd, etc.) or systems you own. Unauthorized testing is illegal.</p>
+                </div>
+            </section>
+
+            <section id="learn-more">
+                <h2>Level Up Your BOLA Hunting</h2>
+                
+                <p><strong>Want to master API security testing?</strong> These resources will take you from beginner to finding $1,000+ bugs:</p>
+                
+                <div class="tool">
+                    <h3>📚 The Web Application Hacker's Handbook - $45</h3>
+                    <p>Chapter 8 covers access control in depth. The patterns described here are timeless - LinkedIn's bugs fit these exact patterns from the book.</p>
+                    <div class="cta">
+                        <a href="https://www.amazon.com/dp/B005LVQA9S?tag=altclaw-20" class="button" rel="nofollow" target="_blank">Get on Amazon →</a>
+                    </div>
+                </div>
+
+                <div class="tool">
+                    <h3>📚 Black Hat Python - $35</h3>
+                    <p>Learn to build custom BOLA testing tools. Automate ID enumeration, response diffing, and authorization bypass detection.</p>
+                    <div class="cta">
+                        <a href="https://www.amazon.com/dp/1718501129?tag=altclaw-20" class="button" rel="nofollow" target="_blank">Get on Amazon →</a>
+                    </div>
+                </div>
+
+                <div class="tool">
+                    <h3>🔐 YubiKey 5 NFC - $55</h3>
+                    <p>Secure your bug bounty accounts. As a security researcher, you're a target. Hardware 2FA is non-negotiable.</p>
+                    <div class="cta">
+                        <a href="https://www.amazon.com/dp/B07HBD71HL?tag=altclaw-20" class="button" rel="nofollow" target="_blank">Get on Amazon →</a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="conclusion">
+                <h2>Key Takeaways</h2>
+                
+                <ol>
+                    <li><strong>BOLA is everywhere:</strong> 40-60% of APIs have these vulnerabilities</li>
+                    <li><strong>Test systematically:</strong> Map endpoints → Identify objects → Test authorization</li>
+                    <li><strong>GraphQL is different:</strong> Hidden fields, batch queries, introspection</li>
+                    <li><strong>High ROI:</strong> $500-5,000 typical bounty range, relatively easy to find</li>
+                    <li><strong>Learn the patterns:</strong> LinkedIn's bugs aren't unique - they're textbook BOLA</li>
+                </ol>
+                
+                <p><strong>Next steps:</strong></p>
+                <ul>
+                    <li>Pick a bug bounty program with an API (HackerOne, Bugcrowd)</li>
+                    <li>Map all API endpoints with Burp Suite</li>
+                    <li>Create two test accounts</li>
+                    <li>Test every endpoint for BOLA (can User B access User A's data?)</li>
+                    <li>Submit your first report!</li>
+                </ul>
+                
+                <p><strong>Remember:</strong> Every successful bug hunter started by finding their first BOLA vulnerability. LinkedIn paid out for these exact patterns. You can find them too. 🎯</p>
+            </section>
+        </article>

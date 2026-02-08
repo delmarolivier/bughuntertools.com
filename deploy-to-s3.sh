@@ -12,35 +12,45 @@ SITE_DIR="/home/delmar/.openclaw/workspace/projects/altclaw/bughuntertools.com"
 
 cd "$SITE_DIR"
 
-# 1. Run quality checks
-echo "1. Running quality checks..."
-./check-quality.sh
+# 1. Build site with 11ty
+echo "1. Building site with 11ty..."
+npx @11ty/eleventy
+echo "✓ Site built to _site/"
+echo ""
+
+# 2. Run quality checks
+echo "2. Running quality checks..."
+cd _site
+../check-quality.sh
 if [ $? -ne 0 ]; then
     echo "❌ Quality checks failed - fix errors before deploying"
     exit 1
 fi
+cd ..
 echo "✓ Quality checks passed"
 echo ""
 
-# 2. Sync to S3
-echo "2. Syncing files to S3..."
-aws s3 sync . s3://$BUCKET/ \
+# 3. Sync to S3
+echo "3. Syncing files to S3..."
+aws s3 sync _site/ s3://$BUCKET/ \
   --region $REGION \
   --exclude ".git/*" \
   --exclude "*.sh" \
   --exclude "*.md" \
-  --exclude "bucket-policy.json" \
-  --exclude "VALIDATED_PRODUCTS.md" \
+  --exclude "*.json" \
+  --exclude "*.py" \
   --exclude "node_modules/*" \
+  --exclude "src/*" \
+  --exclude ".eleventy.js" \
   --cache-control "public, max-age=3600" \
   --delete
 
 echo "✓ Files synced to S3"
 echo ""
 
-# 3. Invalidate CloudFront cache (if distribution exists)
+# 4. Invalidate CloudFront cache (if distribution exists)
 echo "3. Checking for CloudFront distribution..."
-DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Origins.Items[0].DomainName=='$BUCKET.s3.amazonaws.com'].Id" --output text 2>/dev/null)
+DIST_ID=$(cat .cloudfront-dist-id 2>/dev/null || echo "")
 
 if [ -n "$DIST_ID" ]; then
     echo "Found distribution: $DIST_ID"
