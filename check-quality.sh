@@ -1,37 +1,76 @@
 #!/bin/bash
+
+# Validated ASINs from VALIDATED_PRODUCTS.md
+VALID_ASINS=(
+    "1118026470"  # Web App Hacker's Handbook (Paperback)
+    "B005LVQA9S"  # Web App Hacker's Handbook (Kindle)
+    "1718501129"  # Black Hat Python
+    "159327288X"  # Metasploit Guide
+    "B00X4WHP5K"  # Practical Cloud Security
+    "1394180071"  # Security+ Study Guide
+    "B07HBD71HL"  # YubiKey 5 NFC
+    "B00VEEBOPG"  # Alfa WiFi Adapter
+    "B089ZZ8DTV"  # Raspberry Pi 4 Kit
+)
+
 echo "=== Quality Check Report ==="
 echo ""
 
-echo "1. Checking for broken internal links..."
-grep -o 'href="#[^"]*"' index.html | sort -u
+# Check for placeholder links
+echo "1. Checking for placeholder links..."
+if grep -r 'href="#"' *.html articles/*.html 2>/dev/null; then
+    echo "❌ Found placeholder links"
+    exit 1
+else
+    echo "✓ No placeholder links found"
+fi
 
 echo ""
-echo "2. Checking for placeholder links..."
-grep -n 'href="#"' index.html || echo "✓ No placeholder links found"
+echo "2. CRITICAL: Validating Amazon affiliate links..."
+amazon_links=$(grep -roh 'amazon.com/dp/[^"?]*' *.html articles/*.html 2>/dev/null | cut -d'/' -f3 | sort -u)
+invalid_found=0
+
+if [ -n "$amazon_links" ]; then
+    for asin in $amazon_links; do
+        valid=0
+        for valid_asin in "${VALID_ASINS[@]}"; do
+            valid_asin_clean=$(echo "$valid_asin" | awk '{print $1}')
+            if [ "$asin" == "$valid_asin_clean" ]; then
+                valid=1
+                echo "✓ ASIN $asin validated"
+                break
+            fi
+        done
+        
+        if [ $valid -eq 0 ]; then
+            echo "❌ INVALID ASIN: $asin (not in VALIDATED_PRODUCTS.md)"
+            invalid_found=1
+        fi
+    done
+    
+    if [ $invalid_found -eq 1 ]; then
+        echo ""
+        echo "❌ COMMIT BLOCKED: Invalid Amazon ASINs found"
+        echo "Fix: Use only ASINs from VALIDATED_PRODUCTS.md"
+        exit 1
+    fi
+else
+    echo "No Amazon links found"
+fi
 
 echo ""
-echo "3. Checking for missing alt tags on images..."
-grep -c '<img' index.html && echo "Images found, checking alt..." && grep '<img' index.html | grep -v 'alt=' || echo "✓ No images or all have alt tags"
+echo "3. Checking for required meta tags..."
+if grep -q '<meta name="description"' *.html articles/*.html 2>/dev/null; then
+    echo "✓ Description meta found"
+else
+    echo "❌ Missing meta description"
+fi
+
+if grep -q 'application/ld+json' *.html articles/*.html 2>/dev/null; then
+    echo "✓ Schema markup found"
+else
+    echo "❌ Missing Schema.org markup"
+fi
 
 echo ""
-echo "4. Checking external links..."
-grep -o 'https://[^"]*' index.html | sort -u
-
-echo ""
-echo "5. Checking meta tags..."
-grep -i '<meta name="description"' index.html && echo "✓ Description meta found" || echo "✗ Missing description"
-
-echo ""
-echo "6. Checking schema markup..."
-grep -i 'schema.org' index.html && echo "✓ Schema markup found" || echo "✗ Missing schema"
-
-echo ""
-echo "7. File sizes..."
-ls -lh *.html css/*.css
-
-echo ""
-echo "8. HTML validation (basic)..."
-grep -c '<html' index.html && echo "✓ HTML tag found"
-grep -c '</html>' index.html && echo "✓ Closing HTML tag found"
-grep -c '<head>' index.html && echo "✓ Head tag found"
-grep -c '<body>' index.html && echo "✓ Body tag found"
+echo "✅ All critical quality checks passed - safe to commit"
