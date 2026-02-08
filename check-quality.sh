@@ -6,7 +6,6 @@ VALID_ASINS=(
     "B005LVQA9S"  # Web App Hacker's Handbook (Kindle)
     "1718501129"  # Black Hat Python
     "159327288X"  # Metasploit Guide
-    "B00X4WHP5K"  # Practical Cloud Security
     "1394180071"  # Security+ Study Guide
     "B07HBD71HL"  # YubiKey 5 NFC
     "B00VEEBOPG"  # Alfa WiFi Adapter

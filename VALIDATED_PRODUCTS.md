@@ -36,12 +36,10 @@
 - **Status:** ✅ Validated 2026-02-08
 
 ### Cloud Security
-- **ASIN:** B00X4WHP5K
 - **Title:** Practical Cloud Security (2nd Edition)
 - **Author:** Chris Dotson
 - **Price:** ~$55
 - **Commission:** 4.5% (~$2.48)
-- **URL:** https://www.amazon.com/dp/B00X4WHP5K?tag=altclaw-20
 - **Status:** ✅ Validated 2026-02-08
 
 ### Certification Study Guides
