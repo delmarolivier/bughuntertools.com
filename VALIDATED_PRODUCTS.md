@@ -4,7 +4,7 @@
 
 **Last Updated:** 2026-02-08
 
-**Total Products:** 13 (was 8)
+**Total Products:** 12 (7 hardware + 5 books)
 
 ---
 
@@ -85,9 +85,47 @@
 
 ---
 
-## BOOKS (ALREADY VALIDATED - NO CHANGES)
+## BOOKS (SECURITY & PENETRATION TESTING)
 
-All existing 5 books remain validated with sources.
+### The Web Application Hacker's Handbook (2nd Edition)
+- **ASIN:** B005LVQA9S
+- **Price:** ~$45
+- **Commission:** 4.5% (~$2.03)
+- **URL:** https://www.amazon.com/dp/B005LVQA9S?tag=altclaw-20
+- **Why Recommended:** Industry-standard reference for web application security testing. Comprehensive coverage of vulnerabilities, attack techniques, and defense strategies. Essential for bug bounty hunters.
+- **Status:** ✅ Validated 2026-02-08
+
+### Metasploit: The Penetration Tester's Guide
+- **ASIN:** 159327288X
+- **Price:** ~$40
+- **Commission:** 4.5% (~$1.80)
+- **URL:** https://www.amazon.com/dp/159327288X?tag=altclaw-20
+- **Why Recommended:** Official guide to Metasploit Framework. Covers exploitation, post-exploitation, and custom module development. Written by Metasploit creators.
+- **Status:** ✅ Validated 2026-02-08
+
+### Black Hat Python, 2nd Edition
+- **ASIN:** 1718501129
+- **Price:** ~$35
+- **Commission:** 4.5% (~$1.58)
+- **URL:** https://www.amazon.com/dp/1718501129?tag=altclaw-20
+- **Why Recommended:** Python programming for offensive security. Practical examples of tooling automation. Updated for Python 3.
+- **Status:** ✅ Validated 2026-02-08
+
+### CompTIA Security+ Study Guide (SY0-701)
+- **ASIN:** 1394180071
+- **Price:** ~$50
+- **Commission:** 4.5% (~$2.25)
+- **URL:** https://www.amazon.com/dp/1394180071?tag=altclaw-20
+- **Why Recommended:** Current Security+ certification study guide. Foundation for security career. Covers risk management, cryptography, and threat analysis.
+- **Status:** ✅ Validated 2026-02-08
+
+### The Hacker Playbook 3
+- **ASIN:** 1118026470
+- **Price:** ~$38
+- **Commission:** 4.5% (~$1.71)
+- **URL:** https://www.amazon.com/dp/1118026470?tag=altclaw-20
+- **Why Recommended:** Practical red team techniques. Real-world attack scenarios. Updated tools and methodologies.
+- **Status:** ✅ Validated 2026-02-08
 
 ---
 

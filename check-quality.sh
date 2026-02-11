@@ -115,16 +115,14 @@ echo ""
 echo "5. Checking Amazon affiliate links..."
 amazon_links=$(grep -roh 'amazon.com/dp/[^"?]*' *.html articles/*.html 2>/dev/null | cut -d'/' -f3 | sort -u)
 
-VALID_ASINS=(
-    "1118026470"
-    "B005LVQA9S"
-    "1718501129"
-    "159327288X"
-    "1394180071"
-    "B07HBD71HL"
-    "B00VEEBOPG"
-    "B089ZZ8DTV"
-)
+# Extract ASINs dynamically from VALIDATED_PRODUCTS.md (single source of truth)
+if [ -f "VALIDATED_PRODUCTS.md" ]; then
+    VALID_ASINS=($(grep -oP '(?<=\*\*ASIN:\*\* )[A-Z0-9]{10}' VALIDATED_PRODUCTS.md | sort -u))
+    echo "Loaded ${#VALID_ASINS[@]} ASINs from VALIDATED_PRODUCTS.md"
+else
+    echo "❌ ERROR: VALIDATED_PRODUCTS.md not found"
+    exit 1
+fi
 
 invalid_found=0
 if [ -n "$amazon_links" ]; then
