@@ -241,7 +241,174 @@ title: LinkedIn API Access Control Bypass - BOLA Testing Guide for Bug Hunters
                 </div>
             </section>
 
-            <section id="conclusion">
+<!-- Insert before conclusion -->
+
+<section id="faq">
+    <h2>Frequently Asked Questions</h2>
+    
+    <div class="faq-item">
+        <h3>What is BOLA and why does it matter for bug bounties?</h3>
+        <p>BOLA (Broken Object Level Authorization) is the #1 API security vulnerability. It occurs when APIs don't verify if the user has permission to access a specific resource. High-value bug because it's common (40%+ of APIs affected) and usually high-severity ($500-5,000 bounties typical).</p>
+    </div>
+    
+    <div class="faq-item">
+        <h3>How do I test for BOLA vulnerabilities?</h3>
+        <p>Create two accounts (User A and User B). Have User A create a resource (post, document, profile). Capture the API request. Change to User B's session token but keep User A's resource ID. If User B can access User A's resource → BOLA vulnerability. Test every API endpoint that takes an ID parameter.</p>
+    </div>
+    
+    <div class="faq-item">
+        <h3>What tools do I need for BOLA/IDOR testing?</h3>
+        <p>Burp Suite Professional is essential - use Autorize extension for automated BOLA testing. Postman for GraphQL testing. Create two browser profiles (Chrome + Firefox) to maintain separate sessions easily. Budget: $449/year for Burp Pro (pays for itself with one BOLA bounty).</p>
+    </div>
+    
+    <div class="faq-item">
+        <h3>How much do BOLA vulnerabilities typically pay?</h3>
+        <p>Low severity (limited data exposure): $100-500. Medium (PII access): $500-2,000. High (financial data, account takeover): $2,000-10,000. Critical (mass data exposure): $10,000-50,000+. LinkedIn's HackerOne program average: $2,500-5,000 for BOLA/IDOR.</p>
+    </div>
+    
+    <div class="faq-item">
+        <h3>What's the difference between BOLA and IDOR?</h3>
+        <p>Same vulnerability, different names. IDOR (Insecure Direct Object Reference) is the old OWASP term. BOLA (Broken Object Level Authorization) is the new API Security term. Modern bug bounty programs use BOLA terminology. Both mean: user can access resources they shouldn't.</p>
+    </div>
+    
+    <div class="faq-item">
+        <h3>Are GraphQL APIs more vulnerable to BOLA?</h3>
+        <p>Yes. GraphQL's flexibility makes authorization complex - single endpoint serves multiple resource types. Developers often implement authorization at field level (harder to maintain). Plus GraphQL introspection exposes schema → attackers see all possible queries → easier to find missed authorization checks.</p>
+    </div>
+    
+    <div class="faq-item">
+        <h3>What should I do after finding a BOLA vulnerability?</h3>
+        <p>Document: Which endpoint? What resource? What authorization bypass? Proof: Screenshots showing User A's data accessible by User B. Impact: How many users/resources affected? Remediation: Suggest adding authorization check. Report via bug bounty platform (HackerOne, Bugcrowd). Don't exploit beyond PoC.</p>
+    </div>
+    
+    <div class="faq-item">
+        <h3>Can I test LinkedIn for BOLA vulnerabilities?</h3>
+        <p>Yes - LinkedIn has active bug bounty on HackerOne (scope: *.linkedin.com). But: competition is fierce (thousands of researchers), many endpoints already tested. Better ROI: Test smaller programs with newer APIs, GraphQL implementations, or recently launched features (less testing coverage).</p>
+    </div>
+</section>
+
+<!-- Schema.org Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "LinkedIn API Access Control Bypass - BOLA Testing Guide for Bug Hunters",
+      "description": "LinkedIn API access control bypass discovered. Learn BOLA/IDOR testing techniques for GraphQL APIs and premium feature enumeration.",
+      "author": {
+        "@type": "Organization",
+        "name": "Bug Hunter Tools"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Bug Hunter Tools",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://bughuntertools.com/images/logos/altclaw-logo-512.png"
+        }
+      },
+      "datePublished": "2026-02-08",
+      "dateModified": "2026-02-14"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is BOLA and why does it matter for bug bounties?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "BOLA is the #1 API security vulnerability. It's common (40%+ of APIs affected) and high-value ($500-5,000 bounties typical). APIs don't verify if user has permission to access specific resources."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I test for BOLA vulnerabilities?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Create two accounts. Have User A create a resource. Capture API request. Change to User B's session but keep User A's resource ID. If User B can access → BOLA vulnerability."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What tools do I need for BOLA/IDOR testing?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Burp Suite Professional is essential - use Autorize extension for automated testing. Postman for GraphQL. Two browser profiles for separate sessions. Budget: $449/year for Burp Pro."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much do BOLA vulnerabilities typically pay?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Low: $100-500. Medium: $500-2,000. High: $2,000-10,000. Critical: $10,000-50,000+. LinkedIn average: $2,500-5,000 for BOLA/IDOR."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What's the difference between BOLA and IDOR?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Same vulnerability, different names. IDOR is old OWASP term. BOLA is new API Security term. Modern programs use BOLA. Both mean: unauthorized resource access."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are GraphQL APIs more vulnerable to BOLA?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. GraphQL's flexibility makes authorization complex. Single endpoint, multiple resource types. Field-level authorization is harder to maintain. Introspection exposes schema."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What should I do after finding a BOLA vulnerability?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Document: endpoint, resource, bypass method. Proof: screenshots. Impact: scope of affected users. Suggest remediation. Report via bug bounty platform. Don't exploit beyond PoC."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I test LinkedIn for BOLA vulnerabilities?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes - active HackerOne program. But high competition. Better ROI: test smaller programs with newer APIs, GraphQL, or recently launched features."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Product",
+      "name": "Burp Suite Professional",
+      "description": "Industry-standard tool for API security testing. Essential for BOLA/IDOR testing with Autorize extension.",
+      "category": "Software",
+      "offers": {
+        "@type": "Offer",
+        "price": "449.00",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "url": "https://portswigger.net/burp/pro"
+      }
+    },
+    {
+      "@type": "Product",
+      "name": "The Web Application Hacker's Handbook",
+      "description": "Essential guide covering BOLA/IDOR testing, authorization bypass techniques, and API security fundamentals.",
+      "brand": {"@type": "Brand", "name": "Wiley"},
+      "offers": {
+        "@type": "Offer",
+        "price": "45.00",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "url": "https://www.amazon.com/dp/B005LVQA9S?tag=altclaw-20"
+      }
+    }
+  ]
+}
+</script>            <section id="conclusion">
                 <h2>Key Takeaways</h2>
                 
                 <ol>
