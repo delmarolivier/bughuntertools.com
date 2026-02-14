@@ -16,6 +16,51 @@
       gtag('config', 'G-PP6M3SZSVR');
     </script>
     
+    <!-- AI Agent Referrer Tracking -->
+    <script>
+      (function() {
+        var ua = navigator.userAgent || '';
+        var ref = document.referrer || '';
+        var aiSource = null;
+        
+        // Detect AI agents by User-Agent
+        if (ua.includes('ChatGPT-User') || ua.includes('ChatGPT')) {
+          aiSource = 'chatgpt';
+        } else if (ua.includes('Claude') || ua.includes('Anthropic')) {
+          aiSource = 'claude';
+        } else if (ua.includes('PerplexityBot') || ua.includes('Perplexity')) {
+          aiSource = 'perplexity';
+        } else if (ua.includes('GPTBot')) {
+          aiSource = 'openai_crawler';
+        } else if (ua.includes('ClaudeBot') || ua.includes('anthropic-ai')) {
+          aiSource = 'anthropic_crawler';
+        } else if (ua.includes('Bard') || ua.includes('Gemini')) {
+          aiSource = 'google_gemini';
+        } else if (ref.includes('chat.openai.com')) {
+          aiSource = 'chatgpt_referrer';
+        } else if (ref.includes('claude.ai')) {
+          aiSource = 'claude_referrer';
+        } else if (ref.includes('perplexity.ai')) {
+          aiSource = 'perplexity_referrer';
+        }
+        
+        // Send custom event if AI agent detected
+        if (aiSource) {
+          gtag('event', 'ai_agent_visit', {
+            'ai_source': aiSource,
+            'page_path': window.location.pathname,
+            'user_agent': ua
+          });
+          
+          // Set custom dimension
+          gtag('set', {'ai_visitor': aiSource});
+          
+          // Log to console for debugging
+          console.log('AI Agent detected:', aiSource);
+        }
+      })();
+    </script>
+    
     <!-- Schema.org markup -->
     <script type="application/ld+json">
     {
