@@ -1,0 +1,28 @@
+# robots.txt for bughuntertools.com
+User-agent: *
+Allow: /
+
+# AI search engines - explicitly allow
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Gemini
+Allow: /
+
+# Sitemap location
+Sitemap: https://bughuntertools.com/sitemap.xml
