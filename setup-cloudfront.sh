@@ -115,7 +115,7 @@ if echo "$DIST_OUTPUT" | grep -q "DomainName"; then
     echo "https://bughuntertools.com"
     
     # Save for future deploys
-    echo "$DIST_ID" > /home/delmar/.openclaw/workspace/projects/altclaw/bughuntertools.com/.cloudfront-dist-id
+    echo "$DIST_ID" > /home/delmar/.openclaw/agents/jenn/workspace/projects/altclaw/bughuntertools.com/.cloudfront-dist-id
 else
     echo "❌ Error creating distribution:"
     echo "$DIST_OUTPUT"

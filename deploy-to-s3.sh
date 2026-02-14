@@ -8,7 +8,7 @@ echo ""
 # Configuration
 BUCKET="bughuntertools.com"
 REGION="us-east-1"
-SITE_DIR="/home/delmar/.openclaw/workspace/projects/altclaw/bughuntertools.com"
+SITE_DIR="/home/delmar/.openclaw/agents/jenn/workspace/projects/altclaw/bughuntertools.com"
 
 cd "$SITE_DIR"
 

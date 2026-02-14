@@ -3,7 +3,7 @@
 # Migration script: Convert existing HTML pages to 11ty structure
 # Extracts content between <main> tags and adds frontmatter
 
-cd /home/delmar/.openclaw/workspace/projects/altclaw/bughuntertools.com
+cd /home/delmar/.openclaw/agents/jenn/workspace/projects/altclaw/bughuntertools.com
 
 # Function to extract content and create new file
 migrate_page() {

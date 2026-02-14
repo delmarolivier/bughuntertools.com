@@ -3,7 +3,7 @@
 echo "=== Comprehensive Site Testing ==="
 echo ""
 
-cd /home/delmar/.openclaw/workspace/projects/altclaw/bughuntertools.com
+cd /home/delmar/.openclaw/agents/jenn/workspace/projects/altclaw/bughuntertools.com
 
 # 1. Check all HTML files for broken internal links
 echo "1. Testing all internal links..."
