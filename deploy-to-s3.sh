@@ -48,23 +48,35 @@ aws s3 sync _site/ s3://$BUCKET/ \
 echo "✓ Files synced to S3"
 echo ""
 
-# 4. Invalidate CloudFront cache (if distribution exists)
-echo "3. Checking for CloudFront distribution..."
+# 4. Invalidate CloudFront cache (MANDATORY)
+echo "4. Invalidating CloudFront cache..."
 DIST_ID=$(cat .cloudfront-dist-id 2>/dev/null || echo "")
 
-if [ -n "$DIST_ID" ]; then
-    echo "Found distribution: $DIST_ID"
-    echo "Creating cache invalidation..."
-    aws cloudfront create-invalidation \
-      --distribution-id $DIST_ID \
-      --paths "/*" > /dev/null
-    echo "✓ CloudFront cache invalidated"
-else
-    echo "⚠️  No CloudFront distribution found (will create later)"
+if [ -z "$DIST_ID" ]; then
+    echo "❌ ERROR: No CloudFront distribution ID found"
+    echo "Create .cloudfront-dist-id file with distribution ID"
+    exit 1
 fi
 
+echo "Distribution: $DIST_ID"
+echo "Creating invalidation..."
+
+INVALIDATION_OUTPUT=$(aws cloudfront create-invalidation \
+  --distribution-id $DIST_ID \
+  --paths "/*" 2>&1)
+
+if [ $? -ne 0 ]; then
+    echo "❌ CloudFront invalidation FAILED:"
+    echo "$INVALIDATION_OUTPUT"
+    exit 1
+fi
+
+INVALIDATION_ID=$(echo "$INVALIDATION_OUTPUT" | grep -o '"Id": "[^"]*"' | cut -d'"' -f4)
+echo "✓ CloudFront cache invalidated (ID: $INVALIDATION_ID)"
+echo "✓ Changes will be live in 1-3 minutes"
+
 echo ""
-echo "4. Verifying deployment..."
+echo "5. Verifying deployment..."
 S3_WEBSITE="http://$BUCKET.s3-website-$REGION.amazonaws.com"
 echo "S3 endpoint: $S3_WEBSITE"
 
