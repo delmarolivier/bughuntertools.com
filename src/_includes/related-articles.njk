@@ -1,0 +1,14 @@
+{% if relatedArticles and relatedArticles.length > 0 %}
+<aside class="related-articles">
+    <h3>📚 Related Articles</h3>
+    <div class="related-grid">
+        {% for article in relatedArticles %}
+        <a href="{{ article.url }}" class="related-card">
+            <h4>{{ article.title }}</h4>
+            <p>{{ article.description }}</p>
+            <span class="read-more">Read More →</span>
+        </a>
+        {% endfor %}
+    </div>
+</aside>
+{% endif %}
