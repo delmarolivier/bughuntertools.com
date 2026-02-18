@@ -4,6 +4,13 @@ description: LinkedIn API access control bypass discovered in bug bounty program
 date: 2026-02-08
 layout: base.njk
 permalink: /articles/linkedin-api-bola-bypass/
+relatedArticles:
+  - title: "Critical n8n Vulnerability: Six CVEs Expose Workflow Automation"
+    url: "/articles/n8n-rce-cve-2026-25049/"
+    description: "Six critical vulnerabilities in n8n including CVE-2026-25049 RCE affecting workflow automation platforms."
+  - title: "Security Testing Tools 2026"
+    url: "/articles/security-testing-tools-2026/"
+    description: "Top security testing tools including Burp Suite Pro for API testing and access control bypass discovery."
 ---
 <article>
             <h1>LinkedIn API Access Control Bypass: What Bug Hunters Need to Know</h1>
@@ -429,4 +436,6 @@ permalink: /articles/linkedin-api-bola-bypass/
                 
                 <p><strong>Remember:</strong> Every successful bug hunter started by finding their first BOLA vulnerability. LinkedIn paid out for these exact patterns. You can find them too. 🎯</p>
             </section>
+
+            {% include "related-articles.njk" %}
         </article>
