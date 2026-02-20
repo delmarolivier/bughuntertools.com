@@ -1,0 +1,9 @@
+{
+  "ga4_property_id": "523635886",
+  "service_account_key_path": "/home/delmar/.openclaw/workspace/credentials/ga4-service-account.json",
+  "site_url": "https://bughuntertools.com",
+  "telegram_group_id": "-5192873130",
+  "telegram_channel": "telegram",
+  "report_hour_gmt": 9,
+  "retention_days": 90
+}

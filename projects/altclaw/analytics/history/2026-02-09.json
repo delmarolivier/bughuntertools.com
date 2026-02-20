@@ -1,0 +1,84 @@
+{
+  "date": "2026-02-09",
+  "fetched_at": "2026-02-10T21:29:06.776879",
+  "total_users": 14,
+  "total_sessions": 15,
+  "total_pageviews": 32,
+  "avg_session_duration": 13.485495666666667,
+  "bounce_rate": 73.33333333333333,
+  "top_pages": [
+    {
+      "page": "/",
+      "views": 11
+    },
+    {
+      "page": "/articles/security-testing-tools-2026.html",
+      "views": 8
+    },
+    {
+      "page": "/articles/",
+      "views": 7
+    },
+    {
+      "page": "/privacy.html",
+      "views": 3
+    },
+    {
+      "page": "/articles/bug-bounty-starter-kit.html",
+      "views": 1
+    },
+    {
+      "page": "/articles/n8n-rce-cve-2026-21858.html",
+      "views": 1
+    },
+    {
+      "page": "/favicon.ico",
+      "views": 1
+    }
+  ],
+  "traffic_sources": {
+    "organic": 1,
+    "direct": 12,
+    "referral": 0,
+    "social": 0,
+    "other": 1
+  },
+  "countries": [
+    {
+      "country": "United States",
+      "users": 3
+    },
+    {
+      "country": "Germany",
+      "users": 2
+    },
+    {
+      "country": "Poland",
+      "users": 2
+    },
+    {
+      "country": "United Kingdom",
+      "users": 2
+    },
+    {
+      "country": "Canada",
+      "users": 1
+    },
+    {
+      "country": "China",
+      "users": 1
+    },
+    {
+      "country": "India",
+      "users": 1
+    },
+    {
+      "country": "Ireland",
+      "users": 1
+    },
+    {
+      "country": "South Korea",
+      "users": 1
+    }
+  ]
+}

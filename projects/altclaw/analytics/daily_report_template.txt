@@ -1,0 +1,33 @@
+📊 AltClaw Daily Analytics - YYYY-MM-DD
+
+👥 Traffic:
+  • XXX users (📈 +X.X% vs yesterday)
+  • XXX sessions
+  • XXX pageviews
+  • Xm XXs avg session
+
+🔝 Top Articles:
+  1. Article Title (XX views) 🔥
+  2. Article Title (XX views)
+  3. Homepage (XX views)
+
+📍 Traffic Sources:
+  • Organic: XXX (XX%)
+  • Direct: XX (XX%)
+  • Referral: X (X%)
+  • Social: X (X%)
+
+🌍 Top Countries:
+  • United States: XX (XX%)
+  • United Kingdom: XX (XX%)
+  • Germany: XX (XX%)
+
+📉 Bounce Rate: XX.X%
+
+✅ What's Working:
+  - Strong organic search performance
+  - Breaking news articles driving traffic
+
+⚠️ What Needs Work:
+  - High bounce rate (target <50%)
+  - Low referral traffic (build backlinks)

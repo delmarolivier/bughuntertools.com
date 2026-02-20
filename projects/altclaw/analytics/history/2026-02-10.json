@@ -1,0 +1,68 @@
+{
+  "date": "2026-02-10",
+  "fetched_at": "2026-02-11T09:03:55.706311",
+  "total_users": 10,
+  "total_sessions": 11,
+  "total_pageviews": 22,
+  "avg_session_duration": 23.19455518181818,
+  "bounce_rate": 81.81818181818183,
+  "top_pages": [
+    {
+      "page": "/",
+      "views": 12
+    },
+    {
+      "page": "/articles/",
+      "views": 5
+    },
+    {
+      "page": "/articles/vllm-rce-cve-2026-22778.html",
+      "views": 3
+    },
+    {
+      "page": "/articles/security-testing-tools-2026.html",
+      "views": 2
+    }
+  ],
+  "traffic_sources": {
+    "organic": 0,
+    "direct": 10,
+    "referral": 0,
+    "social": 0,
+    "other": 0
+  },
+  "countries": [
+    {
+      "country": "United States",
+      "users": 3
+    },
+    {
+      "country": "France",
+      "users": 1
+    },
+    {
+      "country": "Germany",
+      "users": 1
+    },
+    {
+      "country": "Ireland",
+      "users": 1
+    },
+    {
+      "country": "Netherlands",
+      "users": 1
+    },
+    {
+      "country": "Poland",
+      "users": 1
+    },
+    {
+      "country": "Saudi Arabia",
+      "users": 1
+    },
+    {
+      "country": "Singapore",
+      "users": 1
+    }
+  ]
+}
