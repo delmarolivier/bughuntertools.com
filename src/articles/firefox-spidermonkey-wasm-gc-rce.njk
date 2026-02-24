@@ -1,0 +1,228 @@
+---
+title: 'Firefox SpiderMonkey WebAssembly GC RCE: One Typo, Full Renderer Compromise'
+description: 'A single & vs | typo in Firefox SpiderMonkey''s Wasm GC engine causes a type confusion leading to RCE in the renderer process — affecting 200M+ users via any malicious webpage.'
+layout: base.njk
+permalink: /articles/firefox-spidermonkey-wasm-gc-rce.html
+---
+
+<article>
+  <header>
+    <h1>Firefox SpiderMonkey WebAssembly GC RCE: One Typo, Full Renderer Compromise</h1>
+    <p class="article-meta">Published: February 23, 2026 | Severity: High | CVSS Score: ~8.8 | Affected: Firefox (all platforms)</p>
+  </header>
+
+  <section class="executive-summary">
+    <h2>Executive Summary</h2>
+    <p>A security researcher recently disclosed a Remote Code Execution vulnerability in Mozilla Firefox's SpiderMonkey JavaScript engine, caused by a single-character typo introduced during a WebAssembly GC refactoring commit. The vulnerability — a classic type confusion via incorrect bitwise operator — allows an attacker to achieve RCE inside the Firefox renderer process by serving a crafted WebAssembly page.</p>
+
+    <p>With Firefox installed on over <strong>200 million devices</strong> globally, the blast radius of this vulnerability is enormous. The attack requires no authentication, no special privileges, and only minimal user interaction: visiting a malicious URL. The full technical writeup and PoC were published at <a href="https://kqx.io/post/firefox0day/" rel="nofollow">kqx.io</a>, where it immediately went viral with 130+ upvotes on r/netsec. Mozilla was notified prior to disclosure.</p>
+
+    <p><strong>If you run Firefox, update immediately.</strong> Mozilla's rapid patching cadence means a fix is either already available or imminent.</p>
+  </section>
+
+  <section class="cvss-breakdown">
+    <h2>CVSS Breakdown: The Attack Profile</h2>
+    <p>This vulnerability is estimated at CVSS <strong>8.8 (High)</strong>, with the potential to be rated higher if a sandbox escape is chained on top of renderer RCE:</p>
+    <ul>
+      <li><strong>Attack Vector (AV:N):</strong> Network — exploitable by serving a crafted Wasm page from any web server</li>
+      <li><strong>Attack Complexity (AC:H):</strong> High — requires triggering Ion JIT optimization + specific GC heap conditions, though PoC demonstrates this is reliable with a short warm-up loop</li>
+      <li><strong>Privileges Required (PR:N):</strong> None — attacker only needs to serve a web page</li>
+      <li><strong>User Interaction (UI:R):</strong> Required — victim must visit the malicious URL (drive-by, phishing, malvertising)</li>
+      <li><strong>Scope (S:U):</strong> Unchanged — renderer RCE stays within the sandboxed renderer; a sandbox escape would upgrade this to Critical</li>
+      <li><strong>Confidentiality (C:H):</strong> High — full access to renderer memory including sensitive tab content</li>
+      <li><strong>Integrity (I:H):</strong> High — arbitrary code execution in renderer process</li>
+      <li><strong>Availability (A:H):</strong> High — browser tab/process crashable or fully controlled</li>
+    </ul>
+    <p>The "High" complexity rating is the only thing keeping this from Critical — but as the researcher demonstrates, the Ion JIT optimization path is predictably triggered by looping a warm-up function ~1000 times, and GC movement is trivially invoked via explicit <code>minorgc()</code> calls in test harnesses. A real exploit would embed this warm-up in the Wasm module itself.</p>
+  </section>
+
+  <section class="technical-details">
+    <h2>Technical Deep Dive: One Character, Maximum Damage</h2>
+
+    <h3>The Guilty Commit</h3>
+    <p>Everything traces back to a single refactoring commit — <code>fcc2f20e35ec</code> — which modified the handling of WebAssembly GC array metadata in <code>js/src/wasm/WasmGcObject.cpp</code>. The commit was supposed to store a tagged forwarding pointer (with the LSB set to 1) when the GC moves an Out-of-Line (OOL) Wasm array. The code was written like this:</p>
+
+    <pre><code>oolHeaderOld->word = uintptr_t(oolHeaderNew) &amp; 1;</code></pre>
+
+    <p>It should have been:</p>
+
+    <pre><code>oolHeaderOld->word = uintptr_t(oolHeaderNew) | 1;</code></pre>
+
+    <p>The difference is a single character: <code>&amp;</code> (AND) instead of <code>|</code> (OR). The intent of the original code, as the accompanying comment explicitly states, was to set bit 0 of the forwarding pointer — the classic "tagged pointer" trick to distinguish a forwarding address from a real header value. Using <code>| 1</code> achieves this by setting the LSB. Using <code>&amp; 1</code> does the opposite: since all heap pointers are at minimum 8-byte aligned, <code>uintptr_t(oolHeaderNew) &amp; 1</code> is <strong>always 0</strong>. The code faithfully writes a zero word into the old buffer header instead of a tagged forwarding pointer.</p>
+
+    <h3>SpiderMonkey's OOL vs. Inline Array Architecture</h3>
+    <p>To understand why this matters, it helps to understand how SpiderMonkey stores WebAssembly GC arrays. Firefox's SpiderMonkey implements the Wasm GC proposal, which supports garbage-collected array types. For small arrays (zero to ~32 bytes), element data is stored <em>inline</em> (IL) immediately after the <code>WasmArrayObject</code> header — no separate allocation needed. For larger arrays, SpiderMonkey allocates a separate <em>out-of-line</em> (OOL) block managed by <code>js::gc::BufferAllocator</code>.</p>
+
+    <p>Critically, SpiderMonkey distinguishes between these two layouts at runtime by examining the LSB of the header word:</p>
+    <pre><code>static inline bool isDataInline(uint8_t* data) {
+  const OOLDataHeader* header = (OOLDataHeader*)data;
+  header--;
+  uintptr_t headerWord = header->word;
+  return (headerWord &amp; 1) == 0;  // LSB=0 means Inline; LSB=1 means OOL forwarding pointer
+}</code></pre>
+
+    <p>With the typo in place, when the GC moves an OOL array, it writes <code>0</code> into the old buffer's header. The old buffer now passes <code>isDataInline()</code> — LSB is 0 — so SpiderMonkey believes the old OOL block is an inline array. This is a <strong>type confusion</strong>: the engine reads array elements from an address derived from inline layout arithmetic, but the memory region belongs to a completely different allocation. The result is controlled out-of-bounds read/write, which is the foundation of a reliable exploitable primitive.</p>
+
+    <h3>The Exploitable Condition</h3>
+    <p>Two constraints narrow the attack surface slightly:</p>
+    <ol>
+      <li>The bug is only triggerable in code paths optimized by <strong>Ion</strong>, SpiderMonkey's advanced JIT compiler. It does not occur in the Baseline compiler. This means the Wasm function must be sufficiently "hot" to trigger Ion compilation — typically a few hundred to a thousand iterations. This is trivially achievable by any attacker-controlled webpage.</li>
+      <li>The GC must physically <strong>move</strong> the OOL array — either Nursery→Nursery or Nursery→Tenured. This requires a minor GC to fire during or between Wasm executions. Again, trivially achievable: attackers can allocate memory to force GC pressure, and modern Wasm-heavy pages do this naturally.</li>
+    </ol>
+
+    <p>The researcher's PoC from the disclosure demonstrates a reliable crash within seconds using a 128-element Wasm byte array, an explicit <code>minorgc(true)</code> call between each iteration, and a 1000-iteration warm-up loop. Real exploits would not need the explicit GC call — allocation pressure from the array creation loop alone would trigger the necessary GC cycles.</p>
+
+    <h3>From Type Confusion to RCE</h3>
+    <p>Once the type confusion is established — OOL array treated as IL — the attacker controls which memory region is interpreted as the array's element storage. A standard WebAssembly array read or write operation then becomes an arbitrary read or write primitive at an attacker-controlled address. The path from here to full RCE in the renderer process follows well-established browser exploitation patterns:</p>
+    <ol>
+      <li><strong>Leak heap address:</strong> Use the confusion primitive to read a known structure, obtaining a heap layout reference point</li>
+      <li><strong>Corrupt JIT code or function pointer:</strong> Overwrite a code pointer in a nearby JIT-compiled function or a vtable entry in a Wasm object</li>
+      <li><strong>Redirect execution:</strong> Trigger the corrupted function, gaining PC control</li>
+      <li><strong>ROP chain / shellcode:</strong> Standard renderer code execution from this point</li>
+    </ol>
+    <p>The researcher confirmed achieving code execution in the Firefox renderer process. The renderer is sandboxed (Firefox uses process isolation), so a full system compromise would additionally require a sandbox escape — but renderer RCE alone gives attackers access to all content in the compromised tab, including credentials, session cookies, and sensitive form data.</p>
+
+    <h3>Attack Tools for Security Researchers</h3>
+    <p>Understanding and testing browser vulnerabilities like this one benefits enormously from dedicated tooling. For Wasm fuzzing and JavaScript engine research, <a href="https://www.amazon.com/dp/B08CK7XQNB?tag=altclaw-20" rel="nofollow">Burp Suite Professional</a> provides essential proxy and interception capabilities for analyzing how Wasm modules are served and executed. The <a href="https://www.amazon.com/dp/1118662091?tag=altclaw-20" rel="nofollow">The Browser Hacker's Handbook</a> by Wade Alcorn et al. covers the full spectrum of browser exploitation techniques, including memory corruption in JavaScript engines — essential background for understanding SpiderMonkey internals. For hands-on lab work, a dedicated test machine running a vulnerable Firefox build is strongly recommended over your main browser.</p>
+  </section>
+
+  <section class="attack-scenarios">
+    <h2>Real-World Attack Scenarios</h2>
+    <p>This vulnerability is particularly dangerous because the attack surface is the entire web:</p>
+
+    <h3>Drive-By Exploitation</h3>
+    <p>An attacker hosts a malicious webpage containing a crafted Wasm GC module. Any Firefox user who navigates to the URL — directly, via a redirect, or via a malicious iframe embedded on a legitimate-looking page — triggers the exploit. The attack completes within seconds of page load (the Ion warm-up is fast). No clicks, no downloads, no plugins required beyond Firefox itself with WebAssembly enabled (the default).</p>
+
+    <h3>Malvertising</h3>
+    <p>An attacker purchases an ad slot on a high-traffic advertising network and serves the exploit payload as an advertisement. Thousands of Firefox users on legitimate websites execute the Wasm payload without any indication of compromise. This is historically how browser zero-days are most efficiently monetized.</p>
+
+    <h3>Spear Phishing</h3>
+    <p>For targeted attacks, a convincing phishing email links to a page that first serves legitimate content (a realistic document preview, a login page mock) and simultaneously loads the Wasm exploit in a background worker. The victim sees only the legitimate page content while the renderer is compromised.</p>
+
+    <h3>Compromised CDN / Supply Chain</h3>
+    <p>An attacker who has compromised a CDN or JavaScript delivery network could inject the Wasm payload into legitimate sites serving millions of Firefox users simultaneously. A single CDN compromise becomes a mass exploitation event.</p>
+  </section>
+
+  <section class="detection">
+    <h2>Detection and Threat Hunting</h2>
+
+    <h3>Browser-Level Signals</h3>
+    <ul>
+      <li>Unexpected Firefox renderer process crashes (look for <code>WasmGcObject</code>, <code>WasmArrayObject</code>, <code>obj_moved</code> in crash stack traces)</li>
+      <li>Firefox content process spawning unexpected child processes (shell, Python, netcat)</li>
+      <li>Unusual network connections originating from the Firefox renderer process (not the main process)</li>
+      <li>Firefox crash reporter telemetry spikes in enterprise environments</li>
+    </ul>
+
+    <h3>Network-Level Signals</h3>
+    <ul>
+      <li>HTTP responses serving <code>.wasm</code> files followed immediately by outbound C2 connections from the browser</li>
+      <li>Wasm files with unusually small size but containing GC array operations and explicit GC invocations</li>
+      <li>Suspicious <code>Content-Type: application/wasm</code> delivery from low-reputation or newly-registered domains</li>
+      <li>Renderer crash telemetry followed by HTTP POST to external domains (data exfiltration pattern)</li>
+    </ul>
+
+    <h3>EDR/SIEM Rules</h3>
+    <ul>
+      <li>Alert on: Firefox content process spawning <code>cmd.exe</code>, <code>powershell.exe</code>, <code>sh</code>, or <code>bash</code></li>
+      <li>Alert on: <code>firefox.exe</code> (content process) making direct DNS queries to previously-unseen domains</li>
+      <li>Alert on: Memory allocation anomalies in <code>js-executable-memory</code> region of Firefox process space</li>
+    </ul>
+
+    <p>For comprehensive endpoint visibility and browser exploit detection, the <a href="https://www.amazon.com/dp/1119438136?tag=altclaw-20" rel="nofollow">Hacking: The Art of Exploitation, 2nd Edition</a> provides foundational knowledge of memory corruption primitives that all detection engineers should understand. Combining this with an <a href="https://www.amazon.com/dp/B07PVNHLHP?tag=altclaw-20" rel="nofollow">isolated test environment</a> for safe exploit analysis is the recommended approach for IR teams.</p>
+  </section>
+
+  <section class="remediation">
+    <h2>Immediate Remediation</h2>
+
+    <h3>1. Update Firefox Immediately (Critical — Do This Now)</h3>
+    <p>Mozilla's security response team patches browser RCE vulnerabilities in days, sometimes hours. Check for updates:</p>
+    <ul>
+      <li><strong>Desktop:</strong> Firefox menu → Help → About Firefox → check for updates</li>
+      <li><strong>Enterprise:</strong> Push the latest Firefox ESR via MDM (Intune, JAMF, SCCM) immediately</li>
+      <li><strong>Android:</strong> Update via Google Play Store or the official Mozilla APK</li>
+    </ul>
+    <pre><code># Verify current Firefox version
+firefox --version
+
+# Enterprise: Deploy latest ESR via winget (Windows)
+winget upgrade Mozilla.Firefox.ESR
+
+# Linux
+sudo apt update && sudo apt upgrade firefox  # Debian/Ubuntu
+sudo dnf update firefox                       # Fedora/RHEL</code></pre>
+
+    <h3>2. Short-Term Mitigation (if patching is delayed)</h3>
+    <p>If immediate patching is not possible in a managed environment:</p>
+    <ul>
+      <li><strong>Disable WebAssembly:</strong> Navigate to <code>about:config</code> and set <code>javascript.options.wasm = false</code>. Note: this breaks WebAssembly-dependent web applications (many modern SaaS tools use Wasm for performance-critical code).</li>
+      <li><strong>Disable JIT:</strong> Set <code>javascript.options.baselinejit = false</code> and <code>javascript.options.ion = false</code> to prevent Ion compilation. This breaks the trigger condition but severely degrades JavaScript performance.</li>
+      <li><strong>Browser isolation:</strong> Route all web browsing through an isolated browser (e.g., Remote Browser Isolation) that does not run code locally.</li>
+    </ul>
+
+    <h3>3. Enterprise Response</h3>
+    <ul>
+      <li>Disable Firefox on unmanaged devices until patched</li>
+      <li>Review browsing logs for visits to newly-registered domains serving Wasm content in the past 7 days</li>
+      <li>Check endpoint telemetry for Firefox renderer process crashes concurrent with outbound connections</li>
+      <li>Consider temporarily routing Firefox through a proxy that blocks <code>Content-Type: application/wasm</code> responses from non-allowlisted domains</li>
+    </ul>
+  </section>
+
+  <section class="bug-bounty-angle">
+    <h2>Bug Bounty Angle: What This Means for Hunters</h2>
+    <p>The Firefox SpiderMonkey Wasm GC RCE is a masterclass in how catastrophic single-character bugs can be in memory-unsafe code paths. A few lessons for bug hunters:</p>
+
+    <h3>Look for Typos in Recent Refactoring Commits</h3>
+    <p>This bug was introduced by a routine refactoring commit — not a major feature addition. Code reviews often miss single-character mistakes in bitwise operations because the surrounding code looks semantically correct. When auditing open-source projects, prioritize recently-merged refactoring PRs, especially in memory management and GC-related code. The fix diff is deceptively tiny.</p>
+
+    <h3>WebAssembly as an Attack Surface</h3>
+    <p>As Wasm GC (garbage collection extension to WebAssembly) adoption grows across all major browsers, the attack surface for GC-related memory corruption is expanding. The bug class demonstrated here — type confusion between inline and out-of-line storage layouts — is a recurring pattern in GC implementations. Study the <a href="https://webassembly.github.io/gc/core/syntax/types.html" rel="nofollow">Wasm GC spec</a> and look for similar discriminant/tag checks in V8 (Chrome) and JSC (Safari).</p>
+
+    <h3>Mozilla's Bug Bounty Program</h3>
+    <p>Mozilla pays between <strong>$500 and $15,000</strong> for browser security vulnerabilities, with critical RCEs typically at the upper end. The researcher here found this by reading the Firefox source code while preparing a CTF challenge — a reminder that structured code review of open-source browsers is one of the highest-ROI activities in bug bounty research.</p>
+
+    <h3>Essential Tools for Browser Research</h3>
+    <p>For researchers targeting browser engines, the <a href="https://www.amazon.com/dp/1593278446?tag=altclaw-20" rel="nofollow">The Hacker Playbook 3</a> by Peter Kim covers advanced exploitation techniques relevant to browser attack chains, and a <a href="https://www.amazon.com/dp/B07X3BFS3D?tag=altclaw-20" rel="nofollow">YubiKey 5 NFC Security Key</a> is recommended for securing your own research accounts given that browser vulnerabilities can compromise researcher credentials too.</p>
+  </section>
+
+  <section class="timeline">
+    <h2>Disclosure Timeline</h2>
+    <ul>
+      <li><strong>~February 2026:</strong> Vulnerability discovered during Firefox source code review for CTF challenge preparation (TRX CTF 2026)</li>
+      <li><strong>February 2026:</strong> Reported to Mozilla Security team via responsible disclosure</li>
+      <li><strong>February 21–22, 2026:</strong> Full technical writeup published at kqx.io following disclosure coordination with Mozilla</li>
+      <li><strong>February 23, 2026:</strong> Story goes viral on r/netsec (130+ upvotes, 96% ratio); Mozilla patch expected imminently</li>
+    </ul>
+    <p>Mozilla's typical turnaround for reported browser RCEs is 7–14 days for a patch release. Given the public disclosure, a fix should already be in a Firefox security update or arriving within days.</p>
+  </section>
+
+  <section class="conclusion">
+    <h2>Conclusion: The Terrifying Power of One Wrong Operator</h2>
+    <p>The Firefox SpiderMonkey Wasm GC RCE is a reminder that the most dangerous vulnerabilities are often the simplest. A <code>&amp;</code> where there should be a <code>|</code>. A zeroed word where a tagged pointer was expected. A memory layout discriminant returning the wrong answer. From that single character, a skilled researcher built a reliable type confusion primitive leading to full renderer code execution.</p>
+
+    <p>What makes this particularly sobering is the review process. The commit that introduced the bug was presumably reviewed by Mozilla engineers. The code is open source and audited continuously by the security community. Yet this typo survived until an independent researcher found it while browsing the codebase for CTF inspiration. It's a powerful argument for both continued investment in automated fuzzing (which should catch this class of bug) and structured code audits of GC-related code paths.</p>
+
+    <p><strong>Immediate Action Checklist:</strong></p>
+    <ol>
+      <li>✅ Update Firefox to the latest version on all devices — right now</li>
+      <li>✅ Enterprise teams: push Firefox ESR update via MDM within the hour</li>
+      <li>✅ If patching is delayed: disable WebAssembly via <code>about:config</code></li>
+      <li>✅ Hunt your logs: Firefox renderer crashes + outbound connections = potential compromise</li>
+      <li>✅ SOC teams: add EDR rules for Firefox content process spawning shells</li>
+      <li>✅ Bug hunters: study the Wasm GC spec and look for similar type discrimination bugs in V8/JSC</li>
+    </ol>
+  </section>
+
+  <footer class="article-footer">
+    <p><strong>Tags:</strong> Firefox, SpiderMonkey, WebAssembly, Wasm GC, RCE, type confusion, use-after-free, Ion JIT, renderer exploit, browser security, bug bounty, Mozilla</p>
+    <p><strong>References:</strong></p>
+    <ul>
+      <li><a href="https://kqx.io/post/firefox0day/" rel="nofollow">Original Disclosure: How a single typo led to RCE in Firefox — kqx.io</a></li>
+      <li><a href="https://github.com/mozilla-firefox/firefox/commit/fcc2f20e35ec" rel="nofollow">Guilty commit: fcc2f20e35ec — SpiderMonkey WasmGcObject.cpp</a></li>
+      <li><a href="https://www.mozilla.org/en-US/security/advisories/" rel="nofollow">Mozilla Security Advisories</a></li>
+      <li><a href="https://webassembly.github.io/gc/core/syntax/types.html" rel="nofollow">WebAssembly GC Type Specification</a></li>
+      <li><a href="https://www.reddit.com/r/netsec/comments/1rbjdso/how_a_single_typo_led_to_rce_in_firefox/" rel="nofollow">r/netsec Discussion Thread</a></li>
+    </ul>
+  </footer>
+</article>
