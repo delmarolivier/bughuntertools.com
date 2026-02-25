@@ -1,0 +1,73 @@
+---
+title: SecurityClaw Demos — Real Campaigns, Real Results
+description: "Every SecurityClaw Demo is a real campaign run against a target we built and controlled. We show exactly what was found, what was missed, and why. Live capability scorecard updated with each run."
+layout: base.njk
+permalink: /demos/
+---
+<article>
+    <h1>SecurityClaw Demos</h1>
+
+    <div class="meta">
+        <span>Real campaigns. Documented results. No cherry-picking.</span>
+    </div>
+
+    <div class="demo-methodology">
+        <strong>How these demos work:</strong> Every SecurityClaw Demo is a real campaign run against a target we built and controlled. We're not hiding failures — we show exactly what each tool found, what it missed, and why. If SecurityClaw's AI layer can close the gap, we show that too. If it can't yet, we say so. We create our own targets because we're in product validation mode, not red team mode — that transparency is part of how we build trust with security professionals.
+    </div>
+
+    <div class="scorecard">
+        <h2>🎯 SecurityClaw Capability Scorecard</h2>
+        <p class="scorecard-subtitle">Live results across all demo campaigns. Updated as each campaign is published. Failures are visible — that's the point.</p>
+
+        {% for categoryKey, category in scorecard.categories %}
+        <div class="scorecard-category">
+            <div class="scorecard-category-header">
+                <span class="scorecard-category-name">{{ category.name }}</span>
+                {% if category.campaigns > 0 %}
+                <span class="scorecard-category-stat">{{ category.campaigns }} campaign{% if category.campaigns != 1 %}s{% endif %} — {{ category.detection_rate }}% detection rate</span>
+                {% else %}
+                <span class="scorecard-category-stat">No campaigns yet</span>
+                {% endif %}
+            </div>
+            <div class="scorecard-bar-track">
+                {% if category.result == "pass" %}
+                <div class="scorecard-bar-fill color-green" style="width: {{ category.detection_rate }}%;"></div>
+                {% elif category.result == "partial" %}
+                <div class="scorecard-bar-fill partial-stripe" style="width: {{ category.detection_rate }}%;"></div>
+                {% elif category.result == "fail" %}
+                <div class="scorecard-bar-fill color-red" style="width: 8%;"></div>
+                {% else %}
+                <div class="scorecard-bar-fill color-grey" style="width: 0%;"></div>
+                {% endif %}
+            </div>
+            {% if category.notes %}
+            <p class="scorecard-notes">{{ category.notes }}</p>
+            {% elif category.pending_label %}
+            <p class="scorecard-pending">{{ category.pending_label }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <h2>All Demos</h2>
+
+    <ul class="demo-list">
+        {% for demo in collections.demos %}
+        <li class="demo-list-item">
+            <div class="demo-item-meta">
+                <span>{{ demo.data.date | dateString }}</span>
+                {% if demo.data.category %}<span>• {{ demo.data.category }}</span>{% endif %}
+                {% if demo.data.result %}
+                <span>•
+                    <span class="demo-result-badge {{ demo.data.result }}">{{ demo.data.result }}</span>
+                </span>
+                {% endif %}
+            </div>
+            <h3><a href="{{ demo.url }}">{{ demo.data.title }}</a></h3>
+            <p>{{ demo.data.description }}</p>
+        </li>
+        {% else %}
+        <li style="color: #888; font-style: italic;">No demos published yet. First demo coming soon.</li>
+        {% endfor %}
+    </ul>
+</article>

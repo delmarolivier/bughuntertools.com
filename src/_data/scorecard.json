@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-02-25T22:00:00Z",
+  "source": "static-seed",
+  "categories": {
+    "secrets-detection": {
+      "name": "🔑 Secrets Detection",
+      "campaigns": 1,
+      "detection_rate": 100,
+      "result": "pass",
+      "most_recent_campaign_id": "demo-trufflehog-001",
+      "most_recent_date": "2026-02-25",
+      "notes": "TruffleHog v3.93.4: 5/5 secrets found. v2 previously missed Stripe sk_live_ — upgraded to v3 Go binary which covers all detectors. 449ms scan time, 0 false positives.",
+      "pending_label": null
+    },
+    "web-vuln-scanning": {
+      "name": "🌐 Web Vulnerability Scanning",
+      "campaigns": 0,
+      "detection_rate": 0,
+      "result": "none",
+      "most_recent_campaign_id": null,
+      "most_recent_date": null,
+      "notes": null,
+      "pending_label": "Nuclei / Nikto demos in pipeline."
+    },
+    "cloud-misconfiguration": {
+      "name": "☁️ Cloud Misconfiguration",
+      "campaigns": 0,
+      "detection_rate": 0,
+      "result": "none",
+      "most_recent_campaign_id": null,
+      "most_recent_date": null,
+      "notes": null,
+      "pending_label": "Prowler / ScoutSuite demos in pipeline."
+    },
+    "api-security": {
+      "name": "🔌 API Security",
+      "campaigns": 0,
+      "detection_rate": 0,
+      "result": "none",
+      "most_recent_campaign_id": null,
+      "most_recent_date": null,
+      "notes": null,
+      "pending_label": "GraphQL / BOLA/IDOR demos in pipeline."
+    },
+    "network-recon": {
+      "name": "📡 Network Reconnaissance",
+      "campaigns": 0,
+      "detection_rate": 0,
+      "result": "none",
+      "most_recent_campaign_id": null,
+      "most_recent_date": null,
+      "notes": null,
+      "pending_label": "nmap / subfinder demos in pipeline."
+    }
+  }
+}

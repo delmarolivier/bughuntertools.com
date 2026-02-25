@@ -2,9 +2,9 @@
 
 **Amazon Associates Tracking ID:** altclaw-20
 
-**Last Updated:** 2026-02-08
+**Last Updated:** 2026-02-23
 
-**Total Products:** 12 (7 hardware + 5 books)
+**Total Products:** 16 (7 hardware + 7 books + 2 hardware security keys added)
 
 ---
 
@@ -69,6 +69,26 @@
 
 ## HARDWARE SECURITY KEYS
 
+### YubiKey 5C Nano
+- **ASIN:** B07HBTBJ5S
+- **Price:** ~$62
+- **Commission:** 3% (~$1.86)
+- **URL:** https://amazon.com/dp/B07HBTBJ5S?tag=altclaw-20
+- **Why Recommended:** Ultra-compact USB-C security key designed to stay permanently inserted in a laptop port. FIDO2/U2F, PIV, OpenPGP, OATH support — same full protocol stack as full-size YubiKey 5 series. Ideal for pentesters and security engineers who want always-on hardware authentication without a dangling key. Recommended by Yubico professional deployment guides and covered by Wirecutter as top compact key option.
+- **Sources:** Yubico official product page (sold by Yubico Inc. on Amazon), Wirecutter security key guide
+- **Limitations:** No NFC (nano form factor incompatible); USB-C only — get 5 Nano A for USB-A laptops
+- **Status:** ✅ Validated 2026-02-23
+
+### YubiKey 5 Nano A (USB-A)
+- **ASIN:** B07HBDX2CM
+- **Price:** ~$62
+- **Commission:** 3% (~$1.86)
+- **URL:** https://amazon.com/dp/B07HBDX2CM?tag=altclaw-20
+- **Why Recommended:** Identical feature set to 5C Nano but with USB-A connector for older laptops and desktops. Stays flush in the port — no protrusion, no snapping off. Full FIDO2/U2F/PIV/OpenPGP/OATH support. Sold by Yubico Inc. directly on Amazon; consistent top-seller in MFA hardware.
+- **Sources:** Yubico official product page (sold by Yubico Inc. on Amazon), Rublon YubiKey Nano comparison guide
+- **Limitations:** No NFC; nano form factor means no easy transfer between devices
+- **Status:** ✅ Validated 2026-02-23
+
 ### YubiKey 5C NFC
 - **ASIN:** B0BKLWL7LD
 - **Title:** YubiKey 5C NFC - Two Factor Authentication USB-C Security Key
@@ -86,6 +106,26 @@
 ---
 
 ## BOOKS (SECURITY & PENETRATION TESTING)
+
+### Hacking: The Art of Exploitation, 2nd Edition
+- **ASIN:** 1593271441
+- **Price:** ~$42
+- **Commission:** 4.5% (~$1.89)
+- **URL:** https://amazon.com/dp/1593271441?tag=altclaw-20
+- **Why Recommended:** The definitive low-level hacking textbook. Jon Erickson covers C programming, assembly, shellcoding, buffer overflows, format string attacks, and network sockets from first principles — with a live Linux environment on CD. Consistently cited by SANS Institute, offensive security educators, and OSCP prep resources as essential foundational reading. Not an "intro to hacking" clickbait — requires real technical engagement.
+- **Sources:** SANS Reading Room recommendations, OSCP prep community guides (r/oscp), No Starch Press bestseller
+- **Limitations:** 2nd edition from 2008 — some technique examples are dated but underlying concepts (memory layout, shellcode, exploitation primitives) remain foundational
+- **Status:** ✅ Validated 2026-02-23
+
+### Social Engineering: The Science of Human Hacking, 2nd Edition
+- **ASIN:** 111943338X
+- **Price:** ~$38
+- **Commission:** 4.5% (~$1.71)
+- **URL:** https://amazon.com/dp/111943338X?tag=altclaw-20
+- **Why Recommended:** Written by Christopher Hadnagy, founder of Social-Engineer LLC and creator of the Social Engineering Framework used by professional red teamers. Covers psychological principles (Cialdini's influence), pretexting, OSINT for social engineering, and phone/in-person attacks. Essential for red team operators and security awareness trainers. Widely cited in professional pentest methodology discussions and security conference talks (DEF CON, SANS).
+- **Sources:** Social-Engineer.org (Hadnagy's firm), SANS SEC567 course references, DEF CON SE CTF community documentation
+- **Limitations:** Does not cover technical phishing tooling (use separate resources for GoPhish, Evilginx)
+- **Status:** ✅ Validated 2026-02-23
 
 ### The Web Application Hacker's Handbook (2nd Edition)
 - **ASIN:** B005LVQA9S
