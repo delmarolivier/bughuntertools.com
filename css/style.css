@@ -425,3 +425,160 @@ footer p {
         flex-direction: column;
     }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SecurityClaw Demos — Scorecard component
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.scorecard {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 28px;
+    margin: 32px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.scorecard h2 {
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.scorecard .scorecard-subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 24px;
+}
+
+.scorecard-category {
+    margin-bottom: 20px;
+}
+
+.scorecard-category:last-child {
+    margin-bottom: 0;
+}
+
+.scorecard-category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.scorecard-category-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.scorecard-category-stat {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.scorecard-bar-track {
+    background: #e9ecef;
+    border-radius: 4px;
+    height: 10px;
+    overflow: hidden;
+}
+
+.scorecard-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.scorecard-bar-fill.color-green {
+    background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+.scorecard-bar-fill.color-amber {
+    background: linear-gradient(90deg, #ffc107, #fd7e14);
+}
+
+.scorecard-bar-fill.color-red {
+    background: linear-gradient(90deg, #dc3545, #c82333);
+}
+
+.scorecard-bar-fill.color-grey {
+    background: #ced4da;
+}
+
+.scorecard-bar-fill.partial-stripe {
+    background: repeating-linear-gradient(
+        45deg,
+        #ffc107,
+        #ffc107 6px,
+        #fd7e14 6px,
+        #fd7e14 12px
+    );
+}
+
+.scorecard-pending {
+    font-size: 0.8rem;
+    color: #aaa;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+.scorecard-notes {
+    font-size: 0.82rem;
+    color: #555;
+    margin-top: 4px;
+}
+
+/* Demo index listing */
+.demo-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.demo-list-item {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+.demo-item-meta {
+    font-size: 0.82rem;
+    color: #888;
+    margin-bottom: 6px;
+}
+
+.demo-result-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.demo-result-badge.pass {
+    background: #d4edda;
+    color: #155724;
+}
+
+.demo-result-badge.partial {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.demo-result-badge.fail {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.demo-methodology {
+    background: #f8f9fa;
+    border-left: 3px solid #495057;
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    color: #555;
+    margin: 16px 0 24px;
+    border-radius: 0 4px 4px 0;
+}
