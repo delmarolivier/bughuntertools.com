@@ -4,7 +4,10 @@
   "description": "This site is deployed via Netlify with custom domain: bughuntertools.com",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "build": "npx @11ty/eleventy",
+    "serve": "npx @11ty/eleventy --serve",
+    "generate-scorecard": "node scripts/generate-scorecard.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +21,7 @@
   },
   "homepage": "https://github.com/delmarolivier/bughuntertools.com#readme",
   "devDependencies": {
-    "@11ty/eleventy": "^3.1.2"
+    "@11ty/eleventy": "^3.1.2",
+    "jest": "^30.2.0"
   }
 }
