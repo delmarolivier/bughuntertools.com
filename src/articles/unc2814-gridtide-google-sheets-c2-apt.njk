@@ -1,0 +1,189 @@
+---
+title: "How China's UNC2814 Used Google Sheets as a Hacking Command Centre — And Got Caught"
+description: "Chinese APT UNC2814's GRIDTIDE campaign used Google Sheets cells as a command-and-control channel, compromising 53 organisations in 42 countries before Google disrupted the infrastructure on February 25, 2026."
+date: 2026-02-26
+layout: base.njk
+permalink: /articles/unc2814-gridtide-google-sheets-c2-chinese-apt/
+tags: articles
+author: "BugHunterTools"
+---
+
+<article>
+  <h1>How China's UNC2814 Used Google Sheets as a Hacking Command Centre — And Got Caught</h1>
+
+  <div class="meta">
+    <span>📅 February 26, 2026</span> · <span>⚠️ Breaking — Google Disruption Feb 25, 2026</span> · <span>53 organisations, 42 countries</span>
+  </div>
+
+  <div class="intro">
+    <p><strong>A Chinese state-linked threat actor compromised 53 organisations across 42 countries by routing their malware commands through Google Sheets spreadsheet cells. The technique — using legitimate SaaS APIs as command-and-control channels — is increasingly common among sophisticated attackers and effectively invisible to traditional network monitoring. Google disrupted the infrastructure yesterday, February 25, 2026. Here's what happened and what defenders need to know.</strong></p>
+  </div>
+
+  <section id="what-happened">
+    <h2>What Happened</h2>
+
+    <p>Google's Threat Intelligence Group disclosed on February 25, 2026 that a threat actor tracked as <strong>UNC2814</strong> — assessed with moderate-to-high confidence as a Chinese state-sponsored actor — had been running a long-term intrusion campaign named <strong>GRIDTIDE</strong> since at least 2023. The campaign targeted telecommunications organisations primarily, with confirmed compromises in 53 organisations spanning 42 countries, and suspected infections in more than 20 additional organisations.</p>
+
+    <p>The defining characteristic of GRIDTIDE is the use of the <strong>Google Sheets API as a command-and-control (C2) channel</strong>. Rather than establishing communication with a dedicated attacker-controlled server — which would create suspicious network traffic and trigger security tool alerts — the implanted backdoor communicated exclusively with Google Sheets. Commands were written into spreadsheet cells as Base64-encoded strings. The backdoor read those cells on a schedule, decoded and executed the commands, and wrote results back to the sheet.</p>
+
+    <p>From the perspective of a network monitoring tool, this traffic looks identical to any employee or business application accessing Google's APIs.</p>
+
+    <p>Google has terminated all UNC2814 Cloud projects, revoked Sheets API access tokens associated with the campaign, and sinkholed the domains used in the operation. The company explicitly warns that it expects UNC2814 to resume operations using fresh infrastructure.</p>
+  </section>
+
+  <section id="the-technique">
+    <h2>The Technique: SaaS APIs as C2 Channels</h2>
+
+    <p>Traditional malware C2 infrastructure requires attackers to maintain servers, register domains, and manage SSL certificates. This infrastructure is visible: it generates DNS lookups to unusual domains, establishes connections to IP addresses with no business purpose, and often fails to blend with legitimate enterprise traffic. Modern threat intelligence and network detection tools are built to find it.</p>
+
+    <p>SaaS API C2 inverts this. Instead of establishing a connection to <code>c2.attacker.com</code>, the malware calls <code>sheets.googleapis.com</code> — the same endpoint your organisation's finance team, HR platform, and sales CRM are also calling hundreds of times per day. The traffic pattern, the destination IP, the TLS certificate — all of it is indistinguishable from legitimate business operations.</p>
+
+    <p>The GRIDTIDE implementation used the standard Google Sheets API v4. The backdoor — once implanted on a target system — would:</p>
+    <ol>
+      <li>Authenticate to a Google account under attacker control using an OAuth token embedded in the implant</li>
+      <li>Read a specific cell range in a designated spreadsheet on a polling schedule (likely every few minutes)</li>
+      <li>Decode Base64-encoded command strings from cells</li>
+      <li>Execute commands — which included host reconnaissance, file upload/download, and arbitrary bash execution</li>
+      <li>Write command output back to the same spreadsheet for the operator to retrieve</li>
+    </ol>
+
+    <p>The entire C2 loop — command delivery and result exfiltration — travels over Google's infrastructure, authenticated with Google's OAuth system, to destinations with Google's IP addresses and certificates.</p>
+
+    <h3>Why This Is Hard to Detect</h3>
+
+    <p>Standard web monitoring creates allow-lists of destinations (googleapis.com, google.com) and blocks unknown domains. GRIDTIDE's traffic passes every allow-list by design. Deep packet inspection on TLS-encrypted traffic to Google APIs requires certificate pinning bypass or TLS inspection infrastructure that many organisations don't have.</p>
+
+    <p>The technique isn't unique to Google Sheets. The same approach has been used with GitHub repositories (commands stored as commits or issues), Microsoft OneDrive (commands stored as files), Slack API (commands posted to channels), and Telegram bots. Any platform that provides an authenticated API with a reading/writing primitive can serve as a C2 channel. What makes Google Sheets particularly effective is its ubiquity in enterprise environments — blocking or alerting on Sheets API traffic would generate enormous noise.</p>
+  </section>
+
+  <section id="what-gridtide-did">
+    <h2>What GRIDTIDE Did Once Inside</h2>
+
+    <p>The GRIDTIDE backdoor is described as a lightweight implant with four primary capabilities:</p>
+    <ul>
+      <li><strong>Host reconnaissance</strong> — system information gathering (hostname, OS version, running processes, network configuration, installed software)</li>
+      <li><strong>File upload</strong> — exfiltrate files from compromised hosts to attacker-controlled storage</li>
+      <li><strong>File download</strong> — push additional tooling or payloads to compromised hosts</li>
+      <li><strong>Arbitrary bash execution</strong> — run any shell command, with output returned via the Sheets channel</li>
+    </ul>
+
+    <p>The arbitrary bash execution capability makes the initial implant essentially a full remote access tool — with file staging and command execution, the attacker can deploy additional specialised tooling on demand. The light initial implant minimises detection surface (fewer processes, fewer files, no persistent binary to scan) while maintaining the capability to escalate at any time.</p>
+
+    <p>Telecommunications targets are consistent with Chinese state espionage priorities: telco infrastructure provides access to call records, metadata, subscriber data, and in some deployments, lawful intercept capabilities. The same targeting pattern has appeared in multiple Chinese APT campaigns since 2022.</p>
+  </section>
+
+  <section id="google-disruption">
+    <h2>The Disruption — And Why It's Temporary</h2>
+
+    <p>Google's response on February 25 was comprehensive at the infrastructure level: terminated Cloud projects associated with the campaign, revoked all OAuth tokens belonging to the attacker-controlled accounts, sinkholed the domains used in GRIDTIDE operations.</p>
+
+    <p>This disruption is meaningful — it severs the C2 channel for currently active implants. Backdoors on compromised hosts that poll for commands from the now-revoked spreadsheets will receive errors and go silent.</p>
+
+    <p>But Google itself notes the limitation: <em>"Google expects resumption with new infrastructure."</em> Creating a new Google account to replace the terminated ones takes minutes. Updating the OAuth token embedded in the implant requires pushing a new payload to already-compromised hosts — which is trivially achievable for a threat actor that has already established persistence. The infrastructure disruption imposes operational cost and delay, not permanent defeat.</p>
+
+    <p>More fundamentally, the technique itself is unaffected. The pattern of using Google Sheets (or any other SaaS API) as a C2 channel will be used again — by UNC2814 with new accounts, and by other threat actors who have observed that it works.</p>
+  </section>
+
+  <section id="detection">
+    <h2>How to Detect SaaS C2 — Including GRIDTIDE</h2>
+
+    <p>Detecting SaaS API C2 is harder than detecting traditional C2, but not impossible. The key is shifting detection from destination-based blocking to behaviour-based anomaly detection.</p>
+
+    <h3>1. Baseline and Alert on Google API Access by Process</h3>
+    <p>In a managed enterprise environment, you know which processes legitimately call Google APIs: your browser, email client, Google Drive sync agent, and specific authorised applications. When a process that has no business calling Google APIs starts making repeated, scheduled requests to <code>sheets.googleapis.com</code>, that's an anomaly worth investigating.</p>
+    <p>Endpoint detection and response (EDR) tools that log process network activity can feed this detection. The key log field is: which process made the API call? Google Drive sync calling Sheets APIs is expected. <code>bash</code> or an unrecognised binary doing it is not.</p>
+
+    <h3>2. Watch for Scheduled/Polling API Call Patterns</h3>
+    <p>C2 communication tends to be periodic — the implant polls the command channel on a schedule. Legitimate user interaction with Google Sheets is burst-based and irregular (humans don't check spreadsheets at exactly 3-minute intervals). A process that makes exactly N requests to googleapis.com every X minutes is exhibiting machine behaviour, not human behaviour. Anomaly detection on API call timing regularity can surface this.</p>
+
+    <h3>3. Monitor OAuth Token Authorisations</h3>
+    <p>GRIDTIDE implants authenticate via Google OAuth tokens embedded at compile time (or updated via the download capability). Watch your Google Workspace admin logs for new OAuth applications requesting Sheets API access that don't correspond to approved applications in your inventory. The GRIDTIDE tokens were associated with attacker-controlled Google accounts — not your domain — but OAuth token grants from personal Gmail accounts to Google Workspace resources can also be a signal.</p>
+
+    <h3>4. Correlate API Access with User Activity</h3>
+    <p>If a host is accessing Google Sheets APIs at 03:00 local time with no logged-on user, that's suspicious regardless of the destination. Correlating network API calls with user session activity is a high-signal detection approach for automated implants that operate on their own schedule.</p>
+
+    <h3>5. Threat Intel Matching on Known IOCs</h3>
+    <p>Google has not yet published the full indicator list for GRIDTIDE, but IOCs from the disruption (account identifiers, spreadsheet IDs, domain names) will likely appear in threat intelligence feeds within 24-48 hours. Subscribe to Google's Threat Intelligence Group advisories and apply IOCs to your SIEM retroactively — check historical logs for the past 30-90 days for matches.</p>
+  </section>
+
+  <section id="for-bug-bounty">
+    <h2>For Security Testers: SaaS C2 as an Attack Pattern to Test For</h2>
+
+    <p>From a penetration testing and bug bounty perspective, SaaS API C2 detection gaps represent a real class of security control failure. If you're testing an organisation's detection capabilities (red team engagement, assume-breach exercise), demonstrating that you can maintain persistence and issue commands through Google Sheets — and never trigger a single alert — is a compelling finding.</p>
+
+    <p>Tools like <a href="https://github.com/RedSiege/EvilnoVNC">C3</a> and similar custom C2 frameworks support SaaS channel adapters. More importantly, any red team that isn't testing whether the client can detect SaaS-channelled C2 is leaving a major detection gap unexplored.</p>
+
+    <p>For blue team practitioners assessing your own organisation's detection capability: set up a test Google account, write a simple script that polls a Sheets spreadsheet for commands using the Sheets API, run it from an endpoint, and check whether any alerts fire. The answer for most organisations will be: nothing. That's the finding.</p>
+
+    <p>The detection gaps identified above (process-based API monitoring, timing regularity, OAuth authorisation logging) can form the basis of practical detections — but many organisations have none of them in place. Validating that gap with a controlled test is the first step to closing it.</p>
+  </section>
+
+  <section id="broader-trend">
+    <h2>SaaS C2 Is Mainstream Now</h2>
+
+    <p>UNC2814's use of Google Sheets is part of a broader shift in APT and financially-motivated attacker tradecraft: the migration of C2 infrastructure to platforms the defender can't block without breaking their business.</p>
+
+    <p>The platforms used as C2 channels in disclosed campaigns since 2023 include: Google Sheets, Google Drive, GitHub (issues and commits), Microsoft OneDrive, Slack, Telegram, Discord, Trello, and Notion. Each platform was chosen because it's in the allow-list of every enterprise perimeter and every EDR policy.</p>
+
+    <p>This trend has a name in the research community: <strong>Living Off Trusted Sites</strong> (LOTS) — an extension of the original Living Off The Land (LOTL) concept, which described attackers using legitimate OS tools (PowerShell, WMI, certutil) rather than custom malware. LOTS extends this to network destinations: use legitimate cloud infrastructure rather than attacker-owned servers.</p>
+
+    <p>The defensive implication is uncomfortable: perimeter-based detection built on destination reputation is increasingly insufficient against sophisticated attackers. Detection needs to move toward behavioural analysis at the endpoint — what processes are calling which APIs, with what patterns — rather than relying on network-level blocking of "bad" destinations.</p>
+  </section>
+
+  <section id="faq">
+    <h2>Frequently Asked Questions</h2>
+
+    <div itemscope itemtype="https://schema.org/FAQPage">
+
+      <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <h3 itemprop="name">Who is UNC2814?</h3>
+        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">UNC2814 is a threat actor tracked by Google's Threat Intelligence Group, assessed with moderate-to-high confidence as a Chinese state-sponsored group. It has been active since at least 2023 and has primarily targeted telecommunications organisations. The GRIDTIDE campaign associated with UNC2814 compromised 53 organisations in 42 countries.</p>
+        </div>
+      </div>
+
+      <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <h3 itemprop="name">What is GRIDTIDE?</h3>
+        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">GRIDTIDE is the name given to UNC2814's intrusion campaign that uses Google Sheets as a command-and-control (C2) channel. Implanted backdoors communicate with attacker-controlled Google Sheets spreadsheets via the Google Sheets API, receiving commands encoded in cells and returning output via the same channel. Google disrupted the infrastructure on February 25, 2026.</p>
+        </div>
+      </div>
+
+      <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <h3 itemprop="name">How does using Google Sheets as C2 evade detection?</h3>
+        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">Traffic to googleapis.com is indistinguishable from legitimate Google Workspace activity at the network level. Allow-lists, destination reputation filters, and standard web monitoring all permit Google API traffic. Detecting SaaS C2 requires behavioural analysis at the endpoint (which process is making the API call, at what frequency) rather than destination-based blocking.</p>
+        </div>
+      </div>
+
+      <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <h3 itemprop="name">Has Google fixed the issue?</h3>
+        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">Google disrupted the specific GRIDTIDE infrastructure (terminated Cloud projects, revoked OAuth tokens, sinkholed domains) on February 25, 2026. However, the underlying technique — using Google Sheets as a C2 channel — cannot be "fixed" without breaking legitimate use of the Google Sheets API. Google expects UNC2814 to resume with fresh infrastructure.</p>
+        </div>
+      </div>
+
+      <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <h3 itemprop="name">What is Living Off Trusted Sites (LOTS)?</h3>
+        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">Living Off Trusted Sites (LOTS) is an attacker technique pattern where C2 communications are routed through legitimate cloud platforms (Google Sheets, GitHub, Slack, OneDrive, Discord) rather than attacker-controlled servers. It extends the Living Off The Land (LOTL) concept from OS utilities to network infrastructure, making C2 traffic blend with legitimate business activity.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</article>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": "How China's UNC2814 Used Google Sheets as a Hacking Command Centre — And Got Caught",
+  "datePublished": "2026-02-26",
+  "author": {"@type": "Organization", "name": "BugHunterTools"},
+  "publisher": {"@type": "Organization", "name": "BugHunterTools", "url": "https://bughuntertools.com"},
+  "description": "Chinese APT UNC2814's GRIDTIDE campaign used Google Sheets cells as a command-and-control channel, compromising 53 organisations in 42 countries before Google disrupted the infrastructure on February 25, 2026.",
+  "url": "https://bughuntertools.com/articles/unc2814-gridtide-google-sheets-c2-chinese-apt/"
+}
+</script>
