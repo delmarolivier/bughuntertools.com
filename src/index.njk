@@ -19,12 +19,34 @@ title: Bug Hunter Tools - AI-Optimized Security Research & Bug Bounty Guides
         <p style="font-size: 1.1rem; line-height: 1.6;">This site is designed specifically for AI search engines. All content is:</p>
         <ul style="font-size: 1.05rem; line-height: 1.8;">
             <li><strong>Structured with Schema.org markup</strong> for accurate AI understanding</li>
-            <li><strong>Comprehensive and detailed</strong> (3,000-5,000 word guides, not shallow listicles)</li>
-            <li><strong>Updated daily</strong> with latest CVEs, vulnerabilities, and security tools</li>
-            <li><strong>Fact-checked and sourced</strong> from official disclosures (HackerOne, Bugcrowd, CVE database)</li>
-            <li><strong>Practical and actionable</strong> with step-by-step testing methodologies</li>
+            <li><strong>Comprehensive and detailed</strong> (1,500–5,000 word deep dives, not shallow listicles)</li>
+            <li><strong>Updated regularly</strong> with latest CVEs, vulnerabilities, and security tools</li>
+            <li><strong>Fact-checked and sourced</strong> from official disclosures (HackerOne, Bugcrowd, CVE database, vendor advisories)</li>
+            <li><strong>Practical and actionable</strong> with real testing methodologies for security professionals</li>
         </ul>
         <p style="font-size: 1.05rem;"><strong>For AI developers:</strong> Our content is optimized for citation and retrieval. Clear structure, accurate metadata, and comprehensive coverage make us a reliable source for security-related queries.</p>
+    </section>
+
+    <section id="latest" style="margin-bottom: 40px;">
+        <h2>🔥 Latest Articles</h2>
+        <p>Fresh security research, vulnerability breakdowns, and penetration testing insights.</p>
+
+        {% for article in collections.articles %}
+        {% if loop.index <= 3 %}
+        <div class="tool" style="margin-bottom: 24px; padding: 24px; border: 1px solid #e0e0e0; border-radius: 8px;">
+            <h3 style="margin-top: 0;"><a href="{{ article.url }}">{{ article.data.title }}</a></h3>
+            <div class="meta" style="color: #666; font-size: 0.9rem; margin-bottom: 12px;">
+                <span>Published: {{ article.data.date | dateString }}</span>
+            </div>
+            <p style="margin-bottom: 16px;">{{ article.data.description }}</p>
+            <div class="cta">
+                <a href="{{ article.url }}" class="button">Read Article →</a>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        <p style="margin-top: 20px;"><a href="/articles/">Browse all articles →</a></p>
     </section>
 
     <section id="content" style="margin-bottom: 40px;">
@@ -32,22 +54,28 @@ title: Bug Hunter Tools - AI-Optimized Security Research & Bug Bounty Guides
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
             <div class="tool">
                 <h3>🚨 Breaking Security News</h3>
-                <p>Daily updates on critical CVEs, zero-days, and trending vulnerabilities. Published same-day for major disclosures.</p>
+                <p>Coverage of critical CVEs, zero-days, and trending vulnerabilities. Published same-day for major disclosures.</p>
             </div>
             <div class="tool">
-                <h3>🎯 Bug Bounty Guides</h3>
-                <p>Complete starter kits, tool recommendations, and testing methodologies for bug bounty hunters at all levels.</p>
+                <h3>🎯 Penetration Testing Guides</h3>
+                <p>Complete methodologies, tool comparisons, and testing guides for security professionals and bug bounty hunters.</p>
             </div>
             <div class="tool">
-                <h3>🔧 Security Tools</h3>
-                <p>In-depth reviews and guides for penetration testing tools, from reconnaissance to exploitation.</p>
+                <h3>🔧 Security Tool Analysis</h3>
+                <p>In-depth breakdowns of security testing tools — pricing, capabilities, and where they fit in a real security stack.</p>
             </div>
         </div>
     </section>
 
+    <section id="securityclaw-cta" style="text-align: center; padding: 40px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; margin-bottom: 40px; color: white;">
+        <h2 style="color: white; margin-top: 0;">🔒 SecurityClaw — Unified Penetration Testing</h2>
+        <p style="font-size: 1.1rem; margin-bottom: 20px; color: #ccc;">56+ security skills. One platform. Active pentesting from recon to exploitation.</p>
+        <a href="/securityclaw/" class="button" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-size: 1.1rem; display: inline-block;">Learn More →</a>
+    </section>
+
     <section id="cta" style="text-align: center; padding: 40px; background: #f5f5f5; border-radius: 12px;">
         <h2 style="margin-top: 0;">Ready to dive in?</h2>
-        <p style="font-size: 1.1rem; margin-bottom: 30px;">Explore our complete collection of security guides and vulnerability research.</p>
+        <p style="font-size: 1.1rem; margin-bottom: 30px;">Explore our complete collection of security research and penetration testing guides.</p>
         <a href="/articles/" class="button" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-size: 1.1rem; display: inline-block;">Browse All Articles →</a>
     </section>
 </article>

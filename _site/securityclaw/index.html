@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SecurityClaw is an autonomous AI penetration testing platform that orchestrates 16 industry-standard tools across the full kill chain. Coming soon.">
+    <title>SecurityClaw — Autonomous AI Penetration Testing Platform</title>
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://bughuntertools.com/securityclaw/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bughuntertools.com/securityclaw/">
+    <meta property="og:title" content="SecurityClaw — Autonomous AI Penetration Testing Platform">
+    <meta property="og:description" content="SecurityClaw is an autonomous AI penetration testing platform that orchestrates 16 industry-standard tools across the full kill chain. Coming soon.">
+    <meta property="og:site_name" content="Bug Hunter Tools">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://bughuntertools.com/securityclaw/">
+    <meta name="twitter:title" content="SecurityClaw — Autonomous AI Penetration Testing Platform">
+    <meta name="twitter:description" content="SecurityClaw is an autonomous AI penetration testing platform that orchestrates 16 industry-standard tools across the full kill chain. Coming soon.">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PP6M3SZSVR"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-PP6M3SZSVR');
+    </script>
+    
+    <!-- AI Agent Referrer Tracking -->
+    <script>
+      (function() {
+        var ua = navigator.userAgent || '';
+        var ref = document.referrer || '';
+        var aiSource = null;
+        
+        // Detect AI agents by User-Agent
+        if (ua.includes('ChatGPT-User') || ua.includes('ChatGPT')) {
+          aiSource = 'chatgpt';
+        } else if (ua.includes('Claude') || ua.includes('Anthropic')) {
+          aiSource = 'claude';
+        } else if (ua.includes('PerplexityBot') || ua.includes('Perplexity')) {
+          aiSource = 'perplexity';
+        } else if (ua.includes('GPTBot')) {
+          aiSource = 'openai_crawler';
+        } else if (ua.includes('ClaudeBot') || ua.includes('anthropic-ai')) {
+          aiSource = 'anthropic_crawler';
+        } else if (ua.includes('Bard') || ua.includes('Gemini')) {
+          aiSource = 'google_gemini';
+        } else if (ref.includes('chat.openai.com')) {
+          aiSource = 'chatgpt_referrer';
+        } else if (ref.includes('claude.ai')) {
+          aiSource = 'claude_referrer';
+        } else if (ref.includes('perplexity.ai')) {
+          aiSource = 'perplexity_referrer';
+        }
+        
+        // Send custom event if AI agent detected
+        if (aiSource) {
+          gtag('event', 'ai_agent_visit', {
+            'ai_source': aiSource,
+            'page_path': window.location.pathname,
+            'user_agent': ua
+          });
+          
+          // Set custom dimension
+          gtag('set', {'ai_visitor': aiSource});
+          
+          // Log to console for debugging
+          console.log('AI Agent detected:', aiSource);
+        }
+      })();
+    </script>
+    
+    <!-- Affiliate Link Click Tracking -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Track clicks on Amazon affiliate links (tag=altclaw-20)
+        var links = document.querySelectorAll('a[href*="amazon.com"][href*="altclaw-20"]');
+        links.forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            var href = this.href;
+            var asin = (href.match(/\/dp\/([A-Z0-9]{10})/) || [])[1] || 'unknown';
+            var label = this.textContent.trim().substring(0, 60) || asin;
+            gtag('event', 'affiliate_click', {
+              'event_category': 'affiliate',
+              'event_label': label,
+              'affiliate_product': asin,
+              'affiliate_program': 'amazon',
+              'page_path': window.location.pathname
+            });
+          });
+        });
+      });
+    </script>
+
+    <!-- Schema.org markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "SecurityClaw — Autonomous AI Penetration Testing Platform",
+      "description": "SecurityClaw is an autonomous AI penetration testing platform that orchestrates 16 industry-standard tools across the full kill chain. Coming soon.",
+      "url": "https://bughuntertools.com/securityclaw/"
+    }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🔍 <a href="/" style="color: white; text-decoration: none;">Bug Hunter Tools</a></h1>
+            <p class="tagline">Professional Security Testing Tools for Bug Bounty Hunters</p>
+            <nav class="main-nav">
+    <a href="/">Home</a>
+    <a href="/articles/">Articles</a>
+    <a href="/demos/">SecurityClaw Demos</a>
+    <a href="/articles/security-testing-tools-2026.html">Tools</a>
+    <a href="/privacy.html">Privacy</a>
+</nav>
+
+        </div>
+    </header>
+
+    
+
+    
+
+    <main class="container">
+        <article>
+    <h1>SecurityClaw</h1>
+    <p><em>Autonomous AI Penetration Testing Platform</em></p>
+
+    <div class="meta">
+        <span>🔐 Coming Soon</span>
+    </div>
+
+    <div class="intro">
+        <p><strong>SecurityClaw orchestrates 16 industry-standard pentesting tools — nmap, Metasploit, Burp Suite, SQLmap, Nuclei, and more — into one autonomous platform that executes the full penetration testing kill chain.</strong></p>
+
+        <p>Recon. Enumeration. Exploitation. Privilege escalation. Post-exploitation. Continuous, automated, with findings that persist across campaigns so nothing gets lost.</p>
+
+        <p>No more juggling terminal windows. No more lost findings. No more waiting for the annual pentest to discover what changed last month.</p>
+    </div>
+
+    <section id="what-it-does">
+        <h2>What SecurityClaw Does</h2>
+        <ul>
+            <li><strong>Full kill chain automation</strong> — from passive recon to post-exploitation, orchestrated by AI agents that reason about what they find and adapt accordingly</li>
+            <li><strong>16 real security tools</strong> — not a proprietary scanner. nmap, masscan, gobuster, Nuclei, Nikto, SQLmap, Metasploit, Hydra, Hashcat, Sliver, Burp Suite, and more</li>
+            <li><strong>Persistent findings database</strong> — every finding stored and searchable across campaigns. Nothing disappears when a session ends</li>
+            <li><strong>Continuous coverage</strong> — runs 24/7 autonomously, catching regressions before attackers do</li>
+            <li><strong>Attack path reporting</strong> — not just a list of CVEs. A narrative of how an attacker would move through your environment</li>
+        </ul>
+    </section>
+
+    <section id="who-its-for">
+        <h2>Who It's For</h2>
+        <ul>
+            <li><strong>Security consultants</strong> — run more assessments per week; eliminate tool coordination overhead</li>
+            <li><strong>In-house security teams</strong> — continuous coverage between annual pentests, automatic regression detection after deployments</li>
+            <li><strong>CISOs</strong> — board-level reporting on actual exploitability, not CVSS counts; evidence for SOC 2, PCI DSS, ISO 27001</li>
+        </ul>
+    </section>
+
+    <section id="notify">
+        <h2>Stay in the Loop</h2>
+        <p>SecurityClaw is in active development. If you want to be notified when it's available — or if you're interested in early access — get in touch:</p>
+        <p><strong><a href="mailto:secureclaw@proton.me">secureclaw@proton.me</a></strong></p>
+        <p>In the meantime, read more about the problem SecurityClaw is solving:</p>
+        <ul>
+            <li><a href="/articles/why-your-security-scanner-isnt-a-penetration-test/">Why Your Security Scanner Isn't a Penetration Test</a></li>
+            <li><a href="/articles/automated-penetration-testing-guide-2026/">The Complete Guide to Automated Penetration Testing in 2026</a></li>
+        </ul>
+    </section>
+</article>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Bug Hunter Tools. All rights reserved. | <a href="/privacy.html" style="color: white;">Privacy Policy</a></p>
+        </div>
+    </footer>
+</body>
+</html>

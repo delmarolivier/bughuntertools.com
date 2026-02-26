@@ -1,0 +1,120 @@
+---
+title: SecurityClaw Demos — Real Campaigns, Real Results
+description: "Every SecurityClaw Demo is a real campaign run against a target we built and controlled. We show exactly what was found, what was missed, and why. Live capability scorecard updated with each run."
+layout: base.njk
+permalink: /demos/
+---
+<article>
+    <h1>SecurityClaw Demos</h1>
+
+    <div class="meta">
+        <span>Real campaigns. Documented results. No cherry-picking.</span>
+    </div>
+
+    <div class="demo-methodology">
+        <strong>How these demos work:</strong> Every SecurityClaw Demo is a real campaign run against a target we built and controlled. We're not hiding failures — we show exactly what each tool found, what it missed, and why. If SecurityClaw's AI layer can close the gap, we show that too. If it can't yet, we say so. We create our own targets because we're in product validation mode, not red team mode — that transparency is part of how we build trust with security professionals.
+    </div>
+
+    <div class="scorecard">
+        <h2>🎯 SecurityClaw Capability Scorecard</h2>
+        <p class="scorecard-subtitle">Live results across all demo campaigns. Updated as each campaign is published. Failures are visible — that's the point.</p>
+
+        <!-- Secrets Detection -->
+        <div class="scorecard-category">
+            <div class="scorecard-category-header">
+                <span class="scorecard-category-name">🔑 Secrets Detection</span>
+                <span class="scorecard-category-stat">1 campaign — 80% detection rate</span>
+            </div>
+            <div class="scorecard-bar-track">
+                <div class="scorecard-bar-fill partial-stripe" style="width: 80%;"></div>
+            </div>
+            <p class="scorecard-pending">TruffleHog: 4/5 secrets found. Stripe live key not in v2 ruleset — documented in <a href="/demos/trufflehog-secrets-detection-demo-2026/">demo #1</a>.</p>
+        </div>
+
+        <!-- Web Vulnerability Scanning -->
+        <div class="scorecard-category">
+            <div class="scorecard-category-header">
+                <span class="scorecard-category-name">🌐 Web Vulnerability Scanning</span>
+                <span class="scorecard-category-stat">No campaigns yet</span>
+            </div>
+            <div class="scorecard-bar-track">
+                <div class="scorecard-bar-fill color-grey" style="width: 0%;"></div>
+            </div>
+            <p class="scorecard-pending">Nuclei / Nikto demos in pipeline.</p>
+        </div>
+
+        <!-- Cloud Misconfiguration -->
+        <div class="scorecard-category">
+            <div class="scorecard-category-header">
+                <span class="scorecard-category-name">☁️ Cloud Misconfiguration</span>
+                <span class="scorecard-category-stat">No campaigns yet</span>
+            </div>
+            <div class="scorecard-bar-track">
+                <div class="scorecard-bar-fill color-grey" style="width: 0%;"></div>
+            </div>
+            <p class="scorecard-pending">Prowler / ScoutSuite demos in pipeline.</p>
+        </div>
+
+        <!-- API Security -->
+        <div class="scorecard-category">
+            <div class="scorecard-category-header">
+                <span class="scorecard-category-name">🔌 API Security</span>
+                <span class="scorecard-category-stat">No campaigns yet</span>
+            </div>
+            <div class="scorecard-bar-track">
+                <div class="scorecard-bar-fill color-grey" style="width: 0%;"></div>
+            </div>
+            <p class="scorecard-pending">GraphQL / BOLA/IDOR demos in pipeline.</p>
+        </div>
+
+        <!-- Network Reconnaissance -->
+        <div class="scorecard-category">
+            <div class="scorecard-category-header">
+                <span class="scorecard-category-name">📡 Network Reconnaissance</span>
+                <span class="scorecard-category-stat">No campaigns yet</span>
+            </div>
+            <div class="scorecard-bar-track">
+                <div class="scorecard-bar-fill color-grey" style="width: 0%;"></div>
+            </div>
+            <p class="scorecard-pending">nmap / subfinder demos in pipeline.</p>
+        </div>
+    </div>
+
+    <h2>All Demos</h2>
+
+    <ul class="demo-list">
+        {% for demo in collections.demos %}
+        <li class="demo-list-item">
+            <div class="demo-item-meta">
+                <span>{{ demo.data.date | dateString }}</span>
+                {% if demo.data.category %}<span>• {{ demo.data.category }}</span>{% endif %}
+                {% if demo.data.result %}
+                <span>•
+                    <span class="demo-result-badge {{ demo.data.result }}">{{ demo.data.result }}</span>
+                </span>
+                {% endif %}
+            </div>
+            <h3><a href="{{ demo.url }}">{{ demo.data.title }}</a></h3>
+            <p>{{ demo.data.description }}</p>
+        </li>
+        {% else %}
+        <li style="color: #888; font-style: italic; padding: 12px 0;">No demos published yet — first one is on its way.</li>
+        {% endfor %}
+    </ul>
+
+</article>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "SecurityClaw Demos — Real Campaigns, Real Results",
+  "description": "Every SecurityClaw Demo is a real campaign run against a target we built and controlled. We show exactly what was found, what was missed, and why.",
+  "url": "https://bughuntertools.com/demos/",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Bug Hunter Tools",
+    "url": "https://bughuntertools.com"
+  }
+}
+</script>

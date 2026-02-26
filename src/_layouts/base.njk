@@ -78,6 +78,28 @@
       })();
     </script>
     
+    <!-- Affiliate Link Click Tracking -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Track clicks on Amazon affiliate links (tag=altclaw-20)
+        var links = document.querySelectorAll('a[href*="amazon.com"][href*="altclaw-20"]');
+        links.forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            var href = this.href;
+            var asin = (href.match(/\/dp\/([A-Z0-9]{10})/) || [])[1] || 'unknown';
+            var label = this.textContent.trim().substring(0, 60) || asin;
+            gtag('event', 'affiliate_click', {
+              'event_category': 'affiliate',
+              'event_label': label,
+              'affiliate_product': asin,
+              'affiliate_program': 'amazon',
+              'page_path': window.location.pathname
+            });
+          });
+        });
+      });
+    </script>
+
     <!-- Schema.org markup -->
     <script type="application/ld+json">
     {
@@ -112,6 +134,32 @@
                 <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
                     <a itemprop="item" href="/articles/">
                         <span itemprop="name">Articles</span>
+                    </a>
+                    <meta itemprop="position" content="2" />
+                </li>
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <span itemprop="name">{{ title }}</span>
+                    <meta itemprop="position" content="3" />
+                </li>
+            </ol>
+        </div>
+    </nav>
+    {% endif %}
+
+    {% if page.url.startsWith('/demos/') and page.url != '/demos/' %}
+    <!-- Breadcrumb Navigation for Demos -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <div class="container">
+            <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a itemprop="item" href="/">
+                        <span itemprop="name">Home</span>
+                    </a>
+                    <meta itemprop="position" content="1" />
+                </li>
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a itemprop="item" href="/demos/">
+                        <span itemprop="name">SecurityClaw Demos</span>
                     </a>
                     <meta itemprop="position" content="2" />
                 </li>

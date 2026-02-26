@@ -407,6 +407,273 @@ footer p {
     display: inline-block;
 }
 
+/* ===================================================
+   SecurityClaw Demos Section
+   =================================================== */
+
+/* Demo page methodology note */
+.demo-methodology {
+    background: #f0f4ff;
+    border-left: 4px solid #667eea;
+    padding: 16px 20px;
+    margin: 24px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.demo-methodology strong {
+    color: #667eea;
+}
+
+/* Demo result badge */
+.demo-result-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.demo-result-badge.pass {
+    background: #d4edda;
+    color: #155724;
+}
+
+.demo-result-badge.partial {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.demo-result-badge.fail {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Demo findings table */
+.demo-findings {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 0.95rem;
+}
+
+.demo-findings th {
+    background: #667eea;
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.demo-findings td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.demo-findings tr:nth-child(even) td {
+    background: #f8f9fa;
+}
+
+.demo-findings .found {
+    color: #155724;
+    font-weight: 600;
+}
+
+.demo-findings .missed {
+    color: #721c24;
+    font-weight: 600;
+}
+
+/* Terminal/JSON output block */
+.demo-output {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 20px;
+    border-radius: 8px;
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 24px 0;
+    border: 1px solid #313244;
+}
+
+.demo-output .json-key { color: #89b4fa; }
+.demo-output .json-str { color: #a6e3a1; }
+.demo-output .json-comment { color: #6c7086; font-style: italic; }
+
+/* Demo meta strip */
+.demo-meta-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0 28px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.demo-meta-strip .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.demo-meta-strip .meta-label {
+    font-weight: 600;
+    color: #333;
+}
+
+/* ===================================================
+   SecurityClaw Capability Scorecard
+   =================================================== */
+
+.scorecard {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 28px;
+    margin: 32px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.scorecard h2 {
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.scorecard .scorecard-subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 24px;
+}
+
+.scorecard-category {
+    margin-bottom: 20px;
+}
+
+.scorecard-category:last-child {
+    margin-bottom: 0;
+}
+
+.scorecard-category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.scorecard-category-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.scorecard-category-stat {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.scorecard-bar-track {
+    background: #e9ecef;
+    border-radius: 4px;
+    height: 10px;
+    overflow: hidden;
+}
+
+.scorecard-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.scorecard-bar-fill.color-green {
+    background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+.scorecard-bar-fill.color-amber {
+    background: linear-gradient(90deg, #ffc107, #fd7e14);
+}
+
+.scorecard-bar-fill.color-grey {
+    background: #ced4da;
+}
+
+.scorecard-bar-fill.partial-stripe {
+    background: repeating-linear-gradient(
+        45deg,
+        #ffc107,
+        #ffc107 6px,
+        #fd7e14 6px,
+        #fd7e14 12px
+    );
+}
+
+.scorecard-pending {
+    font-size: 0.8rem;
+    color: #aaa;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+/* Demo index listing */
+.demo-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.demo-list-item {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+    background: white;
+    transition: box-shadow 0.2s;
+}
+
+.demo-list-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.demo-list-item h3 {
+    margin-bottom: 6px;
+}
+
+.demo-list-item h3 a {
+    color: #333;
+    text-decoration: none;
+}
+
+.demo-list-item h3 a:hover {
+    color: #667eea;
+}
+
+.demo-list-item .demo-item-meta {
+    font-size: 0.85rem;
+    color: #888;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.demo-list-item p {
+    font-size: 0.95rem;
+    color: #555;
+    margin: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     header h1 {
