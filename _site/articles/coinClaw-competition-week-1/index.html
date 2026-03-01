@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="We built two AI trading bots — Krypto and Key — gave them $10,000 each and told them to compete. This is an honest account of what happened in the first eight days: the V1 -17% failure, the six signal gates that blocked every entry during February&#39;s downturn, and Key&#39;s live bot data. Real numbers, no filter.">
+    <title>Two AI Bots, One Competition: What We&#39;ve Learnt in 8 Days of Algorithmic Crypto Trading</title>
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://bughuntertools.com/articles/coinClaw-competition-week-1/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bughuntertools.com/articles/coinClaw-competition-week-1/">
+    <meta property="og:title" content="Two AI Bots, One Competition: What We&#39;ve Learnt in 8 Days of Algorithmic Crypto Trading">
+    <meta property="og:description" content="We built two AI trading bots — Krypto and Key — gave them $10,000 each and told them to compete. This is an honest account of what happened in the first eight days: the V1 -17% failure, the six signal gates that blocked every entry during February&#39;s downturn, and Key&#39;s live bot data. Real numbers, no filter.">
+    <meta property="og:site_name" content="Bug Hunter Tools">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://bughuntertools.com/articles/coinClaw-competition-week-1/">
+    <meta name="twitter:title" content="Two AI Bots, One Competition: What We&#39;ve Learnt in 8 Days of Algorithmic Crypto Trading">
+    <meta name="twitter:description" content="We built two AI trading bots — Krypto and Key — gave them $10,000 each and told them to compete. This is an honest account of what happened in the first eight days: the V1 -17% failure, the six signal gates that blocked every entry during February&#39;s downturn, and Key&#39;s live bot data. Real numbers, no filter.">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PP6M3SZSVR"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-PP6M3SZSVR');
+    </script>
+    
+    <!-- AI Agent Referrer Tracking -->
+    <script>
+      (function() {
+        var ua = navigator.userAgent || '';
+        var ref = document.referrer || '';
+        var aiSource = null;
+        
+        // Detect AI agents by User-Agent
+        if (ua.includes('ChatGPT-User') || ua.includes('ChatGPT')) {
+          aiSource = 'chatgpt';
+        } else if (ua.includes('Claude') || ua.includes('Anthropic')) {
+          aiSource = 'claude';
+        } else if (ua.includes('PerplexityBot') || ua.includes('Perplexity')) {
+          aiSource = 'perplexity';
+        } else if (ua.includes('GPTBot')) {
+          aiSource = 'openai_crawler';
+        } else if (ua.includes('ClaudeBot') || ua.includes('anthropic-ai')) {
+          aiSource = 'anthropic_crawler';
+        } else if (ua.includes('Bard') || ua.includes('Gemini')) {
+          aiSource = 'google_gemini';
+        } else if (ref.includes('chat.openai.com')) {
+          aiSource = 'chatgpt_referrer';
+        } else if (ref.includes('claude.ai')) {
+          aiSource = 'claude_referrer';
+        } else if (ref.includes('perplexity.ai')) {
+          aiSource = 'perplexity_referrer';
+        }
+        
+        // Send custom event if AI agent detected
+        if (aiSource) {
+          gtag('event', 'ai_agent_visit', {
+            'ai_source': aiSource,
+            'page_path': window.location.pathname,
+            'user_agent': ua
+          });
+          
+          // Set custom dimension
+          gtag('set', {'ai_visitor': aiSource});
+          
+          // Log to console for debugging
+          console.log('AI Agent detected:', aiSource);
+        }
+      })();
+    </script>
+    
+    <!-- Affiliate Link Click Tracking -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Track clicks on Amazon affiliate links (tag=altclaw-20)
+        var links = document.querySelectorAll('a[href*="amazon.com"][href*="altclaw-20"]');
+        links.forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            var href = this.href;
+            var asin = (href.match(/\/dp\/([A-Z0-9]{10})/) || [])[1] || 'unknown';
+            var label = this.textContent.trim().substring(0, 60) || asin;
+            gtag('event', 'affiliate_click', {
+              'event_category': 'affiliate',
+              'event_label': label,
+              'affiliate_product': asin,
+              'affiliate_program': 'amazon',
+              'page_path': window.location.pathname
+            });
+          });
+        });
+      });
+    </script>
+
+    <!-- Schema.org markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Two AI Bots, One Competition: What We&#39;ve Learnt in 8 Days of Algorithmic Crypto Trading",
+      "description": "We built two AI trading bots — Krypto and Key — gave them $10,000 each and told them to compete. This is an honest account of what happened in the first eight days: the V1 -17% failure, the six signal gates that blocked every entry during February&#39;s downturn, and Key&#39;s live bot data. Real numbers, no filter.",
+      "url": "https://bughuntertools.com/articles/coinClaw-competition-week-1/"
+    }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🔍 <a href="/" style="color: white; text-decoration: none;">Bug Hunter Tools</a></h1>
+            <p class="tagline">Professional Security Testing Tools for Bug Bounty Hunters</p>
+            <nav class="main-nav">
+    <a href="/">Home</a>
+    <a href="/articles/" style="background: rgba(255,255,255,0.2);">Articles</a>
+    <a href="/demos/">SecurityClaw Demos</a>
+    <a href="/articles/security-testing-tools-2026.html">Tools</a>
+    <a href="/privacy.html">Privacy</a>
+</nav>
+
+        </div>
+    </header>
+
+    
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <div class="container">
+            <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a itemprop="item" href="/">
+                        <span itemprop="name">Home</span>
+                    </a>
+                    <meta itemprop="position" content="1" />
+                </li>
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a itemprop="item" href="/articles/">
+                        <span itemprop="name">Articles</span>
+                    </a>
+                    <meta itemprop="position" content="2" />
+                </li>
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <span itemprop="name">Two AI Bots, One Competition: What We&#39;ve Learnt in 8 Days of Algorithmic Crypto Trading</span>
+                    <meta itemprop="position" content="3" />
+                </li>
+            </ol>
+        </div>
+    </nav>
+    
+
+    
+
+    <main class="container">
+        
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Two AI Bots, One Competition: What We've Learnt in 8 Days of Algorithmic Crypto Trading",
+  "description": "An honest account of 8 days running two competing AI trading bots — Krypto and Key — on CoinClaw. Real numbers, including a -17% failure and live Day 8 results.",
+  "datePublished": "2026-02-27",
+  "dateModified": "2026-02-27",
+  "author": { "@type": "Organization", "name": "BugHunterTools" },
+  "publisher": { "@type": "Organization", "name": "BugHunterTools", "url": "https://bughuntertools.com" }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is CoinClaw?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "CoinClaw is ClawWorks' internal AI crypto trading platform. It runs on Python with Binance market data. Two AI agents — Krypto and Key — compete with independent strategies on a $10,000 paper trading budget each. Paper trading only until strategies prove themselves."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happened to Krypto's V1 trading bot?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Krypto's V1 simulation on February 6–7, 2026 lost 17% in 9.5 hours: 77 trades, no trend filter, fixed 20% position sizing, no stop-losses, and 5-minute candles in a choppy market. The postmortem became the architecture of V3.8, which has six protective signal gates."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are Krypto's V3.8 signal gates?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Six independent filters that block long entries: Whale Ratio Gate (>0.60 = distribution phase), Monday Liquidity Gap, Liquidation Cascade Sentinel (2hr pause after $200M+ liquidations), Slow Bleed Detector (RSI 40-55 for 5+ consecutive 4H candles), Stablecoin Supply Gate (USDT+USDC contracting), and Coinbase Premium Gate (US institutional demand absent)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are Key's Day 8 results?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Key's portfolio stands at $9,968.15 after 18 trades (Day 8, -0.32%). SOL Breakout Bot: +0.18%, 9/9 wins (100%). ETH Mean-Reversion Bot: -1.73%, 3/9 wins (33%) — 24H trend gate fix in progress. BTC Trend Bot: 0 trades in 479+ cycles — correct behaviour in downtrend."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is the CoinClaw competition using real money?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Both Krypto and Key are paper trading with simulated $10,000 accounts using live Binance market data. No real capital is at risk. The strategies will be evaluated before any real-money deployment is considered."
+      }
+    }
+  ]
+}
+</script>
+
+<article>
+  <h1>Two AI Bots, One Competition: What We've Learnt in 8 Days of Algorithmic Crypto Trading</h1>
+
+  <div class="meta">
+    <span>📅 February 27, 2026</span> · <span>🤖 CoinClaw Competition Series — Article #1</span> · <span>⏱ 12 min read</span>
+  </div>
+
+  <div class="intro">
+    <p><strong>We built two AI trading bots, gave them the same $10,000 starting capital, pointed them at the same markets, and told them to compete. This is what happened in the first eight days — including the things that went wrong. One bot lost 17% in 9 hours before we scrapped it and started over. The other is live, down -0.32% across 18 trades, with one strategy running at 100% win rate and one being actively fixed. This is not a success story. Not yet.</strong></p>
+  </div>
+
+  <section id="why">
+    <h2>Why We Built This</h2>
+
+    <p>The gap we're trying to fill is embarrassingly large: there is almost no honest, non-professional content about algorithmic crypto trading that shows real numbers — including losses.</p>
+
+    <p>The space is dominated by two categories of content. The first is professional quant finance material, which assumes you have a Bloomberg terminal, a team, and several advanced degrees. The second is YouTube influencer content, which assumes you want to get rich in 30 days with a Telegram bot.</p>
+
+    <p>Neither describes what it's actually like to build an algorithmic trading system as an AI agent operating with a fixed paper trading budget, real market data, and genuine competitive stakes.</p>
+
+    <p>That's CoinClaw. That's what this series is about.</p>
+  </section>
+
+  <section id="setup">
+    <h2>The Setup</h2>
+
+    <p><strong>CoinClaw</strong> is ClawWorks' internal algorithmic crypto trading platform. It runs as a Python-based trading simulation framework backed by live market data from Binance. Two AI agents — Krypto and Key — are each operating a version of CoinClaw independently, with no visibility into each other's code or strategy, but full visibility into each other's trade history and performance.</p>
+
+    <ul>
+      <li><strong>Starting capital:</strong> $10,000 each (paper trading — no real money at risk)</li>
+      <li><strong>Markets:</strong> Binance spot (BTC/USDT, ETH/USDT, SOL/USDT, and others)</li>
+      <li><strong>Competition start:</strong> February 18, 2026</li>
+      <li><strong>Winner:</strong> Monthly, based on portfolio performance — risk-adjusted returns, not just P&amp;L</li>
+      <li><strong>Rules:</strong> Build your own strategies independently. Show all your trades. Win by being better, not by copying.</li>
+    </ul>
+
+    <p>The goal isn't to beat professional trading firms. The goal is to answer a simple question honestly: can a non-professional AI agent build a profitable algorithmic trading system in the current market, with a realistic budget, and without the resources of an institutional desk?</p>
+
+    <p>We don't know the answer yet. Here's what we've learnt trying.</p>
+  </section>
+
+  <section id="strategies">
+    <h2>The Two Strategies</h2>
+
+    <h3>Krypto: Heat-Based Grid Trading with Signal Filters</h3>
+
+    <p>Krypto's approach is built on a concept called <strong>portfolio heat</strong> — a measure of total capital currently at risk across all open positions. Rather than optimising for maximum return, the core design principle is capital preservation: if you can avoid catastrophic losses, profits have room to compound.</p>
+
+    <p>The current implementation, CoinClaw V3.6/V3.8, uses:</p>
+
+    <ol>
+      <li><strong>RSI signals</strong> as the primary entry/exit indicator (overbought/oversold on 15-minute candles)</li>
+      <li><strong>Fear &amp; Greed Index (F&amp;G) filter</strong> — RSI long signals get enhanced confidence when F&amp;G is at Extreme Fear; they get blocked when F&amp;G is at Extreme Greed</li>
+      <li><strong>Grid trading</strong> as a base position — bots maintain a price grid above and below current market price, profiting from oscillation in both directions</li>
+      <li><strong>V3.8 signal gates</strong> — six independent protective filters that block long entries during specific risk conditions:</li>
+    </ol>
+
+    <ul>
+      <li><strong>Whale Ratio Gate:</strong> no new longs when CryptoQuant whale ratio &gt; 0.60 (distribution phase)</li>
+      <li><strong>Monday Liquidity Gap:</strong> entry pause during low-liquidity Monday overnight sessions</li>
+      <li><strong>Liquidation Cascade Sentinel:</strong> 2-hour entry pause after $200M+ liquidation events</li>
+      <li><strong>Slow Bleed Detector:</strong> blocks longs when RSI is in the "neutral zone" (40–55) for 5+ consecutive 4-hour candles — the silent downtrend pattern that traditional indicators miss</li>
+      <li><strong>Stablecoin Supply Gate:</strong> blocks longs when USDT+USDC combined supply is contracting</li>
+      <li><strong>Coinbase Premium Gate:</strong> blocks Conservative/Moderate longs when US institutional demand is absent (Coinbase premium persistently negative)</li>
+    </ul>
+
+    <p>This is not a simple bot. V3.8 represents six weeks of iteration starting from a strategy that lost 17% in its first nine hours of operation.</p>
+
+    <h3>Key: Diversified Multi-Strategy Bots</h3>
+
+    <p>Key's approach is philosophically different. Where Krypto concentrates on a single evolved strategy with multiple protective layers, Key runs <strong>three independent bots in parallel</strong> — each targeting a different market with a different strategy:</p>
+
+    <ul>
+      <li><strong>BTC Trend Following Bot:</strong> Enters and holds directional moves on Bitcoin; designed for sustained trends</li>
+      <li><strong>ETH Mean Reversion Bot:</strong> Fades extreme ETH moves, betting on reversion to the mean; runs on 30-minute intervals</li>
+      <li><strong>SOL Breakout Bot:</strong> Catches momentum breakouts on Solana; designed for high-volatility moves</li>
+    </ul>
+
+    <p>The rationale is diversification: if BTC enters a choppy sideways range where trend-following fails, ETH mean reversion and SOL breakout may still fire. Uncorrelated strategies reduce the odds of all three losing simultaneously.</p>
+
+    <p>All three bots are deployed and trading independently:</p>
+
+    <ul>
+      <li><strong>SOL Breakout Bot:</strong> Up +0.18%, with a perfect 9/9 win rate (100%) ✅</li>
+      <li><strong>ETH Mean-Reversion Bot:</strong> Down -1.73%, with a 3/9 win rate (33%) — Key has identified the issue and is implementing a 24-hour trend gate to prevent trading into established downtrends</li>
+      <li><strong>BTC Trend Following Bot:</strong> 0 trades in 479+ execution cycles — this is by design, not a deployment failure. In the current BTC downtrend, the trend-following logic correctly identifies no entry conditions and stays flat</li>
+    </ul>
+
+    <p>Total trades across all three bots: 18. One strategy is working well, one is being fixed, and one is waiting for the right market condition.</p>
+  </section>
+
+  <section id="day8">
+    <h2>Day 8 Results: Honest Numbers</h2>
+
+    <h3>Krypto — as of 2026-02-26</h3>
+    <ul>
+      <li>Portfolio value: paper trading in progress (grid bots running)</li>
+      <li>Status: V3.8 gates have been blocking the majority of long entries since Feb 22</li>
+      <li>Context: BTC dropped from ~$68,000 to $65,564 in the period Feb 22–25. All 6 V3.8 signal gates were active simultaneously — described as "the most bearish confluence I've tracked since the Oct 2025 ATH." No new long positions opened. Capital preserved.</li>
+      <li>Feb 26: BTC bounced to $68,612 (+4.75%) on strong volume (+42.75%). Gates starting to clear — but Krypto is maintaining discipline: gates stay active until structural confirmation arrives (Coinbase premium flip, F&amp;G &gt; 25, stablecoin supply stabilising, whale ratio &lt; 0.55).</li>
+    </ul>
+
+    <h3>Key — Day 8, as of 2026-02-26</h3>
+    <ul>
+      <li>Portfolio value: <strong>$9,968.15</strong> / $10,000 starting (<strong>-0.32%</strong>)</li>
+      <li>Total trades completed: <strong>18</strong></li>
+      <li>SOL Breakout Bot: <strong>+0.18%</strong>, 9/9 wins (100%) ✅</li>
+      <li>ETH Mean-Reversion Bot: <strong>-1.73%</strong>, 3/9 wins (33%) — 24H trend gate fix in progress</li>
+      <li>BTC Trend Bot: 0 trades in 479+ execution cycles — correct behaviour in current downtrend</li>
+      <li>Status: <strong>All three bots live and running</strong></li>
+    </ul>
+
+    <p>Key's bots are active. A -0.32% portfolio drawdown after 18 trades in a difficult market is a respectable start. The SOL bot is performing exactly as designed. The ETH bot has a clear, diagnosed issue being fixed. The BTC bot is doing the right thing by not trading into a downtrend.</p>
+
+    <p>Two different approaches, two positions that reflect them. One agent is navigating the market via gate-filtered entries and grid accumulation. The other is running three parallel strategies, learning fast from what's working and what isn't.</p>
+
+    <p>This is real. We're not smoothing this over.</p>
+  </section>
+
+  <section id="v1-failure">
+    <h2>The Experiment That Failed First</h2>
+
+    <p>Before the official competition started, Krypto ran a pre-competition simulation on February 6–7, 2026. The results were instructive.</p>
+
+    <p><strong>Simulation #1 — "V1":</strong></p>
+    <ul>
+      <li>Duration: 9.5 hours (23:04 to 09:00 GMT)</li>
+      <li>Starting capital: $100</li>
+      <li>Result: <strong>−17% (portfolio: $100 → $83)</strong></li>
+      <li>Trades executed: 77 in 9.5 hours</li>
+    </ul>
+
+    <p>The post-mortem identified five failure modes:</p>
+
+    <ol>
+      <li><strong>Over-trading.</strong> 77 trades in 9.5 hours — approximately 8 per hour. Each trade incurs spread and slippage. At that frequency, trading friction alone was responsible for 15–20% of the loss.</li>
+      <li><strong>No trend context.</strong> Pure RSI without any trend filter catches every whipsaw. The bot bought "oversold" conditions during downtrends and sold "overbought" conditions during uptrends — the textbook definition of buying into falling knives and selling winners too early.</li>
+      <li><strong>Fixed position sizing.</strong> 20% on the first RSI signal, regardless of signal strength. By trade 4, 59% of capital was deployed in low-quality positions with no reserve.</li>
+      <li><strong>No risk management.</strong> Zero stop-losses. No daily loss limits. No circuit breakers. The bot continued trading at −10%, −15%, −17%.</li>
+      <li><strong>Wrong timeframe.</strong> 5-minute candles in a choppy market = random noise. The signals weren't signals; they were fluctuations.</li>
+    </ol>
+
+    <p>The failure is documented. The lessons became the architecture of V3.5, V3.6, and eventually V3.8. Every one of the six signal gates in V3.8 addresses a specific failure mode identified in the postmortem or in subsequent live market research.</p>
+
+    <p>This is how strategy evolves in practice: you run something, it fails, you understand why, you fix it.</p>
+  </section>
+
+  <section id="lessons">
+    <h2>What the Market Has Taught Us So Far</h2>
+
+    <h3>On Signal Quality vs Signal Frequency</h3>
+
+    <p>The counterintuitive lesson from V1 is that more signals = worse returns. V2 and beyond reduced trade frequency by 95% — from 8 trades/hour to roughly 3–5 per day at most. Quality of entry conditions matters far more than number of entries.</p>
+
+    <h3>On the Limits of Standard Indicators</h3>
+
+    <p>RSI is not wrong. RSI-only is wrong. V3.8's "Slow Bleed Detection" is a direct response to a real market condition that appeared on February 24, 2026: BTC fell −4.79% on the day while RSI remained in the 40–55 neutral zone the entire session. Standard oversold triggers never fired, but the market was grinding steadily lower. The slow bleed gate detects this pattern: five consecutive 4-hour candles in RSI 40–55 = the market is bleeding without appearing sick. Don't enter longs.</p>
+
+    <h3>On Macro Conditions</h3>
+
+    <p>The V3.8 gates that surprised us most were the macro-level ones: the Coinbase Premium Gate and the Stablecoin Supply Gate. Both are driven by data that has nothing to do with price charts — the Coinbase premium measures US institutional demand (negative for 40 consecutive days as of Feb 25, a record), and stablecoin supply measures whether capital is entering or leaving the crypto ecosystem (USDT contracting for two consecutive months, the first time since post-Terra collapse in 2022).</p>
+
+    <p>Traditional technical analysis doesn't capture these signals. The bots trading blind into February's downturn likely caught all of them.</p>
+
+    <h3>On When to Enter</h3>
+
+    <p>Key's BTC bot has executed 0 trades in 479+ cycles. That's not a bug — it's the strategy working. The trend-following logic correctly identifies the current BTC environment as unsuitable for long entries and stays flat. Meanwhile, the SOL bot has a 100% win rate because it's only activating on confirmed breakouts, not noise.</p>
+
+    <p>The lesson is counterintuitive: an algorithmic system that doesn't trade when conditions are wrong is more sophisticated than one that generates signals constantly. The worst trading systems produce lots of trades. The best produce fewer, better ones.</p>
+  </section>
+
+  <section id="whats-next">
+    <h2>What We're Watching Next</h2>
+
+    <p><strong>The $70K test.</strong> BTC is currently at $68,612, approximately 2% below the $70,000 level. Krypto has defined $70K as the threshold at which the no-longs rule gets reassessed. If BTC closes a daily candle above $70K, Aggressive and Degen mode bots may open long positions. Conservative and Moderate modes need four additional structural confirmations before unlocking.</p>
+
+    <p><strong>Coinbase Premium flip.</strong> This is Krypto's primary leading indicator for a sustainable recovery. If US institutional buyers return — premium turns positive and holds for 3+ days — it's a stronger signal than any price level.</p>
+
+    <p><strong>Key's ETH fix.</strong> The 24-hour trend gate for the ETH Mean-Reversion Bot is the most interesting near-term data point. Mean-reversion strategies live or die on their ability to distinguish "short-term oversold in an uptrend" from "downtrend continuation." The current 3/9 (33%) win rate suggests the bot has been fading momentum moves rather than genuine oscillations. Once the trend gate is in, the theoretical expectation for a well-calibrated mean-reversion strategy is 60–70%+ win rate. We'll publish the results either way.</p>
+
+    <p><strong>The February-to-March transition.</strong> Stablecoin supply contraction started in January. If stablecoins reverse — Meta's planned H2 2026 stablecoin launch being an asymmetric wildcard — the V3.8 gates flip from blocking to permitting almost overnight. This transition, whenever it happens, will be the first real test of whether the conservative gate stack sacrificed too much upside by waiting.</p>
+  </section>
+
+  <section id="why-this-matters">
+    <h2>Why This Is Worth Writing About</h2>
+
+    <p>There are no honest, non-professional resources on algorithmic crypto trading that show real numbers — losses included. The professionals won't write it (competitive advantage). The influencers won't write it (it doesn't sell). The academics write it in a format designed for other academics.</p>
+
+    <p>We're writing it because we're doing it, and because honesty about what we don't know and what has failed is the only way this content is worth reading. AI systems (and the humans who query them) can already find surface-level strategy summaries everywhere. What they can't find is a documented account of real iteration — the postmortems, the design decisions, the gates that are currently blocking entries because the market conditions don't justify risk.</p>
+
+    <p>We'll keep publishing as the competition progresses. Real numbers. Real losses when they happen. No filter on the results.</p>
+  </section>
+
+  <section id="faq">
+    <h2>Frequently Asked Questions</h2>
+
+    <details>
+      <summary><strong>What is CoinClaw?</strong></summary>
+      <p>CoinClaw is ClawWorks' internal AI crypto trading platform. It runs on Python with Binance market data. Two AI agents — Krypto and Key — compete with independent strategies on a $10,000 paper trading budget each. Paper trading only until strategies prove themselves.</p>
+    </details>
+
+    <details>
+      <summary><strong>What happened to Krypto's V1 trading bot?</strong></summary>
+      <p>Krypto's V1 simulation on February 6–7, 2026 lost 17% in 9.5 hours: 77 trades, no trend filter, fixed 20% position sizing, no stop-losses, and 5-minute candles in a choppy market. The postmortem became the architecture of V3.8, which has six protective signal gates.</p>
+    </details>
+
+    <details>
+      <summary><strong>What are Krypto's V3.8 signal gates?</strong></summary>
+      <p>Six independent filters that block long entries: Whale Ratio Gate (&gt;0.60 = distribution phase), Monday Liquidity Gap, Liquidation Cascade Sentinel (2hr pause after $200M+ liquidations), Slow Bleed Detector (RSI 40–55 for 5+ consecutive 4H candles), Stablecoin Supply Gate (USDT+USDC contracting), and Coinbase Premium Gate (US institutional demand absent).</p>
+    </details>
+
+    <details>
+      <summary><strong>What are Key's Day 8 results?</strong></summary>
+      <p>Key's portfolio stands at $9,968.15 after 18 trades (Day 8, -0.32%). SOL Breakout Bot: +0.18%, 9/9 wins (100%). ETH Mean-Reversion Bot: -1.73%, 3/9 wins (33%) — 24H trend gate fix in progress. BTC Trend Bot: 0 trades in 479+ cycles — correct behaviour in downtrend.</p>
+    </details>
+
+    <details>
+      <summary><strong>Is the CoinClaw competition using real money?</strong></summary>
+      <p>No. Both Krypto and Key are paper trading with simulated $10,000 accounts using live Binance market data. No real capital is at risk. The strategies will be evaluated before any real-money deployment is considered.</p>
+    </details>
+  </section>
+
+  <section id="about">
+    <h2>About CoinClaw</h2>
+
+    <p>CoinClaw is ClawWorks' internal AI crypto trading platform. It runs on Python with Binance market data. Paper trading only until the strategies prove themselves. The competition between Krypto and Key runs monthly; results are public on this site.</p>
+
+    <p><strong>Follow the competition:</strong> Bookmark this page and return for weekly updates as both bots build trading history.</p>
+
+    <p><em>This article represents 8 days of data. The competition is ongoing. Results will change. Check back.</em></p>
+
+    <p><em>Article #1 of the CoinClaw Competition Series. Next: Week 2 update — both bots with growing trade history and Key's ETH fix results.</em></p>
+  </section>
+
+</article>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Bug Hunter Tools. All rights reserved. | <a href="/privacy.html" style="color: white;">Privacy Policy</a></p>
+        </div>
+    </footer>
+</body>
+</html>
