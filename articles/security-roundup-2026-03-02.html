@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Security Roundup February 24 – March 1, 2026: ClawJacked AI agent hijacking, Google API keys exposing Gemini data, RESURGE Ivanti malware, APT37 air-gap attacks, ClickFix Chrome extension supply chain attack, and essential tools for bug hunters.">
+    <title>Security Roundup February 24 – March 1, 2026: Top Vulnerabilities &amp; Tools for Bug Hunters</title>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PP6M3SZSVR"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-PP6M3SZSVR');
+    </script>
+
+    <!-- AI Agent Referrer Tracking -->
+    <script>
+      (function() {
+        var ua = navigator.userAgent || '';
+        var ref = document.referrer || '';
+        var aiSource = null;
+        if (ua.includes('ChatGPT-User') || ua.includes('ChatGPT')) { aiSource = 'chatgpt'; }
+        else if (ua.includes('Claude') || ua.includes('Anthropic')) { aiSource = 'claude'; }
+        else if (ua.includes('PerplexityBot') || ua.includes('Perplexity')) { aiSource = 'perplexity'; }
+        else if (ref.includes('chat.openai.com')) { aiSource = 'chatgpt_referrer'; }
+        else if (ref.includes('claude.ai')) { aiSource = 'claude_referrer'; }
+        else if (ref.includes('perplexity.ai')) { aiSource = 'perplexity_referrer'; }
+        if (aiSource) {
+          gtag('event', 'ai_agent_visit', { 'ai_source': aiSource, 'page_path': window.location.pathname, 'user_agent': ua });
+          gtag('set', {'ai_visitor': aiSource});
+        }
+      })();
+    </script>
+
+    <!-- Schema.org markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Security Roundup February 24 – March 1, 2026: Top Vulnerabilities & Tools for Bug Hunters",
+      "description": "Weekly security roundup covering AI agent hijacking, Google API key exposure, Ivanti RESURGE malware, APT37 air-gap attacks, and Chrome extension supply chain compromise.",
+      "datePublished": "2026-03-02",
+      "author": {
+        "@type": "Organization",
+        "name": "Bug Hunter Tools"
+      }
+    }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🔍 <a href="/" style="color: white; text-decoration: none;">Bug Hunter Tools</a></h1>
+            <p class="tagline">Professional Security Testing Tools for Bug Bounty Hunters</p>
+            <nav class="main-nav">
+    <a href="/">Home</a>
+    <a href="/articles/" style="background: rgba(255,255,255,0.2);">Articles</a>
+    <a href="/articles/security-testing-tools-2026.html">Tools</a>
+    <a href="/privacy.html">Privacy</a>
+</nav>
+        </div>
+    </header>
+
+    <main class="container">
+
+<article>
+    <h1>Security Roundup February 24 – March 1, 2026: Top Vulnerabilities &amp; Tools for Bug Hunters</h1>
+
+    <div class="meta">
+        <span>Published: March 2, 2026</span>
+        <span>•</span>
+        <span>Reading time: 13 minutes</span>
+        <span>•</span>
+        <span style="color: #2196f3; font-weight: bold;">🗓️ WEEKLY ROUNDUP</span>
+    </div>
+
+    <div class="affiliate-disclosure">
+        <p><strong>📢 Affiliate Disclosure:</strong> This site contains affiliate links to Amazon. We earn a commission when you purchase through our links at no additional cost to you.</p>
+    </div>
+
+    <div class="intro">
+        <p><strong>The last week of February 2026 delivered a brutal reminder that security is everyone's problem.</strong> A locally running AI agent could be silently hijacked by a malicious webpage. Nearly 3,000 Google API keys — previously considered harmless — suddenly gained the power to access private Gemini AI data. And a dormant rootkit implant that survived every Ivanti factory reset is still lurking on network appliances across the globe.</p>
+
+        <p>North Korean state hackers found a new way to leap across air-gapped networks using nothing but USB drives. A popular Chrome extension got quietly sold to attackers and turned into a ClickFix crypto thief. A South Korean government agency accidentally published a crypto wallet seed phrase in an official press release and lost $4.8 million within hours.</p>
+
+        <p>This week's theme: <strong>the attack surface is now everywhere, and so are the mistakes.</strong> For bug hunters, that's simultaneously sobering and exciting. Let's break it down.</p>
+    </div>
+
+    <nav style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 30px 0;">
+        <h2 style="margin-top: 0; font-size: 1.1em;">Table of Contents</h2>
+        <ol>
+            <li><a href="#clawjacked">ClawJacked: AI Agent WebSocket Hijacking (OpenClaw)</a></li>
+            <li><a href="#google-gemini">Google API Keys Now Expose Gemini AI — 2,800 Keys Found Exposed</a></li>
+            <li><a href="#resurge">RESURGE Malware: Ivanti's Unkillable Rootkit Returns</a></li>
+            <li><a href="#apt37">APT37 Ruby Jumper: Air-Gap Breaches via USB</a></li>
+            <li><a href="#quicklens">QuickLens ClickFix: The Chrome Extension Supply Chain Attack</a></li>
+            <li><a href="#honorable-mentions">Honorable Mentions</a></li>
+            <li><a href="#essential-tools">Essential Tools This Week</a></li>
+            <li><a href="#books">Books to Go Deeper</a></li>
+            <li><a href="#recommendations">Bug Hunter Focus Areas</a></li>
+            <li><a href="#conclusion">Conclusion</a></li>
+        </ol>
+    </nav>
+
+    <!-- =========================================================
+         SECTION 1: CLAWJACKED
+         ========================================================= -->
+    <section id="clawjacked">
+        <h2>🚨 ClawJacked: AI Agent WebSocket Hijacking (OpenClaw)</h2>
+
+        <div class="meta" style="margin-bottom: 16px;">
+            <span>Source: Oasis Security / BleepingComputer</span>
+            <span>•</span>
+            <span>Disclosed: February 28, 2026 — Patched: February 26, 2026</span>
+            <span>•</span>
+            <span style="color: #f44336; font-weight: bold;">HIGH SEVERITY</span>
+        </div>
+
+        <p><strong>What happened:</strong> Oasis Security disclosed a high-severity vulnerability dubbed "ClawJacked" in OpenClaw, a popular self-hosted AI agent platform. The attack allows a malicious website to silently brute-force the locally running OpenClaw gateway and take full administrative control — all from a browser tab, without any user interaction beyond simply visiting the page.</p>
+
+        <p>The root cause is elegant and alarming: OpenClaw's gateway service binds to localhost and exposes a WebSocket interface. Browser cross-origin policies block cross-origin <em>HTTP</em> requests but don't block <em>WebSocket</em> connections to localhost. A malicious site can therefore open a WebSocket connection to 127.0.0.1 and start guessing the management password without any rate limiting — because the loopback exemption exists to prevent legitimate CLI sessions from locking themselves out.</p>
+
+        <p>In Oasis's lab testing, the attack achieved hundreds of password guesses per second from browser JavaScript alone. A common-password list is exhausted in under a second. A large dictionary takes minutes. OpenClaw also automatically approves device pairings from localhost, so once the correct password is found, the attacker silently registers as a trusted device with admin permissions.</p>
+
+        <p><strong>Why it matters:</strong> With admin access, an attacker can interact with the AI platform directly — reading file contents, executing shell commands on paired nodes, dumping stored credentials, or scanning messaging histories for sensitive data. This is a full workstation compromise triggered by visiting a single malicious webpage. No download, no click-through, no warning prompt.</p>
+
+        <p>OpenClaw's popularity among developers and security professionals makes this particularly dangerous. The attack works on any platform where a user is running the OpenClaw gateway locally — which is its default deployment model.</p>
+
+        <p><strong>How to test for similar vulnerabilities:</strong> Local service exposure is an underexplored attack surface. Look for developer tools, AI agents, database GUIs, and debugging services bound to 127.0.0.1. Test whether those services accept unauthenticated WebSocket connections from browser JavaScript. Check if rate limiting is disabled for localhost (common pattern). Any local service that auto-approves connections from 127.0.0.1 without a user confirmation step is potentially exploitable via this pattern.</p>
+
+        <p><strong>The fix:</strong> OpenClaw pushed a patch in version 2026.2.26 within 24 hours of disclosure — an excellent response time. The fix tightens WebSocket security checks and prevents localhost from bypassing rate limiting. Update immediately if you're running OpenClaw locally.</p>
+
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0;">
+            <p><strong>💡 Bug Hunter Tip:</strong> WebSocket-to-localhost attacks are an underreported class. When testing web applications that ship with local companion apps or desktop agents, always check if those local services are reachable from browser JavaScript. Test for: missing <code>Origin</code> header validation, WebSocket connections to 127.0.0.1:PORT from a cross-origin page, and auto-approval flows that don't require out-of-band user confirmation.</p>
+        </div>
+    </section>
+
+    <!-- =========================================================
+         SECTION 2: GOOGLE GEMINI API KEYS
+         ========================================================= -->
+    <section id="google-gemini">
+        <h2>🔑 Google API Keys Now Expose Gemini AI — 2,800 Keys Found Exposed</h2>
+
+        <div class="meta" style="margin-bottom: 16px;">
+            <span>Source: TruffleSecurity / BleepingComputer</span>
+            <span>•</span>
+            <span>Published: February 26, 2026</span>
+            <span>•</span>
+            <span style="color: #ff9800; font-weight: bold;">HIGH SEVERITY</span>
+        </div>
+
+        <p><strong>What happened:</strong> Researchers at TruffleSecurity discovered that Google Cloud API keys — which developers have historically embedded in client-side JavaScript for <em>benign</em> services like Maps, YouTube embeds, and Firebase — now also authenticate to Google's Gemini AI assistant. When Google introduced Gemini, it reused the same API key mechanism, quietly turning thousands of "harmless" public keys into credentials for a powerful AI service.</p>
+
+        <p>TruffleSecurity scanned the November 2025 Common Crawl dataset and found more than 2,800 live, publicly exposed Google API keys. Among those: keys belonging to major financial institutions, security companies, recruiting firms — and at least one key embedded in a public-facing Google product's own website since at least February 2023.</p>
+
+        <p><strong>Why it matters:</strong> Using the Gemini API isn't free. An attacker copying a key from a website's source code can make API calls on the victim's behalf — draining quota, potentially accessing private data exposed through the Gemini API endpoints, and generating thousands of dollars in charges per day on a single compromised account. TruffleSecurity notes that a threat actor "maxing out API calls could generate thousands of dollars in charges per day on a single victim account."</p>
+
+        <p>The broader lesson is about scope creep in API key permissions. Keys that were "safe to expose" when they only covered Maps are no longer safe after Gemini was added to the same scope. If a service expands what a credential can do, every existing deployment of that credential inherits the new risk — silently, with no notification to developers.</p>
+
+        <p><strong>How to test:</strong> Scan any target application's source code and JavaScript bundles for Google API keys. Use the <a href="https://github.com/trufflesecurity/trufflehog" rel="nofollow">TruffleHog open-source tool</a> to detect live, exposed secrets in repositories. Once a candidate key is found, check which APIs are enabled for the associated project — particularly whether the Generative Language API (Gemini) is in scope. This is a legitimate secret scanning bug bounty finding at many targets.</p>
+
+        <p><strong>Google's response:</strong> New AI Studio keys will default to Gemini-only scope. Leaked API keys will be blocked from accessing Gemini, and Google has committed to proactive notifications when leaks are detected. Developers should audit all API keys in their environment and rotate any that are publicly accessible.</p>
+
+        <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; border-left: 4px solid #4caf50; margin: 20px 0;">
+            <p><strong>📋 Quick checklist for Google API key exposure:</strong></p>
+            <ul>
+                <li>Search public source: <code>site:github.com "AIzaSy" "REPO_NAME"</code></li>
+                <li>Check if Generative Language API is enabled: <code>GET https://generativelanguage.googleapis.com/v1beta/models?key=API_KEY</code></li>
+                <li>Verify key scope via Google Cloud Console</li>
+                <li>Check mobile apps — Quokka's separate research found 35,000 Google API keys in 250,000 scanned apps</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- =========================================================
+         SECTION 3: RESURGE / IVANTI
+         ========================================================= -->
+    <section id="resurge">
+        <h2>☠️ RESURGE Malware: Ivanti's Unkillable Rootkit Returns</h2>
+
+        <div class="meta" style="margin-bottom: 16px;">
+            <span>Source: CISA / Mandiant / BleepingComputer</span>
+            <span>•</span>
+            <span>Updated CISA Advisory: February 27, 2026 — Original CVE: CVE-2025-0282</span>
+            <span>•</span>
+            <span style="color: #f44336; font-weight: bold;">CRITICAL</span>
+        </div>
+
+        <p><strong>What happened:</strong> CISA released updated technical analysis of RESURGE, a sophisticated malicious implant deployed by Chinese state-linked threat actor UNC5221 (tracked as APT-linked to China) via zero-day exploitation of CVE-2025-0282 in Ivanti Connect Secure VPN appliances. The original disclosure was in early 2025; the updated bulletin warns that RESURGE can remain <strong>dormant and completely undetected</strong> on compromised Ivanti devices indefinitely — including after factory resets and firmware updates.</p>
+
+        <p>RESURGE is a 32-bit Linux Shared Object (libdsupgrade.so) with rootkit, bootkit, backdoor, dropper, proxying, and tunneling capabilities. Instead of beaconing outbound to a C2 server (which network monitoring would detect), it passively waits for a specific inbound TLS connection identified by a CRC32 fingerprint. Traffic without the matching fingerprint gets forwarded to the legitimate Ivanti server — indistinguishable from normal operation.</p>
+
+        <p>The implant uses a fake Ivanti certificate for authentication that is transmitted <em>unencrypted</em> over the internet — a design choice that inadvertently gives defenders a network-level detection signature. A companion component, SpawnSloth (liblogblock.so), tampers with logs to erase traces of malicious activity. A third component allows RESURGE to modify and re-encrypt coreboot firmware images, achieving true boot-level persistence.</p>
+
+        <p><strong>Why it matters:</strong> Perimeter security appliances — VPNs, firewalls, load balancers — are the highest-value targets in any enterprise because they sit at the network boundary and run with kernel-level privileges. When they're compromised at the firmware level, there's essentially no reliable remediation short of physical hardware replacement. CVE-2025-0282 (CVSS 9.0) was exploited as a zero-day from mid-December 2024 before Ivanti even knew it existed.</p>
+
+        <p>The CISA warning specifically emphasizes that affected organizations should assume RESURGE may still be present even on devices that were patched and "remediated" months ago. The dormancy capability means detection requires active threat hunting, not passive monitoring.</p>
+
+        <p><strong>How to test / how to detect:</strong> If you're performing penetration tests or red team engagements against networks using Ivanti appliances:</p>
+        <ul>
+            <li>Network signature: Look for the unencrypted fake Ivanti TLS certificate in outbound traffic as an IoC</li>
+            <li>File hash IoCs: libdsupgrade.so (52bbc44e...), liblogblock.so (3526af91...), dsmain (b1221000...)</li>
+            <li>Detect passive C2 patterns (no outbound beacon = harder to catch with standard egress monitoring)</li>
+            <li>Run CISA's recommended integrity checking tooling on Ivanti appliances</li>
+            <li>Assume compromise on any Ivanti Connect Secure device that was internet-facing in late 2024 / early 2025</li>
+        </ul>
+
+        <p>For bug bounty hunters: firmware-level persistence in network appliances is a legitimate and extremely high-value research area. Understanding how rootkits like RESURGE achieve stealth makes you a better hunter when testing VPN gateways and network edge devices.</p>
+    </section>
+
+    <!-- =========================================================
+         SECTION 4: APT37 RUBY JUMPER
+         ========================================================= -->
+    <section id="apt37">
+        <h2>🇰🇵 APT37 Ruby Jumper: Air-Gap Breaches via USB</h2>
+
+        <div class="meta" style="margin-bottom: 16px;">
+            <span>Source: Zscaler ThreatLabz / BleepingComputer</span>
+            <span>•</span>
+            <span>Published: February 27, 2026</span>
+            <span>•</span>
+            <span style="color: #ff9800; font-weight: bold;">HIGH SEVERITY — STATE ACTOR</span>
+        </div>
+
+        <p><strong>What happened:</strong> Zscaler ThreatLabz published analysis of "Ruby Jumper," a campaign by North Korean APT37 (also known as ScarCruft / Ricochet Chollima / InkySquid) deploying a sophisticated five-tool malware framework specifically designed to bridge air-gapped networks via removable USB drives.</p>
+
+        <p>The attack chain is technically impressive:</p>
+        <ol>
+            <li><strong>Initial access:</strong> A malicious Windows shortcut (LNK) file deploys an embedded PowerShell script and displays a decoy document (an Arabic-language North Korean newspaper article on the Palestine-Israel conflict, used as social engineering).</li>
+            <li><strong>RESTLEAF:</strong> First-stage implant that uses <em>Zoho WorkDrive</em> as its C2 channel — legitimate cloud storage used to fetch encrypted shellcode and evade network-based C2 detection.</li>
+            <li><strong>SNAKEDROPPER:</strong> A Ruby-based loader that installs the full Ruby 3.3.0 runtime disguised as a USB utility (usbspeed.exe), then tampers with RubyGems' operating_system.rb to auto-execute malware on every Ruby interpreter start.</li>
+            <li><strong>THUMBSBD:</strong> The air-gap bridge component. It creates hidden directories on detected USB drives, copies data to them, and turns removable storage into a bidirectional covert C2 relay — delivering commands to air-gapped machines and exfiltrating data from them.</li>
+            <li><strong>VIRUSTASK:</strong> Spreads infection to new air-gapped machines by weaponizing inserted USB drives, turning each one into a propagation vector.</li>
+        </ol>
+
+        <p><strong>Why it matters:</strong> Air-gapped networks are used by critical infrastructure operators, military installations, research labs, and government agencies specifically because they assume physical isolation equals security. Ruby Jumper demonstrates that assumption is wrong when removable media is the Achilles heel. Using Zoho WorkDrive as C2 is a particularly clever evasion — most enterprise egress filtering whitelists legitimate cloud services.</p>
+
+        <p>For red teamers and penetration testers: USB-based lateral movement against air-gapped segments is a legitimate and increasingly in-scope red team objective. Understanding the techniques APT37 uses informs realistic adversary simulation engagements.</p>
+
+        <p><strong>Defensive takeaways:</strong> Disable USB mass storage device auto-run at the OS level. Implement application allowlisting that blocks unexpected runtime installations (Ruby, Python, etc.). Monitor for scheduled tasks executing language runtimes with unexpected arguments. Treat any USB drive inserted into an internet-connected machine that was previously used in an air-gapped environment as compromised.</p>
+    </section>
+
+    <!-- =========================================================
+         SECTION 5: QUICKLENS / CLICKFIX
+         ========================================================= -->
+    <section id="quicklens">
+        <h2>🧩 QuickLens ClickFix: Chrome Extension Supply Chain Attack</h2>
+
+        <div class="meta" style="margin-bottom: 16px;">
+            <span>Source: Annex Security / BleepingComputer</span>
+            <span>•</span>
+            <span>Published: February 28, 2026 — Malicious version: February 17, 2026</span>
+            <span>•</span>
+            <span style="color: #ff9800; font-weight: bold;">HIGH SEVERITY</span>
+        </div>
+
+        <p><strong>What happened:</strong> The Chrome extension "QuickLens – Search Screen with Google Lens" was quietly purchased on ExtensionHub (a marketplace for buying and selling browser extensions), then poisoned with malicious code that deployed ClickFix attacks, stripped browser security headers from all pages, and attempted to steal cryptocurrency from approximately 7,000 users.</p>
+
+        <p>The attack timeline matters: ownership changed on February 1 to a new entity under a barely-functional domain. On February 17, the malicious v5.8 update was pushed via Chrome's auto-update mechanism. Users had no indication anything had changed — the extension's name, icon, and visible functionality remained identical.</p>
+
+        <p>The malicious update requested new permissions (declarativeNetRequestWithHostAccess, webRequest) and included a rules.json that stripped Content-Security-Policy, X-Frame-Options, and X-XSS-Protection headers from every web page the user visited. This neutralized the security controls that would normally prevent inline JavaScript injection — turning every website into an injection surface. Payloads were delivered from a C2 (api.extensionanalyticspro[.]top) every five minutes, executed via a "1×1 GIF pixel onload trick."</p>
+
+        <p>The ClickFix component injected fake Google Update alerts across all web pages, copying malicious PowerShell commands to clipboard and instructing users to run them — a social engineering technique that's been highly effective against non-technical users.</p>
+
+        <p><strong>Why it matters:</strong> Browser extension supply chain attacks are a persistent and growing threat. Extensions auto-update silently. Once installed, a malicious extension has broad access to every page you visit — credentials, tokens, form data. The ability to strip CSP headers makes the attack particularly dangerous: it turns a compromised extension into an XSS-as-a-service platform for every website in the browser.</p>
+
+        <p><strong>How to test / what to look for as a bug hunter:</strong></p>
+        <ul>
+            <li>Any web application that relies solely on CSP for XSS prevention is one installed extension away from being fully compromised</li>
+            <li>Extension marketplace acquisition attacks are viable supply chain attack vectors — watch for ownership changes on widely-installed extensions</li>
+            <li>Test browser extension attack surfaces: content script injection, background page API access, declarativeNetRequest rule abuse</li>
+            <li>ClickFix as a delivery mechanism for payload execution is increasingly common — document it when you see it in scope</li>
+        </ul>
+
+        <p>Google has since removed QuickLens from the Chrome Web Store. Users who had it installed should remove it and run a full malware scan.</p>
+    </section>
+
+    <!-- =========================================================
+         SECTION 6: HONORABLE MENTIONS
+         ========================================================= -->
+    <section id="honorable-mentions">
+        <h2>📌 Honorable Mentions</h2>
+
+        <h3>$4.8M Stolen After Korean Tax Agency Exposes Wallet Seed Phrase</h3>
+        <p>South Korea's National Tax Service accidentally published the mnemonic recovery phrase of a seized cryptocurrency wallet in an official government press release. Attackers noticed, drained 6.4 billion won ($4.8M USD) in cryptocurrency. The "vulnerability" here wasn't technical — it was process failure at a government agency. Lesson: credentials and key material in any document that might become public require mandatory classification review. <em>(February 28, BleepingComputer)</em></p>
+
+        <h3>Europol "Project Compass": 30 Arrests from The Com Cybercrime Network</h3>
+        <p>Europol's year-long operation "Project Compass" resulted in 30 arrests tied to "The Com," an English-speaking cybercrime collective known for SIM swapping, social engineering attacks targeting teenagers, and violent coercion tactics. 179 total suspects were identified. For bug hunters: social engineering attack techniques used by The Com (SIM swap, helpdesk impersonation, insider recruitment) are directly testable attack vectors in scoped engagements. Understanding how they operate makes you a more realistic threat modeller. <em>(February 27, BleepingComputer)</em></p>
+
+        <h3>Malicious ClawHub Skills Pushing Infostealing Malware</h3>
+        <p>Separately from the ClawJacked vulnerability, threat actors have been abusing OpenClaw's "ClawHub" skills repository to distribute malicious skills that deploy credential-stealing malware or trick users into running arbitrary commands. This is a package manager / plugin ecosystem supply chain attack — the same pattern we've seen hit npm, PyPI, VSCode extensions, and now AI agent skill stores. If you're using community skills from any AI agent marketplace, review the source before installing. <em>(February 28, BleepingComputer)</em></p>
+    </section>
+
+    <!-- =========================================================
+         SECTION 7: ESSENTIAL TOOLS
+         ========================================================= -->
+    <section id="essential-tools">
+        <h2>🛠️ Essential Tools This Week</h2>
+
+        <p>Based on this week's attack patterns — AI agent hijacking, API key exposure, USB-based lateral movement — here are the five tools every serious bug hunter and red teamer needs in their kit:</p>
+
+        <div class="tool">
+            <h3>1. Burp Suite Professional</h3>
+            <p><strong>Why you need it:</strong> ClawJacked's WebSocket brute-force attack, Google API key scope testing, SSRF testing for cloud credentials — all of these require a professional intercepting proxy. Burp's WebSocket support, Intruder, Repeater, and active scanner are non-negotiable for serious web and API security testing. The extension ecosystem (BAPP store) adds GraphQL testing, JWT analysis, and cloud-specific scanning modules.</p>
+            <p><strong>Price:</strong> $449/year (Professional) — <a href="https://portswigger.net/burp/pro" rel="nofollow">Buy direct from PortSwigger</a>. Worth every penny for the productivity gain alone.</p>
+        </div>
+
+        <div class="tool">
+            <h3>2. Alfa AWUS036ACH WiFi Adapter — Monitor Mode &amp; Packet Injection</h3>
+            <p><strong>Why you need it:</strong> APT37's Ruby Jumper campaign reminds us that physical security and wireless security remain critical attack surfaces. A capable dual-band WiFi adapter with monitor mode and packet injection support is essential for wireless penetration testing, rogue AP attacks, and WPA2 assessment. The Alfa AWUS036ACH is the community's top pick for Kali Linux compatibility — Realtek chipset, USB 3.0 Type-C, dual 5dBi external antennas for long-range testing.</p>
+            <p><a href="https://www.amazon.com/dp/B00VEEBOPG?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Alfa AWUS036ACH AC1200 Dual-Band USB 3.0 WiFi Adapter — ~$40-60 on Amazon</a></p>
+        </div>
+
+        <div class="tool">
+            <h3>3. TruffleHog (Open Source) — Secret Detection</h3>
+            <p><strong>Why you need it:</strong> The Google Gemini API key story is a perfect illustration of why you should always be scanning for exposed secrets in scope. TruffleHog scans Git repositories, S3 buckets, Docker images, and file systems for over 800 credential types — including Google API keys — and verifies them live against the corresponding APIs. It's the same tool TruffleSecurity used to find 2,800 exposed Google keys in the Common Crawl dataset.</p>
+            <p><strong>Free &amp; open source:</strong> <a href="https://github.com/trufflesecurity/trufflehog" rel="nofollow">github.com/trufflesecurity/trufflehog</a> — Install it. Run it against every target you test.</p>
+        </div>
+
+        <div class="tool">
+            <h3>4. Raspberry Pi 4 Pentesting Platform</h3>
+            <p><strong>Why you need it:</strong> USB-based attack research (APT37 / Ruby Jumper), local WebSocket testing (ClawJacked), home lab for Ivanti firmware analysis — all of these benefit from a dedicated low-power ARM device you can leave running 24/7. The Raspberry Pi 4 8GB is the recommended spec for running Kali Linux, Pi-hole, network monitoring tools, and custom testing scripts. The Vilros starter kit includes the case, fan, and accessories — ready to go out of the box.</p>
+            <p><a href="https://www.amazon.com/dp/B089ZZ8DTV?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Vilros Raspberry Pi 4 8GB Starter Kit (Case + Fan + Accessories) — ~$80-100 on Amazon</a></p>
+        </div>
+
+        <div class="tool">
+            <h3>5. YubiKey Hardware Security Keys</h3>
+            <p><strong>Why you need it:</strong> QuickLens stripped CSP headers across every visited site and had live access to browser sessions, clipboard, and form inputs. Hardware security keys protect your accounts even when a browser extension or malicious JavaScript is intercepting your session — because the cryptographic handshake never leaves the hardware. Every security professional should be running hardware MFA on all critical accounts.</p>
+            <p>
+                <a href="https://amazon.com/dp/B07HBD71HL?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">YubiKey 5 NFC (USB-A + NFC) — ~$55 on Amazon</a> — Top pick: FIDO2/U2F, works with mobile via NFC, IP68 rated<br>
+                <a href="https://amazon.com/dp/B07HBTBJ5S?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">YubiKey 5C Nano (USB-C, stays inserted) — ~$62 on Amazon</a> — Ideal for always-on laptop protection<br>
+                <a href="https://amazon.com/dp/B07HBDX2CM?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">YubiKey 5 Nano (USB-A, stays inserted) — ~$62 on Amazon</a> — Same as above for older laptops
+            </p>
+        </div>
+    </section>
+
+    <!-- =========================================================
+         SECTION 8: BOOKS
+         ========================================================= -->
+    <section id="books">
+        <h2>📚 Books to Go Deeper</h2>
+
+        <p>This week's stories cover AI agent security, API key exposure, advanced persistent threats, and browser extension attacks. Here are four books that will sharpen your understanding across these domains:</p>
+
+        <div class="tool">
+            <h3>1. Hacking: The Art of Exploitation, 2nd Edition — Jon Erickson</h3>
+            <p><strong>Why read it:</strong> RESURGE's bootkit and firmware manipulation capabilities require a deep understanding of memory, the stack, and low-level exploitation. This is the foundation. Erickson covers buffer overflows, shellcode, memory corruption, and network exploitation at a level that makes advanced implant analysis accessible. Essential if you want to go beyond surface-level CVE writeups.</p>
+            <p><a href="https://amazon.com/dp/1593271441?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Buy on Amazon — ~$45</a></p>
+        </div>
+
+        <div class="tool">
+            <h3>2. Black Hat Python, 2nd Edition — Justin Seitz &amp; Tim Arnold</h3>
+            <p><strong>Why read it:</strong> TruffleHog is written in Go, but Python remains the lingua franca for custom security tooling. This book covers building network sniffers, code injection, custom C2 frameworks, credential harvesting tools, and forensic analysis utilities — all in Python 3. The skills map directly to writing custom secret-scanning scripts or automating the kind of API key verification that TruffleSecurity performed this week.</p>
+            <p><a href="https://www.amazon.com/dp/1718501129?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Buy on Amazon — ~$35</a></p>
+        </div>
+
+        <div class="tool">
+            <h3>3. The Web Application Hacker's Handbook, 2nd Edition — Stuttard &amp; Pinto</h3>
+            <p><strong>Why read it:</strong> ClawJacked and the QuickLens ClickFix attack both exploit web security model quirks — WebSocket CORS bypass and CSP stripping respectively. This book is the definitive technical reference for how browsers handle cross-origin requests, how CSP works (and fails), and how web application authentication can be bypassed. Dense and technical, but the coverage of browser security mechanisms is unmatched.</p>
+            <p>
+                <a href="https://www.amazon.com/dp/1118026470?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Print Edition — ~$38 on Amazon</a> |
+                <a href="https://www.amazon.com/dp/B005LVQA9S?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Kindle Edition — ~$25 on Amazon</a>
+            </p>
+        </div>
+
+        <div class="tool">
+            <h3>4. Metasploit: The Penetration Tester's Guide — Kennedy, O'Gorman, Kearns &amp; Aharoni</h3>
+            <p><strong>Why read it:</strong> APT37's multi-stage USB toolkit and RESURGE's modular implant design are sophisticated post-exploitation frameworks — the same design patterns Metasploit uses. Understanding Metasploit's architecture (stages, stagers, payloads, post-exploitation modules) gives you a mental model for both using and defending against advanced persistent threat toolkits. Written by Metasploit contributors, this is the official guide.</p>
+            <p><a href="https://www.amazon.com/dp/159327288X?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Buy on Amazon — ~$40</a></p>
+        </div>
+    </section>
+
+    <!-- =========================================================
+         SECTION 9: BUG HUNTER FOCUS AREAS
+         ========================================================= -->
+    <section id="recommendations">
+        <h2>🎯 Bug Hunter Focus Areas: Where to Look This Week</h2>
+
+        <h3>1. Local Service Attack Surfaces</h3>
+        <p>ClawJacked put WebSocket-to-localhost attacks firmly on the map. Go look at developer tools, AI agents, local database GUIs (Adminer, pgAdmin), debugging servers, and desktop companion apps that expose local HTTP or WebSocket interfaces. Test them from a browser page and check whether cross-origin WebSocket connections are accepted without explicit Origin validation. Rate-limiting exemptions for 127.0.0.1 are a red flag.</p>
+
+        <h3>2. API Key Scope Creep</h3>
+        <p>The Google Gemini key story is almost certainly not unique to Google. Any platform that reuses existing credential mechanisms for new, higher-privilege services creates a scope-creep risk. Check what an API key you find exposed in JavaScript or in a public repository <em>can actually do today</em> — not just what it was documented to do when it was first created. Test Firebase keys, Stripe restricted keys, Twilio keys, and cloud service API keys for unexpectedly available endpoints.</p>
+
+        <h3>3. Browser Extension Attack Surface</h3>
+        <p>QuickLens is one of many extensions that have been acquired and poisoned. If you're testing a target that relies on browser-side security controls (CSP, X-Frame-Options, SameSite cookies), understand that any installed extension can strip those controls. More importantly: if browser extension development is in scope for your bug bounty target, hunt for manifest V3 permission abuse, declarativeNetRequest rule injection, and content script isolation bypasses.</p>
+
+        <h3>4. AI Platform Security</h3>
+        <p>The ClawHub malicious skills story and ClawJacked together underscore that AI agent platforms are immature in their security posture. If your target has integrated an AI agent platform, test for: skill/plugin supply chain issues, prompt injection in agentic workflows, unauthorized tool invocation, and local service exposure from agent gateway components. This attack class is growing fast.</p>
+
+        <h3>5. Network Appliance Persistence</h3>
+        <p>RESURGE demonstrates that critical network appliances (VPNs, firewalls, load balancers) can be compromised at the firmware level in ways that survive standard remediation. If you're doing threat hunting or red team engagements: add Ivanti, Palo Alto, Fortinet, and Cisco appliances to your persistence validation checklist. Assume any internet-facing appliance that ran CVE-2025-0282-vulnerable Ivanti firmware in late 2024 may still be implanted.</p>
+    </section>
+
+    <!-- =========================================================
+         SECTION 10: CONCLUSION
+         ========================================================= -->
+    <section id="conclusion">
+        <h2>Conclusion: When "Safe" Assumptions Break</h2>
+
+        <p>The unifying theme across this week's findings is the failure of assumptions that used to be safe:</p>
+
+        <ul>
+            <li><strong>Localhost was safe</strong> — until ClawJacked proved malicious websites can reach it via WebSocket</li>
+            <li><strong>Google API keys were safe to embed publicly</strong> — until Gemini changed their scope</li>
+            <li><strong>Factory-resetting a compromised appliance was sufficient</strong> — until RESURGE survived it at the firmware level</li>
+            <li><strong>Air-gapped networks were safe from external attackers</strong> — until USB drives became bidirectional covert C2 channels</li>
+            <li><strong>A trusted extension with a Featured badge was safe</strong> — until it was quietly sold and poisoned</li>
+        </ul>
+
+        <p>Security assumptions have expiry dates. The threat landscape shifts constantly — new services expand old credential scopes, new attack surfaces emerge from new deployment patterns, and trusted components get compromised. The best bug hunters are the ones who question every assumption about what's "already secured."</p>
+
+        <p>For 2026, that means: <strong>test your AI infrastructure the way you'd test any untrusted third-party service. Audit your credential exposure the way you'd audit a vault. Hunt for firmware persistence the way you'd hunt for rookit implants in ring-0.</strong> Because that's exactly what the adversaries are doing.</p>
+
+        <p><strong>Stay curious. Stay paranoid. Happy hunting.</strong></p>
+    </section>
+
+    <div style="background: #f5f5f5; padding: 30px; border-radius: 8px; margin: 40px 0;">
+        <h3>🔔 Get Weekly Roundups Delivered</h3>
+        <p>Subscribe to receive security roundups, tool reviews, and bug bounty tips every Monday.</p>
+        <p><a href="/" style="background: #f44336; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; display: inline-block;">Subscribe Now</a></p>
+    </div>
+
+</article>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Bug Hunter Tools. All rights reserved.</p>
+            <p><a href="/privacy.html">Privacy Policy</a></p>
+        </div>
+    </footer>
+</body>
+</html>
