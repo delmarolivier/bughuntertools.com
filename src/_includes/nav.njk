@@ -1,6 +1,7 @@
 <nav class="main-nav">
     <a href="/"{% if page.url == '/' or page.url == '/index.html' %} style="background: rgba(255,255,255,0.2);"{% endif %}>Home</a>
     <a href="/articles/"{% if page.url.startsWith('/articles/') and page.url != '/articles/security-testing-tools-2026.html' %} style="background: rgba(255,255,255,0.2);"{% endif %}>Articles</a>
+    <a href="/demos/"{% if page.url.startsWith('/demos/') %} style="background: rgba(255,255,255,0.2);"{% endif %}>SecurityClaw Demos</a>
     <a href="/articles/security-testing-tools-2026.html"{% if page.url == '/articles/security-testing-tools-2026.html' %} style="background: rgba(255,255,255,0.2);"{% endif %}>Tools</a>
     <a href="/privacy.html"{% if page.url == '/privacy.html' %} style="background: rgba(255,255,255,0.2);"{% endif %}>Privacy</a>
 </nav>

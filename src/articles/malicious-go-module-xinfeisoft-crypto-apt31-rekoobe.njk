@@ -1,0 +1,299 @@
+---
+title: "Malicious Go Package 'xinfeisoft/crypto' Deployed APT31's Rekoobe Backdoor Via SSH Credential Theft"
+description: "A typosquatted Go module impersonating golang.org/x/crypto was used to steal SSH credentials and deploy the APT31-associated Rekoobe Linux backdoor. The Go security team has blocked it — but the technique is repeatable. Here's what happened and how to detect it."
+date: 2026-02-28
+layout: base.njk
+permalink: /articles/malicious-go-module-xinfeisoft-crypto-apt31-rekoobe-backdoor/
+tags: articles
+author: "BugHunterTools"
+---
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Malicious Go Package 'xinfeisoft/crypto' Deployed APT31's Rekoobe Backdoor Via SSH Credential Theft",
+  "description": "A typosquatted Go module impersonating golang.org/x/crypto was used to steal SSH credentials and deploy the APT31-associated Rekoobe Linux backdoor.",
+  "datePublished": "2026-02-28",
+  "dateModified": "2026-02-28",
+  "author": { "@type": "Person", "name": "BugHunterTools" },
+  "publisher": { "@type": "Organization", "name": "BugHunterTools", "url": "https://bughuntertools.com" }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What was the xinfeisoft/crypto Go package?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "github.com/xinfeisoft/crypto was a malicious Go module designed to impersonate the legitimate golang.org/x/crypto standard library package. This is a namespace confusion attack — the attacker created a plausible-looking alternative package that replaces the legitimate ReadPassword() function in the ssh/terminal/terminal.go file with a version that exfiltrates credentials to an attacker-controlled endpoint before passing them to the real function. The Go security team has since blocked the package."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the Rekoobe backdoor?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Rekoobe is a Linux backdoor associated with APT31 (also known as Zirconium or Judgment Panda), a Chinese state-sponsored threat group. First documented in 2015, Rekoobe has remained in active use. It is a C++ native binary (x32 and x64) with anti-VM capabilities. The malware communicates via encrypted channels and provides remote shell access. In the xinfeisoft/crypto campaign, Rekoobe was delivered via a curl|sh dropper that also added an attacker-controlled SSH key to ~/.ssh/authorized_keys and loosened iptables firewall rules."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does a Go supply chain attack via namespace confusion work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Go modules are identified by their full import path (e.g., golang.org/x/crypto vs github.com/xinfeisoft/crypto). An attacker creates a package with a similar name on a different host. If a developer or their dependency manager accidentally uses the malicious import path, the malicious code is compiled into the binary. In this case, the attack targeted the ssh/terminal package specifically — hooking the ReadPassword function to capture SSH passwords before the legitimate authentication flow completes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can I detect if my Go project uses a malicious or typosquatted dependency?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Audit your go.mod and go.sum files for unexpected or unusual module paths — particularly any that closely resemble well-known standard library extensions (golang.org/x/*). Run a supply chain scanning tool like TruffleHog (which can scan Go module files for suspicious or known-malicious packages) or Syft/Grype for dependency scanning. Review all dependencies against the Go Module Mirror (sum.golang.org) and check for packages with mismatched names or unusual hosting (GitHub repos with Chinese names that clone standard library paths are a red flag). OSV.dev and the Go vulnerability database (pkg.go.dev/vuln) are also useful resources."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is golang.org/x/crypto safe to use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. golang.org/x/crypto is the official extended cryptography library maintained by the Go team. It is safe. The malicious package was github.com/xinfeisoft/crypto — a completely different module with a similar name designed to confuse developers. Always verify your import paths and use go mod verify to ensure your dependency checksums match the official Go module mirror."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How did Rekoobe establish persistence after infection?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Based on known Rekoobe campaigns and the xinfeisoft/crypto dropper behaviour: the curl|sh stager added an attacker SSH key to ~/.ssh/authorized_keys (establishing persistent SSH access), loosened iptables rules (allowing inbound connections that may have been previously blocked), and deployed the Rekoobe binary itself which communicates with a C2 server for remote command execution. This three-layer approach — credential theft, backdoor key injection, and persistent malware — gives the attacker multiple footholds."
+      }
+    }
+  ]
+}
+</script>
+
+<article>
+
+<div class="meta" style="color: #777; font-size: 0.88rem; margin-bottom: 24px;">
+  📅 February 28, 2026 &nbsp;|&nbsp; 🔴 Supply Chain / APT &nbsp;|&nbsp; CVE: Not yet assigned &nbsp;|&nbsp; Blocked by Go security team
+</div>
+
+<div class="intro" style="background: #fff3cd; border-left: 4px solid #e67e22; padding: 16px 20px; margin-bottom: 28px; border-radius: 0 4px 4px 0;">
+  <p><strong>A Go module named <code>github.com/xinfeisoft/crypto</code> impersonated the legitimate <code>golang.org/x/crypto</code> standard library package and silently exfiltrated SSH credentials before deploying the APT31-associated Rekoobe Linux backdoor. The Go security team has blocked the package — but the attack technique is documented, repeatable, and carries a trusted threat actor's fingerprints.</strong></p>
+</div>
+
+<h2>The Attack in 90 Seconds</h2>
+
+<p>The attack exploited a structural property of Go's module system: import paths are URLs, not names. <code>golang.org/x/crypto</code> and <code>github.com/xinfeisoft/crypto</code> are completely different modules. One is maintained by the Go team; the other was a trap.</p>
+
+<p>The malicious package cloned the structure of the legitimate <code>golang.org/x/crypto</code> repository and made one surgical modification: it <strong>replaced the <code>ReadPassword()</code> function</strong> inside <code>ssh/terminal/terminal.go</code>. The replacement function did everything the original did — but before passing the credential to the caller, it sent it to an attacker-controlled endpoint.</p>
+
+<p>From the victim's perspective: SSH authentication appeared to work normally. Under the hood, every password typed into a terminal using this modified function was being exfiltrated.</p>
+
+<p>That was step one.</p>
+
+<p>Step two: a <strong>curl-piped shell stager</strong> was downloaded and executed. It performed three operations:</p>
+
+<ol style="margin: 16px 0 16px 24px; line-height: 2;">
+  <li>Added an attacker-controlled SSH public key to <code>~/.ssh/authorized_keys</code> — establishing persistent SSH access independent of any credentials</li>
+  <li>Loosened <code>iptables</code> rules to permit inbound connections on attacker-specified ports</li>
+  <li>Downloaded and executed <strong>Rekoobe</strong> — a C++ Linux backdoor with a decade-long operational history</li>
+</ol>
+
+<h2>Rekoobe: The APT31 Fingerprint</h2>
+
+<p>Rekoobe is not a commodity RAT picked up from a dark web forum. It is a purpose-built Linux backdoor attributed to <strong>APT31</strong> (also tracked as Zirconium, Judgment Panda, and Bronze Vinewood) — a Chinese state-sponsored threat actor with a specific focus on government, defence, and high-technology targets.</p>
+
+<p>First documented in 2015, Rekoobe has remained in continuous operational use across multiple campaigns. Its characteristics:</p>
+
+<ul style="margin: 16px 0 16px 24px; line-height: 2;">
+  <li><strong>Architecture:</strong> C++ native binary, x32 and x64 variants</li>
+  <li><strong>Anti-analysis:</strong> Anti-VM checks, obfuscated strings</li>
+  <li><strong>Persistence:</strong> Multiple persistence mechanisms (varies by variant and dropper)</li>
+  <li><strong>C2:</strong> Encrypted command channel, typically TLS or custom protocol over standard ports</li>
+  <li><strong>Capability:</strong> Remote shell access, file transfer, credential harvesting</li>
+</ul>
+
+<p>The presence of Rekoobe in a Go supply chain attack is a significant indicator of targeting intent. This is not a script kiddie operation. APT31 doesn't distribute commodity malware through package registries by accident.</p>
+
+<h2>Why Go Modules Are an Attack Surface</h2>
+
+<p>The Go module system has a fundamental property that makes it susceptible to namespace confusion attacks: <strong>module identity is an import path, and import paths are arbitrary strings</strong>. The go toolchain will happily download <code>github.com/xinfeisoft/crypto</code> if that's what's in your <code>go.mod</code> — it doesn't know or care that the string is designed to look like a standard library extension.</p>
+
+<p>This is the same class of attack that has repeatedly targeted npm (<code>event-stream</code>, <code>ua-parser-js</code>, <code>colors</code>), PyPI (<code>requests</code> vs <code>request</code>), and Rust (crates.io name squatting). Go's explicit module paths should make this <em>harder</em> — they're fully qualified, not just short names. But the attack succeeded by exploiting the fact that many Go developers <em>trust Github-hosted packages with familiar-sounding paths</em> without verifying the upstream source.</p>
+
+<p>The Go security team has now blocked <code>github.com/xinfeisoft/crypto</code> from the module proxy and sum database. If you attempt to resolve this module today, you will get an error. But:</p>
+
+<ul style="margin: 16px 0 16px 24px; line-height: 2;">
+  <li>Projects that already fetched the module before the block have it in their module cache</li>
+  <li>Projects using <code>GONOSUMCHECK</code> or <code>GONOSUMDB</code> bypass checksum verification</li>
+  <li>Private Go module proxies (common in enterprise environments) may have cached the package</li>
+  <li>The attack pattern is published and documented — another package using the same technique is trivial to create</li>
+</ul>
+
+<h2>Detection: What to Look For</h2>
+
+<h3>In Your Codebase</h3>
+
+<p>Scan your <code>go.mod</code> and <code>go.sum</code> files for suspicious imports — particularly anything that:</p>
+
+<ul style="margin: 16px 0 16px 24px; line-height: 2;">
+  <li>Closely resembles a <code>golang.org/x/*</code> path but is hosted on GitHub or another third-party host</li>
+  <li>Has a maintainer name that doesn't match the expected open source project (e.g., Chinese-named repos replacing standard library packages)</li>
+  <li>Has low star/fork counts relative to the package's apparent purpose</li>
+  <li>Was added to <code>go.mod</code> without a corresponding PR or commit explanation</li>
+</ul>
+
+<p>Run <code>go mod verify</code> to check that all module checksums match the Go module mirror. Any mismatch is a hard stop for investigation.</p>
+
+<h3>At Runtime / on the Host</h3>
+
+<p>If you suspect a host has been compromised via this vector:</p>
+
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.88rem; line-height: 1.6;"><code># Check for unauthorised SSH keys
+cat ~/.ssh/authorized_keys
+# Also check system-wide
+grep -r "authorized_keys" /etc/ssh/sshd_config
+
+# Check for unusual outbound connections (Rekoobe C2)
+ss -tulnp | grep -v "LISTEN"
+netstat -tupn | grep ESTABLISHED
+
+# Look for modified iptables rules
+iptables -L INPUT -n -v | grep -v "ACCEPT.*lo\|ESTABLISHED\|RELATED"
+
+# Check for curl-executed dropper artifacts
+ls -la /tmp/ | grep -v "snap\|systemd"
+find /tmp -name "*.sh" -newer /var/log/auth.log
+
+# Search for Rekoobe binary signatures
+find / -name ".*" -type f -newer /etc/passwd 2>/dev/null | head -20</code></pre>
+
+<h3>Network-Level Detection</h3>
+
+<p>During the build/CI stage, watch for:</p>
+
+<ul style="margin: 16px 0 16px 24px; line-height: 2;">
+  <li>Outbound HTTP/HTTPS requests from your Go build environment to unexpected hosts</li>
+  <li><code>curl | sh</code> or <code>wget | bash</code> patterns in build logs</li>
+  <li>DNS queries to domains that don't match your expected dependency set</li>
+</ul>
+
+<p>Network egress filtering on your CI runners is the single highest-value control here. A Go build should only need to reach <code>proxy.golang.org</code>, <code>sum.golang.org</code>, and your known VCS hosts. Everything else should be blocked by default.</p>
+
+<h2>The Role of Supply Chain Scanners</h2>
+
+<p>TruffleHog — now part of SecurityClaw's skill set — is primarily known for secrets detection, but the same principle of scanning dependency files applies to supply chain security. A scanner integrated into your CI pipeline can flag:</p>
+
+<ul style="margin: 16px 0 16px 24px; line-height: 2;">
+  <li>Known-malicious package hashes against threat databases</li>
+  <li>Module import paths that match known typosquatting patterns</li>
+  <li>Changes to <code>go.sum</code> that don't match the official Go sum database</li>
+  <li>New dependencies added to <code>go.mod</code> without corresponding audit trails</li>
+</ul>
+
+<p>For enterprise Go shops, tools like <a href="https://pkg.go.dev/vuln/" rel="noopener noreferrer" target="_blank">govulncheck</a> and <a href="https://github.com/anchore/syft" rel="noopener noreferrer" target="_blank">Syft</a> with a vulnerability database scan provide coverage at the dependency graph level. The combination of <strong>dependency pinning + checksum verification + egress filtering + supply chain scanning</strong> closes most of the attack surface for this class of attack.</p>
+
+<h2>Who Is at Risk</h2>
+
+<p>Projects most exposed to this technique:</p>
+
+<ul style="margin: 16px 0 16px 24px; line-height: 2;">
+  <li>Go projects that added <code>github.com/xinfeisoft/crypto</code> before the block — audit <code>go.mod</code> immediately</li>
+  <li>Projects using <code>GONOSUMCHECK</code> or running with a private module proxy that cached the package</li>
+  <li>Developer workstations that ran a build using the malicious module (credentials may have been exfiltrated)</li>
+  <li>CI/CD pipelines running on Linux systems (Rekoobe targets Linux; Windows is not affected)</li>
+</ul>
+
+<h2>Mitigation Checklist</h2>
+
+<table style="width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1);">
+  <thead>
+    <tr style="background: #1e1e1e; color: white;">
+      <th style="padding: 12px 16px; text-align: left;">Action</th>
+      <th style="padding: 12px 16px; text-align: left;">Priority</th>
+      <th style="padding: 12px 16px; text-align: left;">Who</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom: 1px solid #f0f0f0;">
+      <td style="padding: 12px 16px;">Audit all <code>go.mod</code> files for <code>github.com/xinfeisoft/crypto</code></td>
+      <td style="padding: 12px 16px; color: #c0392b;"><strong>IMMEDIATE</strong></td>
+      <td style="padding: 12px 16px;">Dev lead</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #f0f0f0;">
+      <td style="padding: 12px 16px;">Rotate all SSH credentials on any host that ran an affected build</td>
+      <td style="padding: 12px 16px; color: #c0392b;"><strong>IMMEDIATE</strong></td>
+      <td style="padding: 12px 16px;">Security / DevOps</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #f0f0f0;">
+      <td style="padding: 12px 16px;">Check <code>~/.ssh/authorized_keys</code> on all developer machines and servers</td>
+      <td style="padding: 12px 16px; color: #c0392b;"><strong>IMMEDIATE</strong></td>
+      <td style="padding: 12px 16px;">Security / IT</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #f0f0f0;">
+      <td style="padding: 12px 16px;">Verify <code>iptables</code> rules haven't been modified</td>
+      <td style="padding: 12px 16px; color: #e67e22;"><strong>URGENT</strong></td>
+      <td style="padding: 12px 16px;">Security / DevOps</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #f0f0f0;">
+      <td style="padding: 12px 16px;">Run IOC scan for Rekoobe on Linux servers/CI runners</td>
+      <td style="padding: 12px 16px; color: #e67e22;"><strong>URGENT</strong></td>
+      <td style="padding: 12px 16px;">Security</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #f0f0f0;">
+      <td style="padding: 12px 16px;">Enable network egress filtering on CI runners</td>
+      <td style="padding: 12px 16px; color: #27ae60;">HIGH</td>
+      <td style="padding: 12px 16px;">DevOps</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #f0f0f0;">
+      <td style="padding: 12px 16px;">Add supply chain scanning to CI pipeline (TruffleHog, govulncheck, Syft)</td>
+      <td style="padding: 12px 16px; color: #27ae60;">HIGH</td>
+      <td style="padding: 12px 16px;">Dev lead</td>
+    </tr>
+    <tr>
+      <td style="padding: 12px 16px;">Set <code>GONOSUMCHECK=""</code> and remove any module proxy bypass configurations</td>
+      <td style="padding: 12px 16px; color: #2980b9;">MEDIUM</td>
+      <td style="padding: 12px 16px;">Dev lead</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>The Pattern Will Repeat</h2>
+
+<p>The Go security team blocked <code>github.com/xinfeisoft/crypto</code> quickly. That's good. But the more important takeaway is that the pattern is documented, simple, and highly effective: clone a widely-used standard library extension. Modify one commonly-called function. Publish it with a plausible name. Wait.</p>
+
+<p>Go's ecosystem is particularly attractive for this because:</p>
+
+<ul style="margin: 16px 0 16px 24px; line-height: 2;">
+  <li>The standard library extensions (<code>golang.org/x/*</code>) are de facto standard but not actually part of the core go tool — they're fetched like any other dependency</li>
+  <li>Go developers are less conditioned than npm developers to scrutinise dependency provenance (the npm ecosystem has been burned by this repeatedly; the Go community less so)</li>
+  <li>The <code>go.sum</code> checksum system is strong once it's running, but it's opt-out-able and many enterprise setups have exceptions</li>
+</ul>
+
+<p>Expect this technique to resurface. Verify your import paths. Run supply chain scans. Filter your build environment's network egress. Treat every dependency as potentially adversarial until verified.</p>
+
+<div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-top: 32px; border: 1px solid #e9ecef;">
+  <p style="margin: 0; font-size: 0.9rem;"><strong>🔍 SecurityClaw</strong> runs TruffleHog and supply chain analysis as automated skills. If you want your codebase and CI pipeline scanned for malicious or suspicious dependency patterns — including Go module impersonation attacks — <a href="https://bughuntertools.com" style="color: #0f3460;">learn more at BugHunterTools →</a></p>
+</div>
+
+<div style="background: #f0f4ff; border-radius: 8px; padding: 20px; margin-top: 20px; border: 1px solid #d0d8f0;">
+  <p style="margin: 0 0 12px; font-size: 0.9rem; font-weight: 600;">📚 Recommended Reading</p>
+  <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem; line-height: 1.9;">
+    <li><a href="https://www.amazon.com/dp/1593271441?tag=altclaw-20" style="color: #0f3460;" rel="nofollow">Hacking: The Art of Exploitation, 2nd Ed.</a> — Foundational understanding of Linux exploitation techniques, process injection, and backdoor mechanics. Directly relevant to how Rekoobe maintains persistence.</li>
+    <li><a href="https://www.amazon.com/dp/1718501129?tag=altclaw-20" style="color: #0f3460;" rel="nofollow">Black Hat Python, 2nd Ed.</a> — Building supply chain attack tooling, network exfiltration techniques, and offensive scripting — useful for understanding how attackers weaponise package managers.</li>
+    <li><a href="https://www.amazon.com/dp/B005LVQA9S?tag=altclaw-20" style="color: #0f3460;" rel="nofollow">The Web Application Hacker's Handbook (Kindle)</a> — Covers authentication bypass, credential theft patterns, and server-side attack techniques referenced in this article.</li>
+  </ul>
+</div>
+
+<div style="background: #fff8f0; border-radius: 8px; padding: 20px; margin-top: 20px; border: 1px solid #ffe0b2;">
+  <p style="margin: 0; font-size: 0.9rem;"><strong>🔗 Related Coverage:</strong> This attack joins a pattern of APTs using untakeable infrastructure for C2. See our analysis of <a href="/articles/aeternum-botnet-blockchain-c2-polygon-ethereum-smart-contracts/" style="color: #0f3460;">Aeternum's blockchain-based C2 on Polygon</a> and <a href="/articles/unc2814-gridtide-google-sheets-c2-chinese-apt/" style="color: #0f3460;">UNC2814's Google Sheets C2 technique</a> — three very different infrastructure choices, same fundamental defender problem.</p>
+</div>
+
+</article>

@@ -78,6 +78,28 @@
       })();
     </script>
     
+    <!-- Affiliate Link Click Tracking -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Track clicks on Amazon affiliate links (tag=altclaw-20)
+        var links = document.querySelectorAll('a[href*="amazon.com"][href*="altclaw-20"]');
+        links.forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            var href = this.href;
+            var asin = (href.match(/\/dp\/([A-Z0-9]{10})/) || [])[1] || 'unknown';
+            var label = this.textContent.trim().substring(0, 60) || asin;
+            gtag('event', 'affiliate_click', {
+              'event_category': 'affiliate',
+              'event_label': label,
+              'affiliate_product': asin,
+              'affiliate_program': 'amazon',
+              'page_path': window.location.pathname
+            });
+          });
+        });
+      });
+    </script>
+
     <!-- Schema.org markup -->
     <script type="application/ld+json">
     {
@@ -97,12 +119,15 @@
             <nav class="main-nav">
     <a href="/">Home</a>
     <a href="/articles/">Articles</a>
+    <a href="/demos/">SecurityClaw Demos</a>
     <a href="/articles/security-testing-tools-2026.html">Tools</a>
     <a href="/privacy.html" style="background: rgba(255,255,255,0.2);">Privacy</a>
 </nav>
 
         </div>
     </header>
+
+    
 
     
 
@@ -188,7 +213,7 @@
                 <li><strong>Opt-out:</strong> Unsubscribe from marketing emails at any time</li>
             </ul>
             
-            <p>To exercise these rights, please contact us at secureclaw@proton.me.</p>
+            <p>To exercise these rights, please contact us at info@bughuntertools.com.</p>
             
             <h2>Children's Privacy</h2>
             
@@ -206,7 +231,7 @@
             
             <p>If you have questions about this Privacy Policy, please contact us:</p>
             <ul>
-                <li><strong>Email:</strong> secureclaw@proton.me</li>
+                <li><strong>Email:</strong> info@bughuntertools.com</li>
                 <li><strong>Website:</strong> https://bughuntertools.com</li>
             </ul>
             

@@ -3,10 +3,27 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("css");
   eleventyConfig.addPassthroughCopy("sitemap.xml");
   eleventyConfig.addPassthroughCopy("VALIDATED_PRODUCTS.md");
-  
+
+  // Date formatting filter — used in index.njk for latest articles
+  eleventyConfig.addFilter("dateString", function(date) {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    });
+  });
+
   // Create articles collection
   eleventyConfig.addCollection("articles", function(collectionApi) {
     return collectionApi.getFilteredByGlob("src/articles/*.njk")
+      .filter(item => !item.inputPath.includes("index.njk")) // Exclude index page
+      .sort((a, b) => {
+        // Sort by date, newest first
+        return new Date(b.data.date) - new Date(a.data.date);
+      });
+  });
+
+  // Create demos collection (SecurityClaw Demo Content Series)
+  eleventyConfig.addCollection("demos", function(collectionApi) {
+    return collectionApi.getFilteredByGlob("src/demos/*.njk")
       .filter(item => !item.inputPath.includes("index.njk")) // Exclude index page
       .sort((a, b) => {
         // Sort by date, newest first

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Complete collection of bug bounty hunting guides, security tool reviews, and penetration testing tutorials.">
+    <meta name="description" content="Breaking CVE analysis, security tool reviews, and practical guides for bug bounty hunters and penetration testers.">
     <title>Articles - Bug Hunter Tools</title>
     
     <!-- Canonical URL -->
@@ -13,14 +13,14 @@
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://bughuntertools.com/articles/">
     <meta property="og:title" content="Articles - Bug Hunter Tools">
-    <meta property="og:description" content="Complete collection of bug bounty hunting guides, security tool reviews, and penetration testing tutorials.">
+    <meta property="og:description" content="Breaking CVE analysis, security tool reviews, and practical guides for bug bounty hunters and penetration testers.">
     <meta property="og:site_name" content="Bug Hunter Tools">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://bughuntertools.com/articles/">
     <meta name="twitter:title" content="Articles - Bug Hunter Tools">
-    <meta name="twitter:description" content="Complete collection of bug bounty hunting guides, security tool reviews, and penetration testing tutorials.">
+    <meta name="twitter:description" content="Breaking CVE analysis, security tool reviews, and practical guides for bug bounty hunters and penetration testers.">
     
     <link rel="stylesheet" href="/css/style.css">
     
@@ -78,13 +78,35 @@
       })();
     </script>
     
+    <!-- Affiliate Link Click Tracking -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Track clicks on Amazon affiliate links (tag=altclaw-20)
+        var links = document.querySelectorAll('a[href*="amazon.com"][href*="altclaw-20"]');
+        links.forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            var href = this.href;
+            var asin = (href.match(/\/dp\/([A-Z0-9]{10})/) || [])[1] || 'unknown';
+            var label = this.textContent.trim().substring(0, 60) || asin;
+            gtag('event', 'affiliate_click', {
+              'event_category': 'affiliate',
+              'event_label': label,
+              'affiliate_product': asin,
+              'affiliate_program': 'amazon',
+              'page_path': window.location.pathname
+            });
+          });
+        });
+      });
+    </script>
+
     <!-- Schema.org markup -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebPage",
       "name": "Articles - Bug Hunter Tools",
-      "description": "Complete collection of bug bounty hunting guides, security tool reviews, and penetration testing tutorials.",
+      "description": "Breaking CVE analysis, security tool reviews, and practical guides for bug bounty hunters and penetration testers.",
       "url": "https://bughuntertools.com/articles/"
     }
     </script>
@@ -97,6 +119,7 @@
             <nav class="main-nav">
     <a href="/">Home</a>
     <a href="/articles/" style="background: rgba(255,255,255,0.2);">Articles</a>
+    <a href="/demos/">SecurityClaw Demos</a>
     <a href="/articles/security-testing-tools-2026.html">Tools</a>
     <a href="/privacy.html">Privacy</a>
 </nav>
@@ -106,274 +129,429 @@
 
     
 
+    
+
     <main class="container">
         
 <article>
-            <h1>All Bug Bounty Guides & Articles</h1>
-            
-            <p>Comprehensive guides, tool reviews, and practical tutorials for bug bounty hunters at all skill levels.</p>
+  <h1>All Security Articles &amp; Guides</h1>
+  <p>Breaking CVE analysis, security tool deep-dives, and practical penetration testing guides. Updated as security news breaks.</p>
 
-            <section style="margin-top: 40px;">
-                <h2>🔥 Breaking Security News</h2>
+  <section style="margin-top: 40px;">
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/scarcruft-ruby-jumper-north-korea-zoho-workdrive-c2-air-gap/">ScarCruft&#39;s &#39;Ruby Jumper&#39;: North Korea&#39;s APT37 Is Using Zoho WorkDrive to Bridge Air-Gapped Networks</a></h3>
+      <div class="meta">
+        <span>Published: March 1, 2026</span>
+      </div>
+      
+      <p>North Korean APT ScarCruft (APT37) used Zoho WorkDrive as a command-and-control channel in their February 2026 &#39;Ruby Jumper&#39; campaign — combined with USB-based malware to reach air-gapped targets. Living Off Trusted Sites meets physical media relay.</p>
+      
+      <div class="cta">
+        <a href="/articles/scarcruft-ruby-jumper-north-korea-zoho-workdrive-c2-air-gap/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/aeternum-botnet-blockchain-c2-polygon-ethereum-smart-contracts/">Aeternum Botnet Uses Ethereum Smart Contracts on Polygon as C2 — And It&#39;s Impossible to Take Down</a></h3>
+      <div class="meta">
+        <span>Published: February 28, 2026</span>
+      </div>
+      
+      <p>The Aeternum botnet stores command-and-control instructions as encrypted messages in Ethereum smart contracts on the Polygon blockchain. No servers to seize. No domains to sinkhole. No takedown possible. Here&#39;s how it works and what defenders can do.</p>
+      
+      <div class="cta">
+        <a href="/articles/aeternum-botnet-blockchain-c2-polygon-ethereum-smart-contracts/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/malicious-go-module-xinfeisoft-crypto-apt31-rekoobe-backdoor/">Malicious Go Package &#39;xinfeisoft/crypto&#39; Deployed APT31&#39;s Rekoobe Backdoor Via SSH Credential Theft</a></h3>
+      <div class="meta">
+        <span>Published: February 28, 2026</span>
+      </div>
+      
+      <p>A typosquatted Go module impersonating golang.org/x/crypto was used to steal SSH credentials and deploy the APT31-associated Rekoobe Linux backdoor. The Go security team has blocked it — but the technique is repeatable. Here&#39;s what happened and how to detect it.</p>
+      
+      <div class="cta">
+        <a href="/articles/malicious-go-module-xinfeisoft-crypto-apt31-rekoobe-backdoor/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/cisco-sdwan-cve-2026-20127-cvss-10-authentication-bypass/">Cisco SD-WAN CVE-2026-20127: CVSS 10.0 Auth Bypass Under Active Exploitation — Patch by Tomorrow</a></h3>
+      <div class="meta">
+        <span>Published: February 26, 2026</span>
+      </div>
+      
+      <p>A CVSS 10.0 authentication bypass in Cisco Catalyst SD-WAN vSmart and vManage is being actively exploited by nation-state threat actor UAT-8616. CISA Emergency Directive 26-03 mandates federal agencies patch by February 27, 2026.</p>
+      
+      <div class="cta">
+        <a href="/articles/cisco-sdwan-cve-2026-20127-cvss-10-authentication-bypass/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/unc2814-gridtide-google-sheets-c2-chinese-apt/">How China&#39;s UNC2814 Used Google Sheets as a Hacking Command Centre — And Got Caught</a></h3>
+      <div class="meta">
+        <span>Published: February 26, 2026</span>
+      </div>
+      
+      <p>Chinese APT UNC2814&#39;s GRIDTIDE campaign used Google Sheets cells as a command-and-control channel, compromising 53 organisations in 42 countries before Google disrupted the infrastructure on February 25, 2026.</p>
+      
+      <div class="cta">
+        <a href="/articles/unc2814-gridtide-google-sheets-c2-chinese-apt/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/zyxel-cve-2025-13942-unauthenticated-rce-routers/">Zyxel Routers CVE-2025-13942: Unauthenticated RCE Affects 120,000 Exposed Devices — Patch Now</a></h3>
+      <div class="meta">
+        <span>Published: February 26, 2026</span>
+      </div>
+      
+      <p>Critical command injection vulnerabilities in 12+ Zyxel router models expose 120,000 internet-facing devices to unauthenticated RCE via UPnP SOAP requests. Security updates released February 25, 2026. Common in Irish and UK ISP-distributed hardware.</p>
+      
+      <div class="cta">
+        <a href="/articles/zyxel-cve-2025-13942-unauthenticated-rce-routers/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/azure-sdk-rce-cve-2026-21531.html">CVE-2026-21531: Azure SDK for Python RCE — Deserialization Bug Exposes Cloud Applications</a></h3>
+      <div class="meta">
+        <span>Published: February 24, 2026</span>
+      </div>
+      
+      <p>Critical CVSS 9.8 deserialization vulnerability in Azure AI Language Python SDK allows unauthenticated remote code execution. Any app using azure-ai-language-conversations 1.0.0-beta is at risk.</p>
+      
+      <div class="cta">
+        <a href="/articles/azure-sdk-rce-cve-2026-21531.html" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/model-distillation-attacks-deepseek-claude-anthropic-2026/">Model Distillation Attacks: How DeepSeek and Chinese AI Firms Extracted Claude at Industrial Scale</a></h3>
+      <div class="meta">
+        <span>Published: February 24, 2026</span>
+      </div>
+      
+      <p>Anthropic has exposed three Chinese AI companies — DeepSeek, Moonshot AI, and MiniMax — for running industrial-scale model distillation campaigns via 16 million fraudulent Claude API queries. Here&#39;s how the attacks worked, how they were detected, and what it means for AI API security.</p>
+      
+      <div class="cta">
+        <a href="/articles/model-distillation-attacks-deepseek-claude-anthropic-2026/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/claude-code-security-vs-penetration-testing/">Claude Code Security vs. Active Penetration Testing: The AI Arms Race Has Reached Your Codebase</a></h3>
+      <div class="meta">
+        <span>Published: February 23, 2026</span>
+      </div>
+      
+      <p>Anthropic launched Claude Code Security on February 21, 2026. AI code scanning is now real. Here&#39;s what it catches, where it stops, and why your security team still needs active penetration testing.</p>
+      
+      <div class="cta">
+        <a href="/articles/claude-code-security-vs-penetration-testing/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/burp-suite-pricing-2026/">Burp Suite Costs $449/yr Per User. Here&#39;s What a 5-Person Team Actually Spends.</a></h3>
+      <div class="meta">
+        <span>Published: February 22, 2026</span>
+      </div>
+      
+      <p>Burp Suite Pro is $449/user/yr. Enterprise starts at $3,999/yr. Here&#39;s the real total cost for security teams in 2026 — and what Burp doesn&#39;t cover.</p>
+      
+      <div class="cta">
+        <a href="/articles/burp-suite-pricing-2026/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/automated-penetration-testing-guide-2026/">The Complete Guide to Automated Penetration Testing in 2026</a></h3>
+      <div class="meta">
+        <span>Published: February 21, 2026</span>
+      </div>
+      
+      <p>Everything security teams need to know about AI-powered and automated pentesting in 2026: how it works, what it covers, what to look for in a platform, and how to get started.</p>
+      
+      <div class="cta">
+        <a href="/articles/automated-penetration-testing-guide-2026/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/why-your-security-scanner-isnt-a-penetration-test/">Why Your Security Scanner Isn&#39;t a Penetration Test</a></h3>
+      <div class="meta">
+        <span>Published: February 21, 2026</span>
+      </div>
+      
+      <p>Vulnerability scanners find known CVEs. Penetration tests find what attackers actually exploit. Here&#39;s the critical difference — and what you&#39;re missing if you rely on scans alone.</p>
+      
+      <div class="cta">
+        <a href="/articles/why-your-security-scanner-isnt-a-penetration-test/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/dell-recoverpoint-cve-2026-22769.html">CVE-2026-22769: Dell RecoverPoint CVSS 10.0 Zero-Day Exploited by China-Nexus Hackers Since 2024</a></h3>
+      <div class="meta">
+        <span>Published: February 20, 2026</span>
+      </div>
+      
+      <p>CISA adds CVE-2026-22769 to KEV catalog with 3-day patch deadline. Dell RecoverPoint hardcoded credential zero-day exploited by UNC6201 (Silk Typhoon) since mid-2024 — deploying BRICKSTORM, GRIMBOLT backdoors and Ghost NICs for stealthy VMware pivoting.</p>
+      
+      <div class="cta">
+        <a href="/articles/dell-recoverpoint-cve-2026-22769.html" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/vscode-extensions-cve-2025-65717.html">Critical VS Code Extension Vulnerabilities: 125 Million Installs At Risk (CVE-2025-65717, CVE-2025-65716, CVE-2025-65715)</a></h3>
+      <div class="meta">
+        <span>Published: February 19, 2026</span>
+      </div>
+      
+      <p>Four critical vulnerabilities in popular VS Code extensions — Live Server, Markdown Preview Enhanced, Code Runner, and Microsoft Live Preview — put 125 million developers at risk of file exfiltration and remote code execution. Three remain unpatched.</p>
+      
+      <div class="cta">
+        <a href="/articles/vscode-extensions-cve-2025-65717.html" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/mshtml-cve-2026-21513.html">CVE-2026-21513: Actively Exploited MSHTML Zero-Day Bypasses Windows Security</a></h3>
+      <div class="meta">
+        <span>Published: February 18, 2026</span>
+      </div>
+      
+      <p>Critical CVE-2026-21513 MSHTML Framework zero-day vulnerability exploited in the wild. CVSS 8.8 security feature bypass enables attackers to evade Mark-of-the-Web protections.</p>
+      
+      <div class="cta">
+        <a href="/articles/mshtml-cve-2026-21513.html" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/security-roundup-2026-02-17/">Security Roundup Feb 10–16 2026: AI Infrastructure Under Fire, Cloud Misconfigs &amp; $4.3M in Bug Bounties</a></h3>
+      <div class="meta">
+        <span>Published: February 17, 2026</span>
+      </div>
+      
+      <p>Weekly security roundup covering CVE-2026-22778 vLLM RCE, six n8n CVEs, Azure Functions info disclosure, a real-world AI-assisted AWS cloud breach, HackerOne&#39;s $4.3M payout week, and the best tools for bug hunters.</p>
+      
+      <div class="cta">
+        <a href="/articles/security-roundup-2026-02-17/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/adobe-after-effects-cve-2026-21329/">Adobe After Effects CVE-2026-21329: Use-After-Free RCE Vulnerability Threatens Creative Workflows</a></h3>
+      <div class="meta">
+        <span>Published: February 14, 2026</span>
+      </div>
+      
+      <p>Critical CVE-2026-21329 use-after-free vulnerability in Adobe After Effects 25.6 and earlier enables arbitrary code execution. Complete technical analysis and bug bounty testing guide.</p>
+      
+      <div class="cta">
+        <a href="/articles/adobe-after-effects-cve-2026-21329/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/microsoft-patch-tuesday-february-2026-zero-days/">Microsoft Patch Tuesday February 2026: 6 Zero-Days Exploited in the Wild</a></h3>
+      <div class="meta">
+        <span>Published: February 14, 2026</span>
+      </div>
+      
+      <p>Microsoft&#39;s February 2026 Patch Tuesday patches 59 CVEs including 6 actively exploited zero-days. Critical Windows Shell, MSHTML, and RDP vulnerabilities demand immediate patching.</p>
+      
+      <div class="cta">
+        <a href="/articles/microsoft-patch-tuesday-february-2026-zero-days/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/vllm-rce-cve-2026-22778/">CVE-2026-22778: Critical vLLM RCE Vulnerability Threatens AI Infrastructure</a></h3>
+      <div class="meta">
+        <span>Published: February 14, 2026</span>
+      </div>
+      
+      <p>Critical CVE-2026-22778 vLLM Remote Code Execution vulnerability discovered by Orca Security. CVSS 9.8 unauthenticated RCE affecting GPU clusters serving large language models.</p>
+      
+      <div class="cta">
+        <a href="/articles/vllm-rce-cve-2026-22778/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/n8n-rce-cve-2026-25049/">Critical n8n Vulnerability: Six CVEs Expose Workflow Automation to RCE</a></h3>
+      <div class="meta">
+        <span>Published: February 11, 2026</span>
+      </div>
+      
+      <p>Six critical vulnerabilities disclosed in n8n workflow automation platform, including CVE-2026-25049 RCE with CVSS 9.4. Full analysis and mitigation guide.</p>
+      
+      <div class="cta">
+        <a href="/articles/n8n-rce-cve-2026-25049/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/bug-bounty-starter-kit/">Bug Bounty Starter Kit 2026 - Essential Tools, Books &amp; Equipment</a></h3>
+      <div class="meta">
+        <span>Published: February 8, 2026</span>
+      </div>
+      
+      <p>Complete bug bounty starter kit guide for 2026. Essential tools, books, and equipment for beginners with budget breakdowns ($100-$1000).</p>
+      
+      <div class="cta">
+        <a href="/articles/bug-bounty-starter-kit/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/chainlit-ai-vulnerabilities-cve-2026-22218/">ChainLeak: AI Framework Vulnerabilities Enable Enterprise Cloud Takeovers</a></h3>
+      <div class="meta">
+        <span>Published: February 8, 2026</span>
+      </div>
+      
+      <p>Critical CVE-2026-22218 and CVE-2026-22219 vulnerabilities in Chainlit AI framework enable cloud takeovers through file read and SSRF attacks. Learn how to test AI applications for security flaws.</p>
+      
+      <div class="cta">
+        <a href="/articles/chainlit-ai-vulnerabilities-cve-2026-22218/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/linkedin-api-bola-bypass/">LinkedIn API Access Control Bypass - BOLA Testing Guide for Bug Hunters</a></h3>
+      <div class="meta">
+        <span>Published: February 8, 2026</span>
+      </div>
+      
+      <p>LinkedIn API access control bypass discovered in bug bounty program. Learn BOLA/IDOR testing techniques for GraphQL APIs and premium feature enumeration.</p>
+      
+      <div class="cta">
+        <a href="/articles/linkedin-api-bola-bypass/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/n8n-rce-cve-2026-21858/">Critical n8n Vulnerability: CVSS 10.0 RCE Threatens Cloud Workflow Platforms</a></h3>
+      <div class="meta">
+        <span>Published: February 8, 2026</span>
+      </div>
+      
+      <p>CVSS 10.0 critical vulnerability discovered in n8n workflow automation platform enables unauthenticated remote code execution. Complete technical breakdown and mitigation guide for bug hunters.</p>
+      
+      <div class="cta">
+        <a href="/articles/n8n-rce-cve-2026-21858/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/security-lab-setup-guide-2026/">Complete Security Lab Setup Guide 2026 - Professional Bug Bounty &amp; Penetration Testing Equipment</a></h3>
+      <div class="meta">
+        <span>Published: February 8, 2026</span>
+      </div>
+      
+      <p>Comprehensive guide to building a professional security testing lab. Researched recommendations for laptops, WiFi adapters, hardware tools, and equipment backed by security professional reviews and Kali Linux documentation.</p>
+      
+      <div class="cta">
+        <a href="/articles/security-lab-setup-guide-2026/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/security-testing-tools-2026/">Bug Hunter Tools - Best Security Testing Tools for Bug Bounty Hunters 2026</a></h3>
+      <div class="meta">
+        <span>Published: February 8, 2026</span>
+      </div>
+      
+      <p>Comprehensive guide to the best security testing tools for bug bounty hunters in 2026. Expert reviews, comparisons, and recommendations.</p>
+      
+      <div class="cta">
+        <a href="/articles/security-testing-tools-2026/" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/beyondtrust-rce-cve-2026-1731.html">BeyondTrust Pre-Auth RCE (CVE-2026-1731): WebSocket OS Command Injection Hits 8,500+ Vulnerable Instances</a></h3>
+      <div class="meta">
+        <span>Published: February 23, 2026</span>
+      </div>
+      
+      <p>CVSS 9.9 pre-authentication RCE in BeyondTrust Remote Support and Privileged Remote Access enables OS command injection via unauthenticated WebSocket. 8,500+ vulnerable instances globally — patch or restrict now.</p>
+      
+      <div class="cta">
+        <a href="/articles/beyondtrust-rce-cve-2026-1731.html" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/firefox-spidermonkey-wasm-gc-rce.html">Firefox SpiderMonkey WebAssembly GC RCE: One Typo, Full Renderer Compromise</a></h3>
+      <div class="meta">
+        <span>Published: February 23, 2026</span>
+      </div>
+      
+      <p>A single &amp; vs | typo in Firefox SpiderMonkey&#39;s Wasm GC engine causes a type confusion leading to RCE in the renderer process — affecting 200M+ users via any malicious webpage.</p>
+      
+      <div class="cta">
+        <a href="/articles/firefox-spidermonkey-wasm-gc-rce.html" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/gcp-vertex-ai-bucket-squatting-cve-2026-2473.html">CVE-2026-2473: GCP Vertex AI Bucket Squatting Enables Cross-Tenant RCE and Model Theft (CVSS 9.8)</a></h3>
+      <div class="meta">
+        <span>Published: February 23, 2026</span>
+      </div>
+      
+      <p>Google patched a critical Vertex AI vulnerability where predictable Cloud Storage bucket names allowed unauthenticated attackers to steal AI models, poison training pipelines, and execute code across tenant boundaries.</p>
+      
+      <div class="cta">
+        <a href="/articles/gcp-vertex-ai-bucket-squatting-cve-2026-2473.html" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/n8n-rce-cve-2026-21858-critical-workflow-vulnerability.html">Critical n8n RCE Vulnerability (CVE-2026-21858): 100,000+ Servers at Risk</a></h3>
+      <div class="meta">
+        <span>Published: February 23, 2026</span>
+      </div>
+      
+      <p>CVSS 10.0 vulnerability in n8n workflow automation enables unauthenticated remote code execution. Learn about CVE-2026-21858, affected versions, exploitation methods, and remediation steps.</p>
+      
+      <div class="cta">
+        <a href="/articles/n8n-rce-cve-2026-21858-critical-workflow-vulnerability.html" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+    <div class="tool" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+      <h3><a href="/articles/roguepilot-github-copilot-prompt-injection.html">RoguePilot: How a Hidden GitHub Copilot Bug Silently Steals Your Entire Repository</a></h3>
+      <div class="meta">
+        <span>Published: February 23, 2026</span>
+      </div>
+      
+      <p>Orca Security discloses passive prompt injection in GitHub Copilot that leaks GITHUB_TOKEN from Codespaces — no user interaction required beyond opening a Codespace from a malicious issue.</p>
+      
+      <div class="cta">
+        <a href="/articles/roguepilot-github-copilot-prompt-injection.html" class="button">Read Article →</a>
+      </div>
+    </div>
+    
+  </section>
 
-                <div class="tool">
-                    <h3>📋 <a href="/articles/security-roundup-2026-02-17/">Security Roundup Feb 10–16 2026: AI Infrastructure Under Fire, Cloud Misconfigs &amp; $4.3M in Bug Bounties</a></h3>
-                    <div class="meta">
-                        <span>Published: February 17, 2026</span>
-                        <span>•</span>
-                        <span>~2,600 words</span>
-                        <span>•</span>
-                        <span>12 min read</span>
-                        <span>•</span>
-                        <span style="color: #667eea; font-weight: bold;">📋 WEEKLY ROUNDUP</span>
-                    </div>
+  <section style="margin-top: 48px; background: #f8f9fa; padding: 24px; border-radius: 8px; border-left: 4px solid #667eea;">
+    <h2>About This Site</h2>
+    <p>BugHunterTools publishes independent security research, CVE analysis, and practitioner guides for bug bounty hunters and penetration testers. Written for technical readers — no hype, real data, honest assessments.</p>
+    <p>Content is sourced from SecurityClaw (ClawWorks' AI-assisted security research platform) and independent analysis.</p>
+    <p style="margin-top: 12px;"><strong>Also see:</strong> <a href="/demos/">SecurityClaw Live Demos</a> — real tool runs, actual output data.</p>
+  </section>
 
-                    <p><strong>The week AI infrastructure became the primary attack target.</strong> CVE-2026-22778 (vLLM CVSS 9.8), six n8n CVEs, Azure Functions info disclosure, a real-world 10-minute AWS cloud breach, HackerOne's $4.3M Live Hacking week, and the five patterns defining 2026 security.</p>
-
-                    <p><strong>What you'll learn:</strong></p>
-                    <ul>
-                        <li>vLLM &amp; n8n critical CVEs — what to test and how to report responsibly</li>
-                        <li>Azure Functions credential exposure patterns (CVE-2026-21532)</li>
-                        <li>Real AWS breach: 10 minutes from leaked IAM creds to 19 compromised principals</li>
-                        <li>Django ASGI DoS, Chrome SOP bypass, SAP API exposure</li>
-                        <li>HackerOne $4.3M payout + Bugcrowd AI triage + Chime double bounties</li>
-                        <li>5 essential tools + 4 must-read books with affiliate links</li>
-                    </ul>
-
-                    <div class="cta">
-                        <a href="/articles/security-roundup-2026-02-17/" class="button">Read Weekly Roundup →</a>
-                    </div>
-                </div>
-
-                <div class="tool">
-                    <h3>🚨 <a href="/articles/vscode-extensions-cve-2025-65717.html">VS Code Extensions Vulnerabilities: 125 Million Developers At Risk — Three CVEs Still Unpatched</a></h3>
-                    <div class="meta">
-                        <span>Published: February 19, 2026</span>
-                        <span>•</span>
-                        <span>~3,500 words</span>
-                        <span>•</span>
-                        <span>10 min read</span>
-                        <span>•</span>
-                        <span style="color: #f44336; font-weight: bold;">🚨 BREAKING — THREE UNPATCHED CVEs</span>
-                    </div>
-
-                    <p><strong>Four critical vulnerabilities in Live Server, Markdown Preview Enhanced, Code Runner, and Microsoft Live Preview affect 125M+ installs.</strong> CVE-2025-65717 (CVSS 9.1) lets any malicious website silently exfiltrate your local files while Live Server is running. Three CVEs remain unpatched with no response from maintainers.</p>
-
-                    <p><strong>What you'll learn:</strong></p>
-                    <ul>
-                        <li>CVE-2025-65717: How Live Server exposes your project files to any website you visit</li>
-                        <li>CVE-2025-65716: Arbitrary JS execution via crafted markdown files</li>
-                        <li>CVE-2025-65715: RCE via poisoned .vscode/settings.json</li>
-                        <li>Real-world attack scenarios for each vulnerability</li>
-                        <li>Immediate mitigations and long-term hardening steps</li>
-                        <li>What this means for developer-environment bug bounty hunting</li>
-                    </ul>
-
-                    <div class="cta">
-                        <a href="/articles/vscode-extensions-cve-2025-65717.html" class="button" style="background: #f44336;">🔥 Read Critical Analysis →</a>
-                    </div>
-                </div>
-                
-                <div class="tool">
-                    <h3>🚨 <a href="/articles/n8n-rce-cve-2026-25049.html">Critical n8n Vulnerability: Six CVEs Expose Workflow Automation to RCE</a></h3>
-                    <div class="meta">
-                        <span>Published: February 11, 2026</span>
-                        <span>•</span>
-                        <span>5,900 words</span>
-                        <span>•</span>
-                        <span>9 min read</span>
-                        <span>•</span>
-                        <span style="color: #f44336; font-weight: bold;">CRITICAL - CVSS 9.4</span>
-                    </div>
-                    
-                    <p><strong>Six critical vulnerabilities in one day. CVE-2026-25049 scores 9.4 CVSS. Type confusion sandbox escape enables RCE.</strong> n8n workflow automation hit with devastating security disclosure affecting thousands of deployments.</p>
-                    
-                    <p><strong>What you'll learn:</strong></p>
-                    <ul>
-                        <li>CVE-2026-25049: Type confusion sandbox escape exploitation</li>
-                        <li>JavaScript sandbox bypass techniques (prototype pollution)</li>
-                        <li>Five additional CVEs: XSS, auth bypass, path traversal, SQLi, SSTI</li>
-                        <li>Credential theft and cloud infrastructure compromise</li>
-                        <li>Detection strategies and remediation steps</li>
-                        <li>Upgrade to 1.123.17+ or 2.5.2+ immediately</li>
-                    </ul>
-                    
-                    <div class="cta">
-                        <a href="/articles/n8n-rce-cve-2026-25049.html" class="button" style="background: #f44336;">🔥 Read Critical Analysis →</a>
-                    </div>
-                </div>
-                
-                <div class="tool">
-                    <h3>🚨 <a href="/articles/n8n-rce-cve-2026-21858.html">Critical n8n Vulnerability: CVSS 10.0 RCE Threatens Cloud Workflow Platforms</a></h3>
-
-                    <div class="meta">
-                        <span>Published: February 8, 2026</span>
-                        <span>•</span>
-                        <span>5,400 words</span>
-                        <span>•</span>
-                        <span>8 min read</span>
-                        <span>•</span>
-                        <span style="color: #f44336; font-weight: bold;">CRITICAL - CVSS 10.0</span>
-                    </div>
-                    
-                    <p><strong>Perfect CVSS 10.0 score. Unauthenticated RCE. Complete server takeover.</strong> CVE-2026-21858 in n8n workflow automation platform is one of the most critical cloud vulnerabilities of 2026.</p>
-                    
-                    <p><strong>What you'll learn:</strong></p>
-                    <ul>
-                        <li>Content-type confusion vulnerability exploitation in webhooks</li>
-                        <li>Attack chain: Arbitrary file read → Session forgery → RCE</li>
-                        <li>How to test for content-type confusion in APIs</li>
-                        <li>Cloud infrastructure lateral movement scenarios (AWS/Azure/GCP)</li>
-                        <li>Immediate mitigation steps for n8n users</li>
-                        <li>Why this pattern matters for bug bounty hunters</li>
-                    </ul>
-                    
-                    <div class="cta">
-                        <a href="/articles/n8n-rce-cve-2026-21858.html" class="button" style="background: #f44336;">🔥 Read Critical Analysis →</a>
-    <article class="article-card">
-        <h2><a href="/articles/vllm-rce-cve-2026-22778.html">CVE-2026-22778: Critical vLLM RCE Vulnerability Threatens AI Infrastructure</a></h2>
-        <p class="meta">February 10, 2026 • 🚨 BREAKING - CVSS 9.8 CRITICAL</p>
-        <p>Critical remote code execution vulnerability in vLLM LLM serving framework. Default installations vulnerable to unauthenticated RCE affecting GPU clusters.</p>
-    </article>
-
-                    </div>
-                </div>
-                
-                <div class="tool">
-                    <h3>🚨 <a href="/articles/chainlit-ai-vulnerabilities-cve-2026-22218.html">ChainLeak: AI Framework Vulnerabilities Enable Enterprise Cloud Takeovers</a></h3>
-                    <div class="meta">
-                        <span>Published: February 8, 2026</span>
-                        <span>•</span>
-                        <span>4,800 words</span>
-                        <span>•</span>
-                        <span>7 min read</span>
-                        <span>•</span>
-                        <span style="color: #f44336; font-weight: bold;">BREAKING NEWS</span>
-                    </div>
-                    
-                    <p><strong>Critical CVE-2026-22218 and CVE-2026-22219 vulnerabilities discovered in Chainlit AI framework enable cloud takeovers.</strong> Arbitrary file read and SSRF vulnerabilities allow attackers to steal AWS credentials and access enterprise infrastructure.</p>
-                    
-                    <p><strong>What you'll learn:</strong></p>
-                    <ul>
-                        <li>How ChainLeak enables AWS cloud takeover in under 10 minutes</li>
-                        <li>Arbitrary file read exploitation (CVE-2026-22218)</li>
-                        <li>SSRF to AWS IMDS credential theft (CVE-2026-22219)</li>
-                        <li>Testing AI frameworks for security vulnerabilities</li>
-                        <li>Snort/WAF detection rules for ChainLeak</li>
-                        <li>Cloud hardening: IMDSv2, least privilege IAM, network segmentation</li>
-                    </ul>
-                    
-                    <div class="cta">
-                        <a href="/articles/chainlit-ai-vulnerabilities-cve-2026-22218.html" class="button">Read Full Analysis →</a>
-                    </div>
-                </div>
-                
-                <div class="tool">
-                    <h3>🚨 <a href="/articles/linkedin-api-bola-bypass.html">LinkedIn API Access Control Bypass - BOLA Testing Guide</a></h3>
-                    <div class="meta">
-                        <span>Published: February 8, 2026</span>
-                        <span>•</span>
-                        <span>3,200 words</span>
-                        <span>•</span>
-                        <span>6 min read</span>
-                    </div>
-                    
-                    <p><strong>Two major access control bugs just disclosed on LinkedIn's HackerOne program.</strong> Learn how to find BOLA/IDOR vulnerabilities in GraphQL APIs and premium feature bypasses.</p>
-                    
-                    <p><strong>What you'll learn:</strong></p>
-                    <ul>
-                        <li>How LinkedIn's comment permission bypass worked</li>
-                        <li>Premium feature access via GraphQL manipulation</li>
-                        <li>Step-by-step BOLA testing methodology</li>
-                        <li>GraphQL-specific testing techniques</li>
-                        <li>Essential tools (Burp Suite, Postman, Autorize)</li>
-                        <li>Bounty ranges for BOLA bugs ($500-10,000)</li>
-                    </ul>
-                    
-                    <div class="cta">
-                        <a href="/articles/linkedin-api-bola-bypass.html" class="button">Read Analysis →</a>
-                    </div>
-                </div>
-            </section>
-
-            <section>
-                <h2>Getting Started</h2>
-                
-                <div class="tool">
-                    <h3>🎯 <a href="/articles/bug-bounty-starter-kit.html">Bug Bounty Starter Kit 2026</a></h3>
-                    <div class="meta">
-                        <span>Published: February 8, 2026</span>
-                        <span>•</span>
-                        <span>5,500 words</span>
-                        <span>•</span>
-                        <span>12 min read</span>
-                    </div>
-                    
-                    <p>Complete shopping list for beginners with three budget levels ($100, $500, $1,000+). Includes exact product recommendations, priority purchase order, ROI timelines, and realistic first-year earnings projections.</p>
-                    
-                    <p><strong>Topics covered:</strong></p>
-                    <ul>
-                        <li>Essential books (priority reading order)</li>
-                        <li>Hardware requirements (WiFi adapters, Raspberry Pi, YubiKey)</li>
-                        <li>Software subscriptions (when to invest)</li>
-                        <li>Home lab setup guide</li>
-                        <li>ROI analysis (when tools pay for themselves)</li>
-                    </ul>
-                    
-                    <div class="cta">
-                        <a href="/articles/bug-bounty-starter-kit.html" class="button">Read Full Guide →</a>
-                    </div>
-                </div>
-            </section>
-
-            <section>
-                <h2>Security Tools & Reviews</h2>
-                
-                <div class="tool">
-                    <h3>🔧 <a href="/articles/security-testing-tools-2026.html">Best Security Testing Tools for Bug Bounty Hunters 2026</a></h3>
-                    <div class="meta">
-                        <span>Published: February 8, 2026</span>
-                        <span>•</span>
-                        <span>3,000 words</span>
-                        <span>•</span>
-                        <span>15 min read</span>
-                    </div>
-                    
-                    <p>Comprehensive review of the 12 essential security testing tools every bug bounty hunter needs. Covers web application scanners, API testing tools, reconnaissance platforms, and automation frameworks.</p>
-                    
-                    <p><strong>Tools reviewed:</strong></p>
-                    <ul>
-                        <li>Burp Suite Professional vs OWASP ZAP</li>
-                        <li>Nuclei (7,000+ vulnerability templates)</li>
-                        <li>ProjectDiscovery Suite (Subfinder, Httpx, Katana)</li>
-                        <li>Postman & GraphQL tools</li>
-                        <li>Shodan for reconnaissance</li>
-                        <li>Cloud security tools (ScoutSuite, Prowler)</li>
-                    </ul>
-                    
-                    <div class="cta">
-                        <a href="/" class="button">Read Full Review →</a>
-                    </div>
-                </div>
-            </section>
-
-            <section>
-                <h2>Coming Soon</h2>
-                
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea;">
-                    <p><strong>New guides published weekly:</strong></p>
-                    <ul>
-                        <li>Best WiFi Adapters for Penetration Testing 2026</li>
-                        <li>Building a Home Penetration Testing Lab</li>
-                        <li>Security Certifications Worth Getting (CEH, OSCP, Security+)</li>
-                        <li>Best Security Books for Bug Bounty Hunters</li>
-                        <li>Free vs Paid Security Tools - What's Worth Buying?</li>
-                    </ul>
-                    <p style="margin-top: 15px;"><strong>Subscribe below to get notified when new guides are published!</strong></p>
-                </div>
-            </section>
-
-        </article>
+</article>
 
     </main>
 

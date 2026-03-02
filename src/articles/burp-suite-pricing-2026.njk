@@ -1,0 +1,175 @@
+---
+title: "Burp Suite Costs $449/yr Per User. Here's What a 5-Person Team Actually Spends."
+description: "Burp Suite Pro is $449/user/yr. Enterprise starts at $3,999/yr. Here's the real total cost for security teams in 2026 — and what Burp doesn't cover."
+date: 2026-02-22
+layout: base.njk
+permalink: /articles/burp-suite-pricing-2026/
+relatedArticles:
+  - title: "Why Your Security Scanner Isn't a Penetration Test"
+    url: "/articles/why-your-security-scanner-isnt-a-penetration-test/"
+    description: "Vulnerability scanners find known CVEs. Penetration tests find what attackers actually exploit. Here's the critical difference."
+  - title: "The Complete Guide to Automated Penetration Testing in 2026"
+    url: "/articles/automated-penetration-testing-guide-2026/"
+    description: "Everything security teams need to know about AI-powered and automated pentesting in 2026: how it works, what to look for, and how to get started."
+---
+<article>
+    <h1>Burp Suite Costs $449/yr Per User. Here's What a 5-Person Team Actually Spends.</h1>
+
+    <div class="meta">
+        <span>Published: February 22, 2026</span>
+        <span>•</span>
+        <span>Reading time: 5 minutes</span>
+    </div>
+
+    <div class="intro">
+        <p>Burp Suite Pro is $449 per user per year. That's right there on the PortSwigger pricing page. Reasonable, even — for what it does.</p>
+
+        <p>Here's where it gets complicated: that's <em>per user</em>. A 5-person security team paying for Pro is already looking at $2,245 a year, and that's before you've touched the Enterprise tier that actually gives you centralised findings management, CI/CD integration, or the ability to run scheduled scans across multiple targets simultaneously.</p>
+
+        <p>This isn't a hit piece. Burp Suite is genuinely excellent at what it does. The question worth asking — especially if you're buying for a team — is whether what it does covers what you actually need to test.</p>
+    </div>
+
+    <section id="what-burp-costs">
+        <h2>What Burp Suite Actually Costs</h2>
+
+        <p><em>Pricing correct as of February 2026. PortSwigger updates pricing periodically — verify on the official page before budgeting.</em></p>
+
+        <h3>Burp Suite Community — Free</h3>
+        <p>The free tier gives you the core web proxy, Repeater, Decoder, a rate-limited Intruder, and access to the BApp extension store. No active scanner. No automated testing. No reporting. Excellent for learning and lightweight manual web testing — not sufficient for team-scale security assessments.</p>
+
+        <h3>Burp Suite Professional — $449/user/year</h3>
+        <p>Pro adds the active scanner, the full (rate-unlimited) Intruder, Burp Collaborator, and the complete extension ecosystem. For individual practitioners doing web application testing, $449/yr is hard to argue with.</p>
+
+        <p>The constraint is per-user, per-machine licensing. There is no centralised findings database. Project files live locally. Sharing findings with a colleague means manual export. A team of five buying Pro: <strong>$2,245/yr minimum</strong>.</p>
+
+        <h3>Burp Suite Enterprise Edition — from $3,999/year</h3>
+        <p>Enterprise brings team-scale, centralised scanning: a shared management interface, scheduled and automated scans, CI/CD pipeline integration (Jenkins, GitHub Actions, GitLab CI), audit logging, and reporting dashboards.</p>
+
+        <p>Pricing is structured around the number of "sites" — distinct web applications or domains — you scan:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Tier</th>
+                    <th>Approximate Price</th>
+                    <th>Sites Covered</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Starter</td>
+                    <td>~$3,999/yr</td>
+                    <td>5 sites</td>
+                </tr>
+                <tr>
+                    <td>Standard</td>
+                    <td>~$8,400/yr</td>
+                    <td>20 sites</td>
+                </tr>
+                <tr>
+                    <td>Advanced / Unlimited</td>
+                    <td>Contact sales</td>
+                    <td>Unlimited</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Note: "sites" means distinct web applications or domains — not hosts. A single application with multiple subdomains may count as multiple sites. Count carefully before committing to a tier.</p>
+
+        <p>Critically: <strong>Burp Enterprise doesn't replace Pro for individual practitioners.</strong> Teams buying Enterprise often still need Pro for manual testing work. Many end up paying for both.</p>
+    </section>
+
+    <section id="what-burp-does">
+        <h2>What Burp Does Well — and Where It Stops</h2>
+
+        <p>Burp Suite is the best manual web proxy in the industry. That's not marketing — it's the informed consensus of the professional security community, and it's deserved.</p>
+
+        <p><strong>Where Burp excels:</strong></p>
+        <ul>
+            <li><strong>Web application testing:</strong> Intercept, modify, replay, and fuzz HTTP/S traffic with unmatched granularity</li>
+            <li><strong>OWASP Top 10 coverage:</strong> The active scanner reliably catches injection flaws, authentication issues, XSS, CSRF, and misconfiguration</li>
+            <li><strong>Extensibility:</strong> The BApp Store has hundreds of community extensions — Turbo Intruder, ActiveScan++, and Hackvertor among the most useful</li>
+            <li><strong>Training ecosystem:</strong> PortSwigger Web Security Academy is free, high quality, and maps directly to Burp's toolset</li>
+        </ul>
+
+        <p><strong>Where Burp stops:</strong></p>
+        <ul>
+            <li><strong>Network layer:</strong> No port scanning, no infrastructure enumeration — Burp doesn't know nmap exists</li>
+            <li><strong>Exploitation:</strong> Burp identifies vulnerabilities. It doesn't exploit them, chain them, or tell you what an attacker can actually do with them</li>
+            <li><strong>Active Directory, wireless, cloud infrastructure, post-exploitation:</strong> Out of scope by design</li>
+            <li><strong>Finding persistence:</strong> Pro stores findings in a per-session project file. Close the session and findings management is on you — manual export, manual tracking</li>
+        </ul>
+
+        <p>Burp Suite is the best tool in the world for web application testing. For teams that need to test the full stack — network, infrastructure, web application, and exploitation — Burp is one tool in a multi-tool workflow, not the workflow itself.</p>
+    </section>
+
+    <section id="tco-worked-example">
+        <h2>The Real Team TCO: What a 4-Person Security Team Actually Spends</h2>
+
+        <p>Concrete example: a security team of four at a 200-person SaaS company. Scope: quarterly web application testing, one annual infrastructure assessment, ongoing CI/CD security integration.</p>
+
+        <h3>Scenario A: Burp Suite Pro per practitioner</h3>
+        <ul>
+            <li>4 × $449/yr = <strong>$1,796/yr</strong></li>
+            <li>Network and infrastructure testing: separate tools (nmap, Metasploit, Nuclei, SQLmap) — open source but unintegrated</li>
+            <li>Findings management: manual — project files, spreadsheets, or a third-party tracker</li>
+            <li>Overhead: 2–3 hours per engagement for tool-switching, cross-referencing findings, and report compilation</li>
+        </ul>
+        <p>Burp Pro at this scale is affordable. The cost shows up in time, not licensing.</p>
+
+        <h3>Scenario B: Burp Suite Enterprise (20-site tier)</h3>
+        <ul>
+            <li>Enterprise Standard: <strong>~$8,400/yr</strong> (centralised scanning, CI/CD integration, 20 sites)</li>
+            <li>Individual Pro licenses still required for manual testing: 4 × $449 = $1,796/yr</li>
+            <li><strong>Total: ~$10,196/yr</strong></li>
+            <li>Still needs supplementary tooling for network and infrastructure — not covered by Burp at any tier</li>
+        </ul>
+        <p>What this buys: thorough, automated web application scanning with solid CI/CD integration. A strong investment if web applications are your primary and consistent attack surface. What it doesn't buy: a unified picture of your environment. Network findings, web findings, and exploitation chains still live in separate tools with no shared data model.</p>
+    </section>
+
+    <section id="when-burp-is-right">
+        <h2>When Burp Suite Is the Right Answer</h2>
+
+        <p>To be clear: Burp Suite Pro is an excellent investment in the right contexts.</p>
+
+        <p><strong>Buy it if:</strong></p>
+        <ul>
+            <li>You're a solo practitioner or freelance pentester doing web application work — $449/yr pays for itself on the second engagement</li>
+            <li>Your entire testing scope is web applications: SaaS products, API-first companies, web-only attack surfaces</li>
+            <li>You're building a security team and need a standard manual testing tool that every web practitioner already knows</li>
+            <li>You need PCI DSS compliance: Requirement 6.3 calls specifically for web application scanning, and Burp Enterprise satisfies this</li>
+            <li>You want PortSwigger Web Security Academy (free) as part of your team's training stack — Burp Pro is the natural companion tool</li>
+        </ul>
+
+        <p>The ROI case for Burp Pro at $449/yr is strong. The cost conversation gets harder when you scale to teams, move into Enterprise pricing, and look at what the full bill covers versus what your team actually needs to test.</p>
+    </section>
+
+    <section id="beyond-web">
+        <h2>What Changes When You Need More Than Web</h2>
+
+        <p>Most security teams don't test web applications in isolation. A full-scope assessment covers network reconnaissance, infrastructure vulnerabilities, Active Directory, credential testing, and exploitation — not just what lives on port 443.</p>
+
+        <p>Running a full-stack test typically means coordinating: <strong>nmap → Nuclei → Metasploit → Hydra → SQLmap → Burp Suite</strong> — six tools, six data formats, six separate places where findings live. The time cost of managing that workflow across a team without a centralised findings database is real. So is the risk of missing attack paths that only become visible when you correlate across tools.</p>
+
+        <p>The alternative to this fragmented workflow is a unified active penetration testing platform — one that covers network reconnaissance, web application testing, exploitation, and findings management in a single cohesive environment. Rather than exporting results from six tools and correlating them manually, findings are centralised from the start: network exposures and web vulnerabilities are visible together, and attack paths that span both layers become apparent.</p>
+
+        <p>SecurityClaw is built on this model: a platform with 56+ integrated security skills spanning the full penetration testing kill chain, from initial reconnaissance through exploitation and reporting. If your team needs full-scope assessments — web application testing <em>plus</em> network, infrastructure, and exploitation — the question isn't whether to replace Burp Suite for web testing. It's whether a dedicated web proxy, even an excellent one, covers the full scope of what you need to test.</p>
+
+        <p>The right question isn't <em>"is Burp Suite worth $449?"</em> For web application testing, it almost certainly is. The right question is whether $449 per person buys your team what it actually needs to test.</p>
+
+        <p><a href="/securityclaw/" class="cta-button">Explore the SecurityClaw approach →</a></p>
+    </section>
+
+    <section id="related-articles">
+        <h2>Related Articles</h2>
+        <ul>
+            {% for article in relatedArticles %}
+            <li><a href="{{ article.url }}">{{ article.title }}</a> — {{ article.description }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <footer class="article-footer">
+        <p><em>Burp Suite pricing sourced from the PortSwigger website, February 2026. Prices may change — verify on the official page before budgeting.</em></p>
+    </footer>
+</article>

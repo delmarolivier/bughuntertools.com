@@ -32,6 +32,8 @@ echo ""
 
 # 3. Sync to S3
 echo "3. Syncing files to S3..."
+# --delete intentionally removed: all articles must have .njk source files in src/articles/
+# before deploy (see PUBLISHING_WORKFLOW.md). Use full-sync-to-s3.sh for explicit cleanup.
 aws s3 sync _site/ s3://$BUCKET/ \
   --region $REGION \
   --exclude ".git/*" \
@@ -42,8 +44,7 @@ aws s3 sync _site/ s3://$BUCKET/ \
   --exclude "node_modules/*" \
   --exclude "src/*" \
   --exclude ".eleventy.js" \
-  --cache-control "public, max-age=3600" \
-  --delete
+  --cache-control "public, max-age=3600"
 
 echo "✓ Files synced to S3"
 echo ""

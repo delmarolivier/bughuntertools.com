@@ -1,0 +1,207 @@
+---
+title: "Model Distillation Attacks: How DeepSeek and Chinese AI Firms Extracted Claude at Industrial Scale"
+description: "Anthropic has exposed three Chinese AI companies — DeepSeek, Moonshot AI, and MiniMax — for running industrial-scale model distillation campaigns via 16 million fraudulent Claude API queries. Here's how the attacks worked, how they were detected, and what it means for AI API security."
+date: 2026-02-24
+layout: base.njk
+permalink: /articles/model-distillation-attacks-deepseek-claude-anthropic-2026/
+relatedArticles:
+  - title: "Claude Code Security vs. Active Penetration Testing"
+    url: "/articles/claude-code-security-vs-penetration-testing/"
+    description: "Anthropic launched Claude Code Security in February 2026. Here's what AI code scanning catches, where it stops, and why active penetration testing remains essential."
+  - title: "The Complete Guide to Automated Penetration Testing in 2026"
+    url: "/articles/automated-penetration-testing-guide-2026/"
+    description: "Everything security teams need to know about AI-powered and automated pentesting in 2026."
+---
+<article>
+    <h1>Model Distillation Attacks: How DeepSeek and Chinese AI Firms Extracted Claude at Industrial Scale</h1>
+
+    <div class="meta">
+        <span>Published: February 24, 2026</span>
+        <span>•</span>
+        <span>Reading time: 8 minutes</span>
+        <span>•</span>
+        <span style="color: #f44336; font-weight: bold;">BREAKING</span>
+    </div>
+
+    <div class="intro">
+        <p>Anthropic has publicly accused three Chinese AI companies — <strong>DeepSeek</strong>, <strong>Moonshot AI</strong>, and <strong>MiniMax</strong> — of running coordinated, industrial-scale campaigns to steal Claude's capabilities through a technique called <em>model distillation</em>. The combined operation generated over <strong>16 million exchanges</strong> with Claude's API through approximately <strong>24,000 fraudulent accounts</strong>, deliberately crafted to extract Claude's most differentiated capabilities — agentic reasoning, tool use, and coding — to train competing models.</p>
+
+        <p>The disclosure, published on February 24, 2026, represents one of the most detailed public accounts of AI intellectual property theft at scale. It also demonstrates a class of API abuse that most security teams have no established defences against: systematic, high-volume API exploitation designed not to break a system but to extract what it knows.</p>
+    </div>
+
+    <section id="what-is-model-distillation">
+        <h2>What Is Model Distillation — and Why This Is Different</h2>
+
+        <p>Model distillation is a legitimate machine learning technique. A large, expensive "teacher" model generates labelled outputs, and a smaller "student" model is trained on those outputs to approximate the teacher's behaviour at a fraction of the computational cost. This is standard practice within a company: OpenAI can distill GPT-4 into a smaller model for deployment; Anthropic can create a lighter Claude variant from Claude 3.5 Sonnet.</p>
+
+        <p>What is not legal — and what Anthropic is alleging — is using a competitor's model as the teacher without their consent. The technique is identical, but using Anthropic's Claude to train DeepSeek or Moonshot AI constitutes IP theft, violates Anthropic's terms of service, and bypasses the safety alignment work that Anthropic built into the model.</p>
+
+        <p>Anthropic flagged a specific national security concern: <em>"Illicitly distilled models lack necessary safeguards, creating significant national security risks. Models built through illicit distillation are unlikely to retain those safeguards, meaning that dangerous capabilities can proliferate with many protections stripped out entirely."</em></p>
+
+        <p>In other words: a model trained on Claude's outputs inherits Claude's capabilities but not Claude's safety training. The resulting models can do what Claude can do, without the limits Claude has.</p>
+    </section>
+
+    <section id="three-campaigns">
+        <h2>The Three Campaigns: What Each Company Actually Did</h2>
+
+        <p>Anthropic attributed each campaign to a specific company through request metadata, IP address correlation, and infrastructure indicators. The targeting patterns were distinct and deliberate:</p>
+
+        <h3>DeepSeek — 150,000+ Exchanges</h3>
+        <p>DeepSeek's campaign was the smallest by volume but arguably the most revealing. Targets included Claude's <strong>reasoning capabilities</strong>, rubric-based grading tasks, and requests for censorship-safe alternatives to politically sensitive queries — questions about dissidents, party leaders, and authoritarianism. The content of the prompts directly reflects what a Chinese AI company needs: a model that can reason through difficult topics while producing outputs safe for the Chinese regulatory environment.</p>
+
+        <h3>Moonshot AI — 3.4 Million Exchanges</h3>
+        <p>Moonshot AI ran a significantly larger campaign targeting <strong>agentic reasoning and tool use, coding capabilities, computer-use agent development, and computer vision</strong>. This scope suggests Moonshot was building a broad-capability competitor, not just improving a narrow vertical. The volume and diversity of the targeting indicate systematic capability extraction across multiple domains simultaneously.</p>
+
+        <h3>MiniMax — 13 Million Exchanges</h3>
+        <p>MiniMax ran the largest campaign by far, generating 13 million exchanges specifically targeting <strong>agentic coding and tool use capabilities</strong>. At 13 million exchanges, this was not opportunistic — it was an engineering operation with systematic prompt construction designed to extract training data at scale. The focus on coding and tool use mirrors the capabilities that matter most for AI applications in enterprise and developer markets.</p>
+    </section>
+
+    <section id="hydra-cluster-architecture">
+        <h2>The Hydra Cluster: How 24,000 Accounts Evaded Detection</h2>
+
+        <p>The technical mechanism of the attack is where the security story gets interesting for practitioners.</p>
+
+        <p>The campaigns didn't rely on a few high-volume accounts that would trigger rate-limiting alerts. Instead, they operated through what Anthropic calls <strong>"hydra cluster" architectures</strong>: massive networks of fraudulent accounts distributed across commercial proxy services that resell access to frontier AI models.</p>
+
+        <p>Key characteristics of the hydra cluster approach:</p>
+        <ul>
+            <li><strong>Account distribution:</strong> A single proxy network managed more than 20,000 fraudulent accounts simultaneously. When one account is banned, a replacement is immediately activated. There is no single point of failure.</li>
+            <li><strong>Traffic mixing:</strong> Distillation requests were mixed with unrelated customer requests on the same proxy infrastructure, making per-account traffic patterns appear legitimate.</li>
+            <li><strong>Proxy layering:</strong> Commercial proxy services that resell Claude API access were used to obscure the origin and intent of requests. These services operate in a grey area — reselling access they shouldn't hold.</li>
+            <li><strong>Prompt engineering:</strong> The prompts were carefully crafted to extract specific capabilities rather than general information. "Volume, structure, and focus of the prompts were distinct from normal usage patterns," Anthropic noted.</li>
+        </ul>
+
+        <p>This is a classic distributed attack architecture — the same principle that makes DDoS attacks hard to block by IP applies here to API abuse at scale. No individual account behaves anomalously; the anomaly is only visible in aggregate.</p>
+    </section>
+
+    <section id="detection-and-defence">
+        <h2>How Anthropic Detected the Attacks — and What It Means for AI API Security</h2>
+
+        <p>Anthropic's response describes the detection and mitigation capabilities they've built — which provide a defensive blueprint for any organisation running AI APIs:</p>
+
+        <h3>Behavioral Fingerprinting</h3>
+        <p>Anthropic built classifiers that identify suspicious distillation patterns in API traffic. The key signals appear to be: prompt structure consistency (indicating systematic generation rather than organic user behaviour), capability targeting patterns (requests concentrated in specific high-value domains), and volume vs. account ratio anomalies (high output volume distributed across many low-traffic accounts).</p>
+
+        <p>Behavioral fingerprinting at this level requires training data — which means Anthropic now has labelled examples of what distillation attacks look like. That's a meaningful detection advantage going forward.</p>
+
+        <h3>Account Verification Strengthening</h3>
+        <p>Anthropic strengthened identity verification for educational accounts, security research programmes, and startup organisations — the account categories most likely to be exploited for fraudulent access. Commercial proxy services that resell frontier model access are also an evident chokepoint.</p>
+
+        <h3>Output Safeguards</h3>
+        <p>Anthropic implemented "enhanced safeguards to reduce the efficacy of model outputs for illicit distillation." The specific mechanisms aren't described, but likely include output variation, watermarking, and prompt-response patterns that make distillation datasets less clean and therefore less useful for training.</p>
+
+        <h3>The Google Parallel: Gemini Was Also Targeted</h3>
+        <p>Anthropic's disclosure follows a similar report from Google Threat Intelligence Group (GTIG) earlier this month. Google identified and disrupted distillation and model extraction attacks targeting Gemini's reasoning capabilities through more than 100,000 prompts. Google noted: <em>"Model extraction and distillation attacks do not typically represent a risk to average users, as they do not threaten the confidentiality, availability, or integrity of AI services. Instead, the risk is concentrated among model developers and service providers."</em></p>
+
+        <p>This framing is technically correct but understates the national security dimension Anthropic raises: unguarded models with stripped safety alignment, built by state-adjacent companies, represent a different class of risk than a typical API breach.</p>
+    </section>
+
+    <section id="security-practitioner-takeaways">
+        <h2>Security Practitioner Takeaways</h2>
+
+        <p>For security teams building, operating, or auditing AI APIs, this incident establishes several operational patterns worth noting:</p>
+
+        <p><strong>Rate limiting alone doesn't stop distributed API abuse.</strong> The hydra cluster architecture explicitly defeats per-account rate limits. Detection requires aggregate analysis across account cohorts, not per-account thresholds.</p>
+
+        <p><strong>Legitimate API abuse is hard to distinguish from distillation.</strong> The proxy services enabling these attacks are reselling Claude access to paying customers — who are then using it in ways that violate ToS. The abuse happens inside what looks like legitimate access.</p>
+
+        <p><strong>Prompt pattern analysis is underutilised.</strong> The "volume, structure, and focus" of prompts distinguishes distillation from normal usage. Security teams protecting their own AI APIs should build prompt-level anomaly detection alongside request-volume monitoring.</p>
+
+        <p><strong>Attribution at infrastructure level.</strong> Anthropic attributed campaigns to specific companies via "request metadata, IP address correlation, and infrastructure indicators." This is advanced threat intelligence tradecraft applied to API abuse — the same techniques used to attribute cyberattacks applied to API-layer adversaries.</p>
+
+        <p>The security reading that's most relevant here: <a href="https://www.amazon.co.uk/dp/B005LVQA9S?tag=bughuntertoo-21" rel="nofollow">The Web Application Hacker's Handbook</a> covers API security and traffic analysis at depth. For Python-based security tooling (including building detection systems), <a href="https://www.amazon.co.uk/dp/1718501129?tag=bughuntertoo-21" rel="nofollow">Black Hat Python</a> provides the foundation. <a href="https://www.amazon.co.uk/dp/1593271441?tag=bughuntertoo-21" rel="nofollow">Hacking: The Art of Exploitation</a> covers the attacker's mental model that informs understanding these campaigns.</p>
+    </section>
+
+    <section id="implications-for-ai-security-testing">
+        <h2>Implications for AI Security Testing</h2>
+
+        <p>The distillation attack campaigns represent a new testing surface that most penetration testing frameworks haven't formally addressed: the AI API layer as an attack target in its own right.</p>
+
+        <p>Traditional application security testing asks: can an attacker break this system? AI API security testing needs to ask a second question: can an attacker extract what this system knows, at scale, while appearing to be a normal user?</p>
+
+        <p>The attack primitives are:</p>
+        <ul>
+            <li>Mass account creation with synthetic identities</li>
+            <li>Distributed traffic routing through proxy networks</li>
+            <li>Systematic prompt engineering to extract specific capabilities</li>
+            <li>Traffic mixing to evade per-account anomaly detection</li>
+        </ul>
+
+        <p>These are testable. Red teams conducting assessments of AI services should include distillation simulation testing — running low-volume, structured probe campaigns to verify whether detection systems are actually firing, and whether account verification is robust against synthetic identity creation.</p>
+
+        <p>This is an area SecurityClaw is actively tracking as AI testing surfaces mature. Full-scope assessment of AI-backed services requires coverage of the extraction layer, not just the application layer.</p>
+
+        <a href="/securityclaw/" class="cta-button">Explore SecurityClaw →</a>
+    </section>
+
+    <section id="faq">
+        <h2>FAQ</h2>
+
+        <h3>What is a model distillation attack?</h3>
+        <p>A model distillation attack uses a competitor's AI model as a "teacher" — generating large volumes of prompt-response pairs — to train a "student" model that approximates the teacher's capabilities. When done without the original model provider's consent, it constitutes IP theft and violates terms of service.</p>
+
+        <h3>Which companies did Anthropic accuse?</h3>
+        <p>Anthropic attributed industrial-scale model distillation campaigns to three Chinese AI companies: DeepSeek (150,000+ exchanges), Moonshot AI (3.4 million exchanges), and MiniMax (13 million exchanges). All three are based in China, where use of Anthropic's services is prohibited due to "legal, regulatory, and security risks."</p>
+
+        <h3>How did the attackers avoid detection?</h3>
+        <p>The campaigns used "hydra cluster" architectures: networks of 20,000+ fraudulent accounts operating through commercial proxy services that resell AI API access. Distillation traffic was mixed with unrelated requests to make per-account patterns appear normal. When individual accounts were banned, replacements were immediately activated.</p>
+
+        <h3>How did Anthropic detect the attacks?</h3>
+        <p>Anthropic built behavioral fingerprinting classifiers that identify suspicious prompt patterns in API traffic. Attribution to specific companies was achieved through request metadata, IP address correlation, and infrastructure indicators. The volume, structure, and focus of prompts was "distinct from normal usage patterns, reflecting deliberate capability extraction."</p>
+
+        <h3>What's the national security risk?</h3>
+        <p>Models trained via illicit distillation inherit capabilities from the source model but not its safety alignment. Anthropic warns that these "dangerously capable" models can be deployed for offensive cyber operations, disinformation campaigns, and mass surveillance by authoritarian governments, without the safety safeguards that legitimate AI development builds in.</p>
+
+        <h3>Was Google's Gemini also targeted?</h3>
+        <p>Yes. Google Threat Intelligence Group (GTIG) disclosed earlier in February 2026 that it identified and disrupted model extraction and distillation attacks against Gemini via more than 100,000 prompts. Both Anthropic and Google are dealing with the same threat class simultaneously.</p>
+
+        <h3>How should security teams protect their AI APIs?</h3>
+        <p>Key defences include: aggregate account behaviour analysis (not just per-account rate limiting), prompt pattern anomaly detection for structured/systematic query patterns, strengthened synthetic identity detection in account verification, and proxy service monitoring to identify resellers operating in violation of terms.</p>
+    </section>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is a model distillation attack?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A model distillation attack uses a competitor's AI model as a teacher — generating large volumes of prompt-response pairs to train a competing model. When done without consent, it constitutes IP theft."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which companies did Anthropic accuse of model distillation?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Anthropic attributed campaigns to DeepSeek (150,000+ exchanges), Moonshot AI (3.4 million exchanges), and MiniMax (13 million exchanges) — all Chinese AI companies where Anthropic services are prohibited."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How did attackers avoid detection in the Claude distillation campaign?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Attackers used hydra cluster architectures: networks of 20,000+ fraudulent accounts through commercial proxy services, mixing distillation traffic with normal requests to evade per-account anomaly detection."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <section id="related-articles">
+        <h2>Related Articles</h2>
+        <ul>
+            {% for article in relatedArticles %}
+            <li><a href="{{ article.url }}">{{ article.title }}</a> — {{ article.description }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <footer class="article-footer">
+        <p><em>Sources: <a href="https://www.anthropic.com/news/detecting-and-preventing-distillation-attacks" rel="nofollow">Anthropic: Detecting and Preventing Distillation Attacks</a>; The Hacker News (Ravie Lakshmanan, Feb 24 2026); Google Threat Intelligence Group (GTIG) disclosure, February 2026.</em></p>
+    </footer>
+</article>
