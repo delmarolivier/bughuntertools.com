@@ -1,0 +1,22 @@
+# Agent operational state — not code, must not be branch-specific
+TASK_QUEUE.md
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Test/coverage artifacts
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Env
+.env
+.venv/
+venv/
