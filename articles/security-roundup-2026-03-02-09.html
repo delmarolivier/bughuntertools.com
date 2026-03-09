@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Security Roundup March 2-9, 2026: Cisco SD-WAN CVSS 10.0 zero-day actively exploited, VMware Aria Operations CISA KEV, APT28 MSHTML 0-day, AI vibeware factories, and ClickFix ransomware evolution. Essential weekly reading for bug bounty hunters.">
+    <title>Security Roundup March 2-9, 2026: Top Vulnerabilities & Tools for Bug Hunters</title>
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PP6M3SZSVR"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-PP6M3SZSVR');
+    </script>
+    
+    <!-- AI Agent Referrer Tracking -->
+    <script>
+      (function() {
+        var ua = navigator.userAgent || '';
+        var ref = document.referrer || '';
+        var aiSource = null;
+        
+        if (ua.includes('ChatGPT-User') || ua.includes('ChatGPT')) {
+          aiSource = 'chatgpt';
+        } else if (ua.includes('Claude') || ua.includes('Anthropic')) {
+          aiSource = 'claude';
+        } else if (ua.includes('PerplexityBot') || ua.includes('Perplexity')) {
+          aiSource = 'perplexity';
+        } else if (ref.includes('chat.openai.com')) {
+          aiSource = 'chatgpt_referrer';
+        } else if (ref.includes('claude.ai')) {
+          aiSource = 'claude_referrer';
+        } else if (ref.includes('perplexity.ai')) {
+          aiSource = 'perplexity_referrer';
+        }
+        
+        if (aiSource) {
+          gtag('event', 'ai_agent_visit', {
+            'ai_source': aiSource,
+            'page_path': window.location.pathname,
+            'user_agent': ua
+          });
+          gtag('set', {'ai_visitor': aiSource});
+        }
+      })();
+    </script>
+    
+    <!-- Schema.org markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Security Roundup March 2-9, 2026: Top Vulnerabilities & Tools for Bug Hunters",
+      "description": "Weekly security roundup: Cisco SD-WAN CVSS 10.0 zero-day, VMware Aria CISA KEV, APT28 MSHTML exploitation, AI-generated vibeware, ClickFix ransomware evolution, and .arpa DNS phishing evasion.",
+      "datePublished": "2026-03-09",
+      "author": {
+        "@type": "Organization",
+        "name": "Bug Hunter Tools"
+      }
+    }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🔍 <a href="/" style="color: white; text-decoration: none;">Bug Hunter Tools</a></h1>
+            <p class="tagline">Professional Security Testing Tools for Bug Bounty Hunters</p>
+            <nav class="main-nav">
+                <a href="/">Home</a>
+                <a href="/articles/" style="background: rgba(255,255,255,0.2);">Articles</a>
+                <a href="/articles/security-testing-tools-2026.html">Tools</a>
+                <a href="/privacy.html">Privacy</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <article>
+            <h1>Security Roundup March 2–9, 2026: Top Vulnerabilities &amp; Tools for Bug Hunters</h1>
+            
+            <div class="meta">
+                <span>Published: March 9, 2026</span>
+                <span>•</span>
+                <span>Reading time: 14 minutes</span>
+                <span>•</span>
+                <span style="color: #f44336; font-weight: bold;">🚨 WEEKLY ROUNDUP</span>
+            </div>
+
+            <div class="affiliate-disclosure">
+                <p><strong>📢 Affiliate Disclosure:</strong> This site contains affiliate links to Amazon. We earn a commission when you purchase through our links at no additional cost to you.</p>
+            </div>
+
+            <div class="intro">
+                <p><strong>This week was defined by state-actor exploitation, a perfect-10 network vulnerability, and a genuinely alarming trend: threat groups are now using AI to mass-produce disposable malware at industrial scale.</strong></p>
+
+                <p>A Cisco SD-WAN zero-day sitting at CVSS 10.0 has been actively exploited since 2023 and only just disclosed. VMware Aria Operations landed on CISA's Known Exploited Vulnerabilities catalog with active in-the-wild abuse. APT28—Russia's GRU-linked unit—weaponised an MSHTML zero-day weeks before Microsoft's February Patch Tuesday. And Transparent Tribe, the Pakistan-aligned APT, has gone all-in on AI-generated "vibeware": disposable, polyglot binaries cranked out by LLMs to flood targets faster than defenders can triage them.</p>
+
+                <p>Meanwhile, the ClickFix social-engineering technique is spawning new mutations, a novel .arpa DNS phishing technique is slipping through email security gateways, and CISA is warning federal agencies to patch iOS flaws being exploited for crypto theft.</p>
+
+                <p><strong>Six findings worth your time this week, plus the tools and books to go deeper.</strong></p>
+            </div>
+
+            <!-- Table of Contents -->
+            <nav style="background: #f5f5f5; padding: 20px 30px; border-radius: 8px; margin: 30px 0;">
+                <strong>Jump to:</strong>
+                <ol style="margin: 10px 0 0 0; padding-left: 20px;">
+                    <li><a href="#cisco-sdwan">CVE-2026-20127: Cisco SD-WAN Zero-Day (CVSS 10.0)</a></li>
+                    <li><a href="#vmware-aria">CVE-2026-22719: VMware Aria Operations — CISA KEV</a></li>
+                    <li><a href="#apt28-mshtml">CVE-2026-21513: APT28 Exploits MSHTML 0-Day</a></li>
+                    <li><a href="#vibeware">AI Vibeware: Transparent Tribe's Malware Factory</a></li>
+                    <li><a href="#clickfix">ClickFix Evolves: CastleRAT &amp; InstallFix Mutations</a></li>
+                    <li><a href="#arpa-phishing">.arpa DNS Phishing Bypasses Email Security Gateways</a></li>
+                    <li><a href="#essential-tools">Essential Tools This Week</a></li>
+                    <li><a href="#books">Books to Go Deeper</a></li>
+                    <li><a href="#recommendations">Recommendations for Bug Hunters</a></li>
+                </ol>
+            </nav>
+
+            <!-- Finding 1: Cisco SD-WAN -->
+            <section id="cisco-sdwan">
+                <h2>1. 🔴 CVE-2026-20127: Cisco Catalyst SD-WAN Zero-Day (CVSS 10.0)</h2>
+
+                <div style="background: #ffebee; padding: 16px 20px; border-radius: 6px; border-left: 4px solid #f44336; margin-bottom: 20px;">
+                    <strong>Severity:</strong> Critical — CVSS 10.0 &nbsp;|&nbsp; <strong>Status:</strong> Actively exploited since 2023 &nbsp;|&nbsp; <strong>Patch:</strong> Available now
+                </div>
+
+                <h3>What Happened</h3>
+                <p>Cisco disclosed a maximum-severity authentication bypass in Cisco Catalyst SD-WAN Controller (formerly vSmart) and Catalyst SD-WAN Manager (formerly vManage) — tracked as <strong>CVE-2026-20127</strong>. An unauthenticated remote attacker can bypass authentication entirely and gain administrative control over the management plane.</p>
+
+                <p>The kicker: Cisco's own threat intelligence team confirmed exploitation activity dating back to <strong>2023</strong>. This vulnerability was being actively abused in production networks for over two years before public disclosure. The affected products sit at the heart of enterprise and government SD-WAN deployments, managing routing policies, VPN tunnels, and network segmentation across thousands of edge devices from a single pane of glass.</p>
+
+                <h3>Why It Matters for Bug Hunters</h3>
+                <p>A CVSS 10.0 authentication bypass on network management infrastructure is about as serious as it gets. An attacker who compromises the SD-WAN controller doesn't just own one device — they own the network fabric. They can redirect traffic, poison routing tables, create rogue VPN tunnels, and move laterally to every site in the WAN.</p>
+
+                <p>From a bug bounty perspective, SD-WAN management interfaces are increasingly exposed to the internet (deliberately, for remote management) and are frequently in scope for enterprise bug bounty programmes. Cisco has an active <a href="https://www.cisco.com/c/en/us/about/security-center/security-vulnerability-policy.html" rel="nofollow">bug bounty and responsible disclosure programme</a>. Authentication bypass on enterprise networking gear consistently pays five-figure bounties.</p>
+
+                <p>Beyond direct bounties, understanding this class of vulnerability — authentication bypass in REST/NETCONF management APIs — maps directly to findings on competing SD-WAN platforms (VMware VeloCloud, Fortinet, Palo Alto Prisma SD-WAN) that have similar architectures and similar exposure.</p>
+
+                <h3>How to Test</h3>
+                <p>Look for exposed SD-WAN management interfaces on port 8443, 443, or 8553. Common fingerprinting techniques:</p>
+                <ul>
+                    <li>Shodan searches for <code>product:"Cisco vManage"</code> or title-based fingerprints</li>
+                    <li>Check for unauthenticated API endpoints at <code>/dataservice/</code> — vManage's REST API base path</li>
+                    <li>Test for HTTP method confusion: some endpoints that reject GET accept POST without auth validation</li>
+                    <li>Look for version disclosure in HTTP headers or login page source (patching coverage is notoriously slow for network appliances)</li>
+                    <li>Test for bypass via JWT algorithm confusion if the API uses tokens — a known weakness class in Cisco management platforms</li>
+                </ul>
+
+                <div style="background: #e8f5e9; padding: 16px 20px; border-radius: 6px; border-left: 4px solid #4caf50; margin: 20px 0;">
+                    <strong>💡 Bug Hunter Tip:</strong> Network appliance vendors patch slowly. If you find a Cisco vManage instance on version 20.x or earlier, check <a href="https://sec.cloudapps.cisco.com/security/center/publicationListing.x" rel="nofollow">Cisco's Security Advisories</a> for every known CVE and test systematically. Many organisations have never patched their SD-WAN controllers.
+                </div>
+
+                <p><strong>Source:</strong> <a href="https://thehackernews.com/2026/03/weekly-recap-sd-wan-0-day-critical-cves.html" rel="nofollow">The Hacker News — Weekly Recap, March 2, 2026</a></p>
+            </section>
+
+            <!-- Finding 2: VMware Aria -->
+            <section id="vmware-aria">
+                <h2>2. 🔴 CVE-2026-22719: VMware Aria Operations — CISA KEV, Actively Exploited</h2>
+
+                <div style="background: #ffebee; padding: 16px 20px; border-radius: 6px; border-left: 4px solid #f44336; margin-bottom: 20px;">
+                    <strong>Severity:</strong> High — CVSS 8.1 &nbsp;|&nbsp; <strong>Status:</strong> CISA KEV — federal agencies must patch by March 25 &nbsp;|&nbsp; <strong>Vector:</strong> Unauthenticated command injection
+                </div>
+
+                <h3>What Happened</h3>
+                <p>CISA added <strong>CVE-2026-22719</strong> to its Known Exploited Vulnerabilities catalogue on March 4, citing in-the-wild exploitation. The flaw is a command injection vulnerability in VMware Aria Operations (formerly vRealize Operations) that allows an unauthenticated attacker to execute arbitrary operating system commands — potentially leading to full RCE — while a support-assisted product migration is in progress.</p>
+
+                <p>Broadcom patched three vulnerabilities simultaneously in Aria Operations:</p>
+                <ul>
+                    <li><strong>CVE-2026-22719</strong> (CVSS 8.1) — unauthenticated command injection → RCE</li>
+                    <li><strong>CVE-2026-22720</strong> — stored cross-site scripting (XSS)</li>
+                    <li><strong>CVE-2026-22721</strong> — privilege escalation to admin</li>
+                </ul>
+
+                <p>The affected products span VMware Cloud Foundation and Aria Operations versions 8.x and earlier. Federal agencies under CISA's BOD 22-01 have until <strong>March 25, 2026</strong> to patch — but given active exploitation, that timeline should be treated as a ceiling, not a target.</p>
+
+                <h3>Why It Matters for Bug Hunters</h3>
+                <p>VMware Aria Operations is an enterprise monitoring and management platform deployed across large virtualised environments — hypervisors, VMs, containers, storage. Compromising it gives an attacker a bird's-eye view of the entire infrastructure, including credentials, configuration data, and performance metrics that can be mined for lateral movement opportunities.</p>
+
+                <p>The "support-assisted migration" trigger for the command injection is particularly interesting from a research perspective. It suggests the vulnerability exists in a code path that handles privileged operations — the kind of place developers often relax input validation because "only support uses this." This pattern is widespread: look for similar command injection in backup/restore, migration, and import/export functionality across other enterprise monitoring tools.</p>
+
+                <p>VMware has a bug bounty programme through <a href="https://www.broadcom.com/company/legal/vmware-security-disclosure-and-response-policy" rel="nofollow">Broadcom's disclosure policy</a> and participates in HackerOne. RCE findings in Aria Operations and vCenter consistently command $10,000–50,000+ bounties.</p>
+
+                <h3>How to Test</h3>
+                <ul>
+                    <li>Aria Operations typically listens on HTTPS/443 with a recognisable login page fingerprint</li>
+                    <li>Enumerate API endpoints at <code>/suite-api/api/</code> — many versions have unauthenticated informational endpoints</li>
+                    <li>Test command injection in parameters accepted during import/export/migration operations — look for OS metacharacters (<code>;</code>, <code>|</code>, <code>`</code>, <code>$()</code>) in fields that end up in shell commands</li>
+                    <li>The stored XSS (CVE-2026-22720) is worth hunting independently: find input that ends up rendered in admin views without proper escaping</li>
+                    <li>For CVE-2026-22721, test privilege escalation paths from lower-privileged roles — RBAC boundary failures are endemic in complex enterprise platforms</li>
+                </ul>
+
+                <p><strong>Source:</strong> <a href="https://thehackernews.com/2026/03/cisa-adds-actively-exploited-vmware.html" rel="nofollow">The Hacker News — CISA Adds VMware Aria Operations to KEV Catalog, March 4, 2026</a></p>
+            </section>
+
+            <!-- Finding 3: APT28 MSHTML -->
+            <section id="apt28-mshtml">
+                <h2>3. 🟠 CVE-2026-21513: APT28 Exploited MSHTML 0-Day Before Patch Tuesday</h2>
+
+                <div style="background: #fff3e0; padding: 16px 20px; border-radius: 6px; border-left: 4px solid #ff9800; margin-bottom: 20px;">
+                    <strong>Severity:</strong> High — CVSS 8.8 &nbsp;|&nbsp; <strong>Threat Actor:</strong> APT28 (GRU Unit 26165) &nbsp;|&nbsp; <strong>Patched:</strong> February 2026 Patch Tuesday
+                </div>
+
+                <h3>What Happened</h3>
+                <p>Akamai researchers linked <strong>CVE-2026-21513</strong>, a security feature bypass in the MSHTML Framework, to the Russia-aligned APT28 threat group (also known as Fancy Bear, STRONTIUM, Forest Blizzard). The vulnerability allows an unauthenticated attacker to bypass Windows security features via a network-based attack — and was being exploited as a zero-day in the wild before Microsoft patched it on February 2026 Patch Tuesday.</p>
+
+                <p>The vulnerability received credit from an unusually broad coalition: Microsoft Threat Intelligence Center (MSTIC), Microsoft Security Response Center (MSRC), the Office Product Group Security Team, <em>and</em> Google Threat Intelligence Group (GTIG) — suggesting the exploitation was widespread enough that multiple independent teams noticed it. APT28 is associated with Russia's GRU military intelligence directorate and has been responsible for numerous high-profile attacks including the 2016 US election interference campaigns and the 2023 Microsoft Exchange zero-day exploitation (CVE-2023-23397).</p>
+
+                <h3>Why It Matters for Bug Hunters</h3>
+                <p>The MSHTML Framework (also known as Trident) underpins Internet Explorer's rendering engine and is embedded throughout Windows — in applications that render HTML for previews, in Office documents that embed web content, and in legacy components that process HTML in unexpected places. Security feature bypasses in MSHTML often chain with other vulnerabilities to enable code execution without triggering Windows security mechanisms.</p>
+
+                <p>For bug hunters, this reinforces a core principle: <strong>legacy components embedded in modern platforms are perennially vulnerable.</strong> MSHTML is "deprecated" but still present in every current Windows installation. Look for these patterns on your targets:</p>
+                <ul>
+                    <li>Applications that render HTML previews or use embedded IE-based components</li>
+                    <li>Windows applications that process <code>.mhtml</code>, <code>.htm</code>, or <code>.url</code> files</li>
+                    <li>File processing pipelines that invoke MSHTML for content rendering</li>
+                    <li>Office documents with embedded web content (OLE/ActiveX interactions)</li>
+                </ul>
+
+                <p>If you're hunting on Windows-centric enterprise software bug bounty programmes, MSHTML-related attack surface is consistently underexplored because most researchers focus on web-first vulnerabilities.</p>
+
+                <div style="background: #e8f5e9; padding: 16px 20px; border-radius: 6px; border-left: 4px solid #4caf50; margin: 20px 0;">
+                    <strong>💡 Research Note:</strong> APT28's repeated abuse of MSHTML (this is not their first rodeo) suggests the framework has structural weaknesses worth investigating. If you find MSHTML-touching code paths in enterprise software, go deep on security mechanism bypass testing — mark-of-the-web handling, protected mode boundaries, and zone security checks.
+                </div>
+
+                <p><strong>Source:</strong> <a href="https://thehackernews.com/2026/03/apt28-tied-to-cve-2026-21513-mshtml-0.html" rel="nofollow">The Hacker News — APT28 Tied to CVE-2026-21513 MSHTML 0-Day, March 2, 2026</a></p>
+            </section>
+
+            <!-- Finding 4: Vibeware -->
+            <section id="vibeware">
+                <h2>4. 🟠 AI "Vibeware": Transparent Tribe's Industrial-Scale Malware Factory</h2>
+
+                <div style="background: #fff3e0; padding: 16px 20px; border-radius: 6px; border-left: 4px solid #ff9800; margin-bottom: 20px;">
+                    <strong>Threat Actor:</strong> Transparent Tribe (Pakistan-aligned APT) &nbsp;|&nbsp; <strong>Target:</strong> India (government, defence, aerospace) &nbsp;|&nbsp; <strong>Trend:</strong> AI-assisted malware industrialisation
+                </div>
+
+                <h3>What Happened</h3>
+                <p>Bitdefender researchers published a technical breakdown of Transparent Tribe (also known as APT36, ProjectM, MYTHIC LEOPARD) adopting AI coding tools to mass-produce malware implants. Rather than crafting sophisticated, bespoke malware, the group is using LLMs to generate "a high-volume, mediocre mass of implants" in lesser-known programming languages — Nim, Zig, and Crystal.</p>
+
+                <p>The strategy is deliberate and effective: flood target environments with disposable, AI-generated binaries written in languages that most enterprise AV/EDR solutions have weaker detection coverage for. The implants use legitimate services — Slack, Discord, Supabase, and Google Sheets — as command-and-control channels, allowing communications to blend with normal business traffic. Bitdefender's researchers coined the term <strong>"vibeware"</strong> for this class of AI-generated malware.</p>
+
+                <p>The campaign targets aviation, government, and defence sectors in India, continuing a years-long espionage operation attributed to Pakistani state interests. The AI-generated code shows hallmarks researchers are calling distinctive "tells": verbose commenting, AI-idiomatic variable naming, and structural patterns consistent with LLM-generated code — though the analysts note these tells are already fading as threat actors learn to prompt-engineer cleaner outputs.</p>
+
+                <h3>Why It Matters for Bug Hunters</h3>
+                <p>This trend has direct implications for everyone working in security:</p>
+
+                <p><strong>For defenders and threat hunters</strong>, the YARA/Sigma rule landscape is about to get messier. Signature-based detection of specific malware families becomes harder when each implant is a unique AI-generated variant. Behavioural detection (what does the malware <em>do</em>) becomes more important than what it <em>looks like</em>.</p>
+
+                <p><strong>For bug bounty hunters</strong>, the Slack/Discord/Supabase C2 pattern is worth understanding because it represents an emerging blind spot in enterprise detection. Legitimate cloud communication services are often excluded from DLP and network monitoring rules. If you're doing red team or purple team work, this technique is increasingly viable. If you're building detection content for a programme, test whether your SIEM can distinguish malware using Slack API from legitimate Slack traffic.</p>
+
+                <p><strong>From a research perspective</strong>, lesser-known languages (Nim, Zig, Crystal) are worth adding to your malware analysis toolkit. Tools like <a href="https://github.com/horsicq/DIE-engine" rel="nofollow">Detect It Easy (DIE)</a> are improving language detection, but dynamic analysis often remains the only reliable approach for uncommon language binaries.</p>
+
+                <h3>The Wider Trend: Vibe-Coded Malware</h3>
+                <p>Transparent Tribe is not alone. The same week, Cisco Talos reported UAT-9244 targeting South American telecoms with three new implants (TernDoor for Windows, PeerTime for Linux, BruteEntry for network edge devices). And a separate MuddyWater campaign (Iran's MOIS) was found embedding itself in U.S. banks, airports, and defence-adjacent software companies using a new backdoor called Dindoor.</p>
+
+                <p>The pattern is consistent across state actors: AI is lowering the cost of developing and deploying custom implants. The technical barrier that once separated nation-state malware from commodity tools is shrinking.</p>
+
+                <p><strong>Source:</strong> <a href="https://thehackernews.com/2026/03/transparent-tribe-uses-ai-to-mass.html" rel="nofollow">The Hacker News — Transparent Tribe Uses AI to Mass-Produce Malware Implants, March 6, 2026</a></p>
+            </section>
+
+            <!-- Finding 5: ClickFix -->
+            <section id="clickfix">
+                <h2>5. 🟡 ClickFix Evolves: CastleRAT Ransomware &amp; the InstallFix Mutation</h2>
+
+                <div style="background: #fffde7; padding: 16px 20px; border-radius: 6px; border-left: 4px solid #ffc107; margin-bottom: 20px;">
+                    <strong>Threat:</strong> Social engineering technique enabling RAT/ransomware delivery &nbsp;|&nbsp; <strong>New variants:</strong> CastleRAT (Velvet Tempest) + InstallFix &nbsp;|&nbsp; <strong>Lure:</strong> Fake CLI tool installation guides
+                </div>
+
+                <h3>What Happened</h3>
+                <p>ClickFix — the social engineering technique where victims are convinced to copy-paste malicious PowerShell into a Run dialog — generated two notable developments this week.</p>
+
+                <p><strong>CastleRAT via Velvet Tempest:</strong> BleepingComputer reported that the Termite ransomware group (tracked as Velvet Tempest) is now deploying ClickFix as an initial access technique. The attack chain uses ClickFix to deliver DonutLoader, which in turn drops <strong>CastleRAT</strong> — a full-featured backdoor enabling remote access, data exfiltration, and ransomware deployment. Legitimate Windows utilities (LOLBINs) are used throughout to avoid EDR detection.</p>
+
+                <p><strong>InstallFix — the developer lure:</strong> A separate campaign, dubbed InstallFix by BleepingComputer, targets developers by serving fake installation guides for legitimate CLI tools — including fake <strong>Claude Code</strong> setup instructions. When developers follow the instructions, they unknowingly execute commands that install infostealers. The lure exploits developers' comfort with running CLI commands and their trust in installation tutorials found via search.</p>
+
+                <h3>Why It Matters for Bug Hunters</h3>
+                <p>ClickFix's persistence as an attack technique — and its rapid mutation — tells you something important: <strong>it works because it bypasses technical controls by manipulating people.</strong> No CVE needed. No exploit. Just a convincing error message, a fake CAPTCHA, or a plausible installation guide.</p>
+
+                <p>For bug hunters, this matters in several ways:</p>
+                <ul>
+                    <li><strong>Red team/phishing exercises:</strong> ClickFix variants are now well-documented and effective. If your engagement allows social engineering, this technique has a high success rate against technical users (developers and sysadmins run PowerShell without much suspicion)</li>
+                    <li><strong>Platform security testing:</strong> Test whether your target's SIEM/EDR triggers on the specific PowerShell execution pattern ClickFix uses — many implementations use <code>mshta.exe</code>, <code>wscript.exe</code>, or direct PowerShell with encoded commands</li>
+                    <li><strong>Personal OpSec:</strong> The InstallFix campaign targeting developer tooling (Claude Code, other AI tools) is a direct risk to security researchers. Verify CLI installation instructions against official documentation — never copy-paste setup commands from search results or third-party tutorials</li>
+                </ul>
+
+                <div style="background: #ffebee; padding: 16px 20px; border-radius: 6px; border-left: 4px solid #f44336; margin: 20px 0;">
+                    <strong>⚠️ OpSec Warning:</strong> The InstallFix campaign specifically targets AI developer tooling. If you work with AI coding assistants (Claude Code, Codex, etc.) and recently followed a third-party setup guide, verify your environment hasn't been compromised. Check for unexpected scheduled tasks, startup entries, and outbound connections.
+                </div>
+
+                <p><strong>Sources:</strong> <a href="https://www.bleepingcomputer.com/news/security/termite-ransomware-breaches-linked-to-clickfix-castlerat-attacks/" rel="nofollow">BleepingComputer — Termite Ransomware &amp; CastleRAT</a> | <a href="https://www.bleepingcomputer.com/news/security/fake-claude-code-install-guides-push-infostealers-in-installfix-attacks/" rel="nofollow">BleepingComputer — InstallFix Infostealers</a></p>
+            </section>
+
+            <!-- Finding 6: .arpa DNS phishing -->
+            <section id="arpa-phishing">
+                <h2>6. 🟡 .arpa DNS Phishing: A Novel Technique Evading Email Security</h2>
+
+                <div style="background: #fffde7; padding: 16px 20px; border-radius: 6px; border-left: 4px solid #ffc107; margin-bottom: 20px;">
+                    <strong>Technique:</strong> .arpa reverse DNS + IPv6 abuse &nbsp;|&nbsp; <strong>Effect:</strong> Bypasses domain reputation and email gateway filters &nbsp;|&nbsp; <strong>Status:</strong> Active phishing campaigns
+                </div>
+
+                <h3>What Happened</h3>
+                <p>BleepingComputer reported a novel phishing technique exploiting the <code>.arpa</code> special-use domain and IPv6 reverse DNS to evade email security gateways and domain reputation checks.</p>
+
+                <p>Here's the mechanism: <code>.arpa</code> is a special-purpose TLD used for infrastructure functions (PTR records, reverse DNS lookups). It's not a commercial domain — it's not registered by random actors, it's not on threat intelligence blocklists, and most email security products treat it as highly trusted or simply don't score it at all. Attackers are abusing reverse DNS records in the <code>ip6.arpa</code> namespace to craft phishing infrastructure that appears to originate from benign, infrastructure-level addresses.</p>
+
+                <p>Combined with IPv6 addresses (which many legacy email security platforms handle inconsistently or skip checking altogether), the technique creates a phishing delivery path with dramatically lower detection rates than traditional domain-based campaigns.</p>
+
+                <h3>Why It Matters for Bug Hunters</h3>
+                <p>This technique has immediate relevance for anyone working on email security, anti-phishing, or application-level email processing:</p>
+
+                <ul>
+                    <li><strong>Email security testing:</strong> If you're bug hunting on an email platform or testing an organisation's email security posture, test whether their gateway correctly handles <code>.arpa</code> domains in From/Reply-To headers and IPv6 source addresses. Many organisations have not tested this edge case</li>
+                    <li><strong>SPF/DMARC bypass research:</strong> The technique exploits assumptions baked into SPF/DKIM/DMARC policy enforcement. Reverse DNS entries don't participate in standard email authentication chains — understand this gap if you're researching email authentication bypasses</li>
+                    <li><strong>Reputation system vulnerabilities:</strong> Email security products that rely on domain reputation scoring have a blind spot here. This is worth reporting to security vendors as a potential bypass vulnerability in their own products</li>
+                    <li><strong>Red team phishing:</strong> For authorised red team engagements, this technique offers a lower-detection delivery mechanism — understand it to use it appropriately and to defend against it</li>
+                </ul>
+
+                <div style="background: #e8f5e9; padding: 16px 20px; border-radius: 6px; border-left: 4px solid #4caf50; margin: 20px 0;">
+                    <strong>💡 Research Opportunity:</strong> Test your target email security product's handling of IPv6-sourced mail and <code>.arpa</code> domains. This is a well-defined, specific test case that can be documented precisely — the kind of clear, reproducible finding that makes a strong bug report.
+                </div>
+
+                <p><strong>Source:</strong> <a href="https://www.bleepingcomputer.com/news/security/hackers-abuse-arpa-dns-and-ipv6-to-evade-phishing-defenses/" rel="nofollow">BleepingComputer — Hackers Abuse .arpa DNS and IPv6, March 8, 2026</a></p>
+            </section>
+
+            <!-- BONUS: OpenAI Codex Security -->
+            <section id="bonus-codex">
+                <h2>⚡ Bonus: OpenAI Codex Security — AI-Assisted Vulnerability Scanning Goes Mainstream</h2>
+
+                <p>On March 7, OpenAI launched <strong>Codex Security</strong> in research preview — an AI agent that scans codebases for vulnerabilities, validates findings, and proposes fixes. In its first 30 days of beta, it scanned 1.2 million commits across external repositories and flagged 10,561 high-severity issues.</p>
+
+                <p>Codex Security is an evolution of Aardvark, OpenAI's private beta security tool from October 2025. It's now available to ChatGPT Pro, Enterprise, Business, and Edu customers at no additional cost for the first month.</p>
+
+                <p><strong>What's interesting for bug hunters:</strong> Tools like this are a double-edged sword. On one hand, they help defenders find vulnerabilities faster, which shrinks the window between introduction and fix. On the other hand, they enable offensive security practitioners (and threat actors) to scan code at scale. As AI-assisted scanning becomes ubiquitous, the bugs that <em>survive</em> this triage — logic flaws, complex authentication chains, subtle business logic errors — become proportionally more valuable in bug bounty contexts.</p>
+
+                <p>The bounties of 2026 will increasingly go to researchers who find what AI misses. Invest in understanding vulnerability classes that are hard to detect statically: race conditions, TOCTOU bugs, complex multi-step authentication bypasses, and business logic flaws that require understanding context, not just code patterns.</p>
+
+                <p><strong>Source:</strong> <a href="https://thehackernews.com/2026/03/openai-codex-security-scanned-12.html" rel="nofollow">The Hacker News — OpenAI Codex Security, March 7, 2026</a></p>
+            </section>
+
+            <!-- Essential Tools -->
+            <section id="essential-tools">
+                <h2>🛠️ Essential Tools This Week</h2>
+
+                <p>This week's findings span network management exploitation, Windows MSHTML analysis, phishing infrastructure detection, and malware analysis. Here are the tools that map most directly to what we covered:</p>
+
+                <div class="tool">
+                    <h3>1. Burp Suite Professional — Web &amp; API Proxy</h3>
+                    <p><strong>Why it's relevant this week:</strong> VMware Aria Operations' command injection and Cisco SD-WAN's authentication bypass are both API-layer vulnerabilities. Burp Suite is the essential tool for intercepting, manipulating, and replaying API requests when testing enterprise management interfaces. The active scanning engine can help identify injection points, and the Collaborator server is invaluable for blind SSRF and out-of-band injection detection — exactly the technique you'd use to confirm command injection in VMware's migration endpoints.</p>
+                    <p>Burp Suite Pro is available directly from PortSwigger at $449/year. It's the single most important investment you can make in your bug hunting toolkit.</p>
+                    <p><a href="https://portswigger.net/burp/pro" rel="nofollow">Burp Suite Professional → PortSwigger (official)</a> — $449/year</p>
+                </div>
+
+                <div class="tool">
+                    <h3>2. Flipper Zero — Multi-Protocol Security Testing Device</h3>
+                    <p><strong>Why it's relevant this week:</strong> Physical access and hardware testing complement network-layer research — especially for enterprise environments where SD-WAN and VMware deployments have physical management access paths. The Flipper Zero covers RFID/NFC (access card cloning), Sub-1 GHz (building management protocols), infrared (device control), and BadUSB (keystroke injection for ClickFix-style demonstrations in authorised red team work). Open-source firmware with an active community keeps it current.</p>
+                    <p><a href="https://www.amazon.com/dp/B0BL6JV767?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Flipper Zero on Amazon</a> — ~$170–190</p>
+                </div>
+
+                <div class="tool">
+                    <h3>3. Alfa AWUS036ACHM USB WiFi Adapter — Packet Capture &amp; Injection</h3>
+                    <p><strong>Why it's relevant this week:</strong> The .arpa DNS phishing technique and SD-WAN management traffic research both benefit from network monitoring capabilities. The Alfa AWUS036ACHM is the #1 recommended adapter for Kali Linux by StationX and is one of the few consumer adapters with reliable monitor mode and packet injection support out of the box. Essential for wireless network analysis alongside enterprise security testing.</p>
+                    <p><a href="https://www.amazon.com/dp/B07VFFQ4JW?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Alfa AWUS036ACHM on Amazon</a> — ~$40–60</p>
+                </div>
+
+                <div class="tool">
+                    <h3>4. Raspberry Pi 4 Model B (8GB) — Home Lab &amp; Network Testing Platform</h3>
+                    <p><strong>Why it's relevant this week:</strong> Running your own SD-WAN simulation, VMware Aria trial, or malware analysis sandbox requires compute. The Raspberry Pi 4 8GB is the most capable affordable single-board computer for security research home labs: it handles lightweight virtualisation, runs Kali Linux natively, and can function as a network tap, rogue access point, or persistent implant platform in authorised physical testing. At $75–95 it's the best value-per-watt compute for lab use.</p>
+                    <p><a href="https://www.amazon.com/dp/B089ZZ8DTV?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Raspberry Pi 4 Model B (8GB) on Amazon</a> — ~$75–95</p>
+                </div>
+
+                <div class="tool">
+                    <h3>5. YubiKey 5C NFC — Hardware Security Key</h3>
+                    <p><strong>Why it's relevant this week:</strong> The InstallFix campaign and Transparent Tribe's credential-focused implants are a direct reminder that your accounts are a target. With AI-generated vibeware now designed to exfiltrate credentials at scale, hardware MFA is the single most effective defence for your own accounts. The YubiKey 5C NFC supports FIDO2/U2F, PIV, OpenPGP, and OTP — and works across both USB-C and NFC for mobile. FIPS 140-2 certified, phishing-resistant, and IP68 rated.</p>
+                    <p><a href="https://www.amazon.com/dp/B0BKLWL7LD?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">YubiKey 5C NFC on Amazon</a> — ~$55–65</p>
+                </div>
+            </section>
+
+            <!-- Books -->
+            <section id="books">
+                <h2>📚 Books to Go Deeper</h2>
+
+                <p>This week's findings cover network exploitation, Windows internals, malware analysis, and social engineering. These four books give you the deepest grounding across those domains:</p>
+
+                <div class="tool">
+                    <h3>1. The Web Application Hacker's Handbook, 2nd Edition</h3>
+                    <p><strong>Why read it:</strong> Cisco SD-WAN and VMware Aria Operations are both API-first management platforms. The authentication bypass and command injection classes we covered this week are described in exhaustive detail in WAHH — from understanding how authentication mechanisms fail, to testing for injection in every parameter class. Still the definitive methodology reference for web and API security testing, despite its age. The fundamentals haven't changed.</p>
+                    <p><a href="https://www.amazon.com/dp/B005LVQA9S?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Buy on Amazon — ~$45</a></p>
+                </div>
+
+                <div class="tool">
+                    <h3>2. Black Hat Python, 2nd Edition</h3>
+                    <p><strong>Why read it:</strong> Understanding vibeware and building custom detection tools for novel malware like CastleRAT requires Python automation skills. Black Hat Python, updated for Python 3, covers network packet crafting, exploit development, malware behaviour simulation, and custom tool building. If you want to script your own DNS phishing detector, build a ClickFix honeypot, or automate SD-WAN API enumeration — start here.</p>
+                    <p><a href="https://www.amazon.com/dp/1718501129?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Buy on Amazon — ~$35</a></p>
+                </div>
+
+                <div class="tool">
+                    <h3>3. The Hacker Playbook 3</h3>
+                    <p><strong>Why read it:</strong> Transparent Tribe's implants use Slack and Discord as C2 channels. MuddyWater uses legitimate Windows binaries for persistence. These are precisely the living-off-the-land and trusted-channel techniques covered in The Hacker Playbook 3's red team scenarios. Understanding these techniques from an offensive perspective makes you dramatically better at detecting them defensively — and at finding the same patterns in bug bounty targets.</p>
+                    <p><a href="https://www.amazon.com/dp/1118026470?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Buy on Amazon — ~$38</a></p>
+                </div>
+
+                <div class="tool">
+                    <h3>4. Metasploit: The Penetration Tester's Guide</h3>
+                    <p><strong>Why read it:</strong> A Cisco SD-WAN CVSS 10.0 authentication bypass deserves a proper exploitation module. Metasploit's guide covers not just using existing modules but developing new ones — essential if you want to build a proof-of-concept for a novel vulnerability finding and demonstrate impact to a bug bounty programme. Written by the Metasploit creators, it covers the full post-exploitation lifecycle: lateral movement, privilege escalation, persistence — all the techniques UAT-9244 and CL-UNK-1068 used this week.</p>
+                    <p><a href="https://www.amazon.com/dp/159327288X?tag=altclaw-20&amp;linkCode=ogi&amp;th=1&amp;psc=1" rel="nofollow">Buy on Amazon — ~$40</a></p>
+                </div>
+            </section>
+
+            <!-- Recommendations -->
+            <section id="recommendations">
+                <h2>🎯 Recommendations for Bug Hunters This Week</h2>
+
+                <h3>1. Hunt Network Management Interfaces</h3>
+                <p>Cisco vManage and VMware Aria Operations represent a category — enterprise network and infrastructure management platforms — that is systematically underexplored in bug bounty programmes. Find exposed instances, check versions, and test the specific vulnerability classes (auth bypass, command injection, privilege escalation) that have repeatedly appeared in this product family.</p>
+
+                <h3>2. Understand LOLBIN-Based Attack Chains</h3>
+                <p>Both the CastleRAT campaign and the CL-UNK-1068 APT used living-off-the-land binaries to evade detection. Understanding which Windows binaries are commonly abused (certutil, mshta, wscript, regsvr32, rundll32) — and how — makes you better at both red team engagements and building detection logic for defensive programmes.</p>
+
+                <h3>3. Add Uncommon Languages to Your Malware Analysis Stack</h3>
+                <p>Nim, Zig, and Crystal binaries are increasingly appearing in threat actor toolkits specifically because detection is weaker. If your analysis workflow relies heavily on static signatures, invest time in setting up dynamic analysis sandboxes (Cuckoo, ANY.RUN) that can handle uncommon language runtimes behaviourally.</p>
+
+                <h3>4. Test Email Security Products for IPv6 and .arpa Handling</h3>
+                <p>The .arpa DNS phishing technique is specific, testable, and underreported. If you're hunting on an email security product's bug bounty programme, this is a concrete test case that might yield a valid finding. Document exactly which security checks are bypassed and why, and you have a strong report.</p>
+
+                <h3>5. Protect Your Own Environment First</h3>
+                <p>The InstallFix campaign targets developers and security researchers specifically. Audit your own machine: review recent CLI tool installations, check for unexpected scheduled tasks and startup entries, verify your browser extensions, and enable hardware MFA on every critical account. You can't hunt bugs effectively from a compromised workstation.</p>
+            </section>
+
+            <!-- Conclusion -->
+            <section id="conclusion">
+                <h2>Conclusion: The State Actor Convergence</h2>
+
+                <p>The week of March 2–9 makes one thing clear: the line between nation-state APT activity and commodity cybercrime is blurring at speed. APT28 exploits Windows 0-days. Transparent Tribe uses the same LLMs as legitimate developers. Ransomware groups adopt social engineering techniques from espionage campaigns.</p>
+
+                <p>For bug hunters and security researchers, this convergence creates both opportunity and obligation. The attack surface is expanding — enterprise network management, AI infrastructure, developer tooling, email security — and many of these targets have immature security practices and active bug bounty programmes willing to pay for the findings.</p>
+
+                <p>But it also raises the bar on research quality. As AI tools make basic vulnerability scanning commoditised, the findings that matter — and the ones that pay — will require deeper technical understanding, more creative attack paths, and the kind of contextual reasoning that separates experienced researchers from automated tools.</p>
+
+                <p><strong>The winning investment for 2026:</strong> deep expertise in a specific technology domain (network management, cloud IAM, email security, Windows internals), combined with a solid bug hunting methodology. Pick your stack. Go deep. And stay ahead of the vibeware.</p>
+
+                <p><strong>Stay sharp, stay curious, and happy hunting.</strong></p>
+            </section>
+
+            <!-- Previous Roundups -->
+            <section style="background: #f5f5f5; padding: 25px; border-radius: 8px; margin: 40px 0;">
+                <h3>📅 Previous Weekly Roundups</h3>
+                <ul>
+                    <li><a href="/articles/security-roundup-2026-02-10-16.html">Security Roundup February 10–16, 2026</a> — vLLM CVSS 9.8 RCE, n8n six-CVE disclosure, AI-assisted AWS breach</li>
+                </ul>
+            </section>
+
+            <div style="background: #f5f5f5; padding: 30px; border-radius: 8px; margin: 40px 0;">
+                <h3>🔔 Get Weekly Roundups Delivered</h3>
+                <p>Subscribe to receive security roundups, tool reviews, and bug bounty tips every Monday.</p>
+                <p><a href="/" style="background: #f44336; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; display: inline-block;">Subscribe Now</a></p>
+            </div>
+
+        </article>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Bug Hunter Tools. All rights reserved.</p>
+            <p><a href="/privacy.html">Privacy Policy</a></p>
+        </div>
+    </footer>
+</body>
+</html>
