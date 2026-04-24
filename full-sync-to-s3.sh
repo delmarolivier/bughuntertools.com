@@ -1,8 +1,30 @@
 #!/bin/bash
 
+# full-sync-to-s3.sh — EXPLICIT FULL SYNC with --delete
+#
+# ⚠️  USE WITH CAUTION. This script DELETES files from S3 that are not in _site/.
+#
+# When to use:
+#   - Removing an article that has been deliberately retired (source .njk also removed)
+#   - After a major site restructure where old paths are intentionally obsolete
+#   - Cleaning up a test/staging deployment
+#
+# NEVER use this without first confirming that ALL published articles have a
+# corresponding .njk source file in src/articles/ (see PUBLISHING_WORKFLOW.md).
+#
+# Standard incremental deploys: use deploy-to-s3.sh (no --delete).
+
 set -e
 
-echo "=== Deploying to AWS S3 + CloudFront ==="
+echo "=== FULL SYNC — bughuntertools.com → S3 (with --delete) ==="
+echo ""
+echo "⚠️  WARNING: This will DELETE S3 objects not present in _site/"
+echo ""
+read -r -p "Have you verified all published articles exist as .njk sources in src/articles/? (yes/no): " confirm
+if [ "$confirm" != "yes" ]; then
+    echo "Aborted. Run 'ls src/articles/' to audit sources before full sync."
+    exit 1
+fi
 echo ""
 
 # Configuration
@@ -30,10 +52,8 @@ cd ..
 echo "✓ Quality checks passed"
 echo ""
 
-# 3. Sync to S3
-echo "3. Syncing files to S3..."
-# --delete intentionally removed: all articles must have .njk source files in src/articles/
-# before deploy (see PUBLISHING_WORKFLOW.md). Use full-sync-to-s3.sh for explicit cleanup.
+# 3. Full sync to S3 (with --delete)
+echo "3. Full sync to S3 (--delete enabled)..."
 aws s3 sync _site/ s3://$BUCKET/ \
   --region $REGION \
   --exclude ".git/*" \
@@ -44,9 +64,10 @@ aws s3 sync _site/ s3://$BUCKET/ \
   --exclude "node_modules/*" \
   --exclude "src/*" \
   --exclude ".eleventy.js" \
-  --cache-control "public, max-age=3600"
+  --cache-control "public, max-age=3600" \
+  --delete
 
-echo "✓ Files synced to S3"
+echo "✓ Full sync complete — S3 now mirrors _site/ exactly"
 echo ""
 
 # 4. Invalidate CloudFront cache (MANDATORY)
@@ -60,8 +81,6 @@ if [ -z "$DIST_ID" ]; then
 fi
 
 echo "Distribution: $DIST_ID"
-echo "Creating invalidation..."
-
 INVALIDATION_OUTPUT=$(aws cloudfront create-invalidation \
   --distribution-id $DIST_ID \
   --paths "/*" 2>&1)
@@ -74,26 +93,5 @@ fi
 
 INVALIDATION_ID=$(echo "$INVALIDATION_OUTPUT" | grep -o '"Id": "[^"]*"' | cut -d'"' -f4)
 echo "✓ CloudFront cache invalidated (ID: $INVALIDATION_ID)"
-echo "✓ Changes will be live in 1-3 minutes"
-
 echo ""
-echo "5. Verifying deployment..."
-S3_WEBSITE="http://$BUCKET.s3-website-$REGION.amazonaws.com"
-echo "S3 endpoint: $S3_WEBSITE"
-
-# Test if site is accessible
-if curl -s -o /dev/null -w "%{http_code}" "$S3_WEBSITE" | grep -q "200"; then
-    echo "✓ Site is live at S3 endpoint"
-else
-    echo "⚠️  Site might not be accessible yet (check bucket policy)"
-fi
-
-echo ""
-echo "✅ Deployment complete!"
-echo ""
-echo "Next steps:"
-echo "1. Set up CloudFront distribution (if not done)"
-echo "2. Request ACM certificate"
-echo "3. Update DNS to point to CloudFront"
-echo ""
-echo "Site will be live at: https://bughuntertools.com"
+echo "✅ Full sync deployment complete!"
