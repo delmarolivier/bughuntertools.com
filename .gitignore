@@ -1,0 +1,13 @@
+# Build output
+_site/
+
+# Node dependencies
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
