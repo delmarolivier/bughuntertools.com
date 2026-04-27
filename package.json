@@ -4,10 +4,14 @@
   "description": "This site is deployed via Netlify with custom domain: bughuntertools.com",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "build": "npx @11ty/eleventy",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "build:11ty": "npx @11ty/eleventy",
     "serve": "npx @11ty/eleventy --serve",
-    "generate-scorecard": "node scripts/generate-scorecard.js"
+    "generate-scorecard": "node scripts/generate-scorecard.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -23,5 +27,9 @@
   "devDependencies": {
     "@11ty/eleventy": "^3.1.2",
     "jest": "^30.2.0"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.2",
+    "astro": "^6.1.9"
   }
 }

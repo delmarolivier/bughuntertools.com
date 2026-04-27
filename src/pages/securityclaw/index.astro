@@ -1,0 +1,296 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const title = 'SecurityClaw: Autonomous Bug Bounty Hunting Platform — 2026 Overview';
+const description = 'SecurityClaw is a modular, AI-powered penetration testing platform built for autonomous bug bounty campaigns. 55+ skills, EC2 ephemeral execution, Bedrock AI pipeline with hypothesis generation, mid-campaign replanning, and automated Intigriti submission drafts.';
+const html = `<article>
+    <h1>SecurityClaw: Autonomous Bug Bounty Hunting Platform</h1>
+
+    <div class="meta">
+        <span>Updated: April 26, 2026</span>
+        <span>•</span>
+        <span>Reading time: 12 minutes</span>
+    </div>
+
+    <div class="intro">
+        <p>SecurityClaw is an autonomous penetration testing platform built from the ground up for bug bounty hunting on Intigriti and HackerOne. It orchestrates 55+ specialised security skills — from passive reconnaissance through active exploitation — coordinated by an AI layer that generates hypotheses, validates findings, replans mid-campaign, and learns from every outcome.</p>
+
+        <p>This isn't a smarter wrapper around Nessus. It's a modular pipeline where each skill is purpose-built for a specific attack class, real industry-standard tools (nmap, nuclei, ffuf, sqlmap, Metasploit) do the execution, and an AI layer makes the decisions: what to run next, which findings are real, which chains are worth pursuing.</p>
+
+        <p>This page covers the current architecture, the AI pipeline (Phases A–D), the skills inventory, and how campaigns actually run.</p>
+    </div>
+
+    <section id="what-is-it">
+        <h2>What SecurityClaw Is</h2>
+
+        <p>SecurityClaw is a Python-based platform with a modular skill architecture. A "skill" in SecurityClaw is a self-contained module — a Python class with a <code>SKILL_MANIFEST</code> declaration and an <code>execute()</code> method. Skills range from passive OSINT (certificate transparency monitoring, subdomain enumeration) to active exploitation (SQL injection, IDOR, SSRF chaining) to cloud-specific scanning (AWS bucket enumeration, Azure naming attacks).</p>
+
+        <p>The differentiator vs a tool runner: skills don't execute in a fixed sequence. The adaptive campaign engine maintains a dynamic queue. Each skill's output produces typed findings — <code>SUBDOMAIN_FOUND</code>, <code>OPEN_PORT</code>, <code>CREDENTIAL_FOUND</code>, <code>WAF_DETECTED</code> — and chain rules fire automatically when findings match trigger conditions. A new subdomain discovered mid-campaign immediately triggers nuclei scanning on that subdomain. A detected WAF triggers a WAF-aware scan strategy. An internal hostname leak triggers the SSRF hypothesis chain.</p>
+
+        <p>The campaign never just follows the script. It follows the evidence.</p>
+    </section>
+
+    <section id="ec2-execution">
+        <h2>EC2 Campaign Execution — Ephemeral Infrastructure Per Campaign</h2>
+
+        <p>SecurityClaw runs campaigns on ephemeral AWS EC2 instances. This wasn't a design convenience — it was a technical requirement. Real bug bounty targets block residential IPs, flag repeated requests from a known range, and employ WAFs that profile scanning behaviour over time. A platform running from a fixed IP hits those walls immediately.</p>
+
+        <p>The solution: spin up a fresh EC2 instance (Amazon Linux 2023, t3.medium, eu-west-1) for each campaign, run the full campaign on it, capture results, and terminate. The instance — and its IP — exists only for the duration of the campaign.</p>
+
+        <p>The full EC2 campaign lifecycle runs through ten phases:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Phase</th>
+                    <th>What Happens</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>PLAN</strong></td><td>CampaignDirector validates the campaign plan JSON. Human approval gate for exploitation-class skills.</td></tr>
+                <tr><td><strong>UPLOAD</strong></td><td>Full SecurityClaw repo tarballed and uploaded to S3. Campaign plan uploaded separately.</td></tr>
+                <tr><td><strong>LAUNCH</strong></td><td>EC2 instance launched with IAM profile, security group, and UserData bootstrap script.</td></tr>
+                <tr><td><strong>WAIT_READY</strong></td><td>Polls until instance is running with healthy system status checks.</td></tr>
+                <tr><td><strong>SSM_WAIT</strong></td><td>Waits for AWS Systems Manager agent to come online on the instance (replaces SSH).</td></tr>
+                <tr><td><strong>BOOTSTRAP</strong></td><td>UserData installs dnf packages, Go tools (subfinder, httpx, nuclei, ffuf), Python 3.11.</td></tr>
+                <tr><td><strong>EXECUTE</strong></td><td>SSM sends the campaign command. Output streamed to S3 and CloudWatch Logs.</td></tr>
+                <tr><td><strong>CAPTURE</strong></td><td>Results read from S3 (avoids 24K truncation). Findings and skill results parsed from delimited JSON blocks.</td></tr>
+                <tr><td><strong>TERMINATE</strong></td><td>Three-layer termination guarantee: Python finally block, UserData shutdown timer, EventBridge reaper.</td></tr>
+                <tr><td><strong>REPORT</strong></td><td>Results written locally. AI attack chain narrative generated.</td></tr>
+            </tbody>
+        </table>
+
+        <p>A key architectural choice: command execution runs over AWS Systems Manager (SSM), not SSH. SSM is session-resilient — if the orchestrator process dies mid-campaign, the campaign continues running on the EC2 instance. The idempotent state machine execution driver (<code>campaign_runner.py</code>) picks up from the last persisted phase when the orchestrator restarts.</p>
+
+        <p>Cost per campaign: approximately $0.05/hr on a t3.medium. A typical recon-to-exploitation campaign runs 60–90 minutes. Each campaign gets a fresh public IP, full isolation from other campaigns, and no history that a target's WAF can correlate.</p>
+    </section>
+
+    <section id="ai-pipeline">
+        <h2>The AI Pipeline — Four Phases of Machine Reasoning</h2>
+
+        <p>The platform's AI layer is organised across four phases, each adding a distinct layer of reasoning over raw tool output.</p>
+
+        <h3>Phase A — Bedrock-Powered Finding Intelligence</h3>
+
+        <p><strong>FindingValidator</strong> runs after every skill execution, before findings are committed to the database. It calls a Bedrock Haiku-class model to classify each finding:</p>
+
+        <ul>
+            <li><code>CONFIRMED</code> — high confidence real finding</li>
+            <li><code>LIKELY_VALID</code> — probable, needs manual verification</li>
+            <li><code>LIKELY_FP</code> — probably a false positive</li>
+            <li><code>FALSE_POSITIVE</code> — discard</li>
+        </ul>
+
+        <p>Every finding that enters the database carries <code>validation_status</code>, <code>validation_reasoning</code>, and <code>validation_confidence</code>. This is what keeps a high-volume campaign from drowning the analyst in noise.</p>
+
+        <p><strong>AttackChainAnalyser</strong> runs post-campaign using a Bedrock Sonnet-class model. It takes the full validated finding set and identifies multi-step attack chains — e.g. "SSRF via leaked internal hostname → internal API access → credential exfiltration" — and generates human-readable narratives. Results are stored in the <code>campaign_chains</code> table and surface in the final report.</p>
+
+        <h3>Phase B — Adaptive Execution Engine</h3>
+
+        <p>The <strong>AdaptiveCampaignEngine</strong> is the core execution loop. It maintains a queue of <code>SkillTask</code> objects and processes them with safety limits: max chain depth 5, max 50 skills per campaign, deduplication by <code>(skill_id, target)</code>, 2-hour timeout. When a skill produces a typed finding that matches a chain rule, the follow-up skill is automatically queued.</p>
+
+        <p>Built-in chain rules include:</p>
+        <ul>
+            <li><code>OPEN_PORT</code> → <code>redis-check</code></li>
+            <li><code>FILE_FOUND</code> → <code>file-content-analyser</code></li>
+            <li><code>CREDENTIAL_FOUND</code> → <code>hashcat-crack</code></li>
+            <li><code>SUBDOMAIN_FOUND</code> → <code>nuclei-scan</code></li>
+            <li><code>WAF_DETECTED</code> → <code>cf-aware-scan-strategy</code></li>
+            <li><code>InternalHostnameLeak</code> → SSRF chain</li>
+        </ul>
+
+        <p>Other Phase B capabilities: <strong>JSBundleAnalyzer</strong> uses tiktoken-chunked Bedrock calls to extract hardcoded API keys, client IDs, and internal endpoints from JavaScript bundles. The <strong>AI IDOR Scanner</strong> runs three-phase detection — resource enumeration, cross-user access testing, and Bedrock differential analysis — to confirm IDOR vulnerabilities with high precision.</p>
+
+        <h3>Phase C — Autonomous Intelligence Loop</h3>
+
+        <p>Phase C is where SecurityClaw stops being a sophisticated scanner and starts behaving like an autonomous researcher. Ten components work together:</p>
+
+        <p><strong>C1 — AdversarialHypothesisEngine:</strong> Before running any tools, the platform forms named attack hypotheses with confidence scores. "H1: Broken Object-Level Authorization on /api/users endpoint — confidence 0.7." These hypotheses guide which evidence to collect first and produce resolution narratives after the campaign completes.</p>
+
+        <p><strong>C2 — RePlanner:</strong> Checked after every skill batch. Seven trigger conditions — high-severity finding, new subdomain, auth bypass confirmed, SSRF confirmed, API keys found, mobile app detected, internal service fingerprinted. AI decides: <code>CONTINUE / PIVOT / PRUNE / STOP</code>. PIVOT adds new skills. PRUNE removes low-value queued skills. Exploitation skills cannot be auto-approved via replanning — always require human sign-off.</p>
+
+        <p><strong>C3 — IntelligenceStore:</strong> SQLite database recording completed campaigns, finding patterns, tech tags, and skill hit rates. Feeds C1 hypothesis confidence and C7 program selection. Compounds across every campaign — the platform gets smarter with each run.</p>
+
+        <p><strong>C4 — SkillGap Detection:</strong> Automatically detects three gap types — attack classes with no skill coverage, findings that can't be exploited, and blind spots where skills with high hit rates aren't running. Gaps auto-close when C5 discovers a covering skill.</p>
+
+        <p><strong>C5 — SkillRegistry:</strong> Auto-discovers skills at startup by scanning for <code>SKILL_MANIFEST</code> declarations. No imports at discovery time. Syncs gap state with C3.</p>
+
+        <p><strong>C6 — OutcomeSyncJob:</strong> Polls Intigriti API for submission outcomes. Accepted findings increase C3 pattern weights; rejections decrease them. Closes the real-world feedback loop into the intelligence store.</p>
+
+        <p><strong>C7 — ProgramSelector:</strong> Scores Intigriti programs against C3 historical hit rates. Identifies which programs SecurityClaw's skill set is best positioned to find findings on. Weekly cron with AI-generated rationale.</p>
+
+        <p><strong>C8 — SpecGenerator:</strong> Auto-generates structured skill specs for C4-detected gaps. Outputs to <code>docs/specs/auto-generated/</code>. Creates a documented backlog of skills that need writing.</p>
+
+        <p><strong>C9 — SubmissionDrafter:</strong> Generates Intigriti-formatted bug reports for MEDIUM+ validated findings. <code>requires_review: True</code> always — no auto-submission without human sign-off.</p>
+
+        <p><strong>C10 — SkillHealthMonitor:</strong> Tracks per-skill health: run count, finding rate, consecutive empty runs. Detects hard failures, soft degradation, and stale skills. Posts nightly dashboard to Slack.</p>
+
+        <h3>Phase D — Production Gap Skills</h3>
+
+        <p>Ten class-based skills that fire automatically to cover capability gaps identified during live campaign testing:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Skill</th>
+                    <th>Gap Addressed</th>
+                    <th>Chain Rule Trigger</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>HeaderAnalysisSkill</td><td>Security header coverage</td><td>SUBDOMAIN_FOUND</td></tr>
+                <tr><td>ProgramScopeManager</td><td>Multi-TLD scope setup</td><td>Pre-campaign</td></tr>
+                <tr><td>ToolAvailabilityMonitor</td><td>Pre-flight binary check</td><td>Pre-campaign</td></tr>
+                <tr><td>WAFDetectionSkill</td><td>WAF identification</td><td>Early campaign</td></tr>
+                <tr><td>SensitiveServiceFingerprintSkill</td><td>Internal service detection</td><td>SUBDOMAIN_FOUND</td></tr>
+                <tr><td>APIKeyValidatorSkill</td><td>Key validation post-discovery</td><td>JS_BUNDLE_FOUND</td></tr>
+                <tr><td>MobileAppAnalysisSkill</td><td>Mobile attack surface</td><td>MOBILE_APP_DETECTED</td></tr>
+                <tr><td>SSRFHypothesisSkill</td><td>SSRF chain on internal leaks</td><td>InternalHostnameLeak</td></tr>
+                <tr><td>IntigritiScopePuller</td><td>Live scope from Intigriti API</td><td>Pre-campaign</td></tr>
+                <tr><td>CrossAssetCorrelator</td><td>Cross-subdomain correlation</td><td>SUBDOMAIN_FOUND</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="skills-inventory">
+        <h2>Skills Inventory — 55+ Specialised Modules</h2>
+
+        <p>SecurityClaw's skill library covers the full web and cloud attack surface. Skills are divided into class-based (Python, auto-discovered via <code>SKILL_MANIFEST</code>) and legacy subprocess skills (external tool wrappers registered in the executor). All class-based skills have dry-run mode and are tested without live network dependencies.</p>
+
+        <h3>Class-Based Skills (auto-discovered)</h3>
+        <ul>
+            <li><strong>Recon &amp; OSINT:</strong> certificate-transparency-monitor, cross-asset-correlator, intigriti-scope-puller, js-bundle-analyzer, js-bundle-recon, js_analyzer, nextjs-recon, sensitive-service-fingerprint, tech-stack-cve-scanner, webmail-cve-fingerprint, whitelabel_detector</li>
+            <li><strong>Web Application:</strong> auth-portal-tester, business-logic-scanner, header-analysis, idor-scanner, logging-monitor-checker, open-redirect-probe, open_redirect_hunter, security-header-checker, security-misconfiguration-checker, session-security-tester, sqli-probe, sri-checker, ssrf-hypothesis, ssrf-probe, tls-crypto-auditor, waf-detection, xss-probe</li>
+            <li><strong>API Security:</strong> api-key-validator, api-schema-discovery, apigw-cors-tester, authenticated_api_sweep, oauth-client-enum, oauth-security-analysis, oauth_scope_abuse, swagger_admin_probe</li>
+            <li><strong>Cloud:</strong> appinsights_telemetry_probe, azure_naming_enum</li>
+            <li><strong>Mobile:</strong> mobile-app-analysis</li>
+            <li><strong>Infrastructure:</strong> ec2_campaign_executor, program-scorer, hunt_orchestrator</li>
+        </ul>
+
+        <h3>Legacy Subprocess Skills (tool wrappers)</h3>
+        <ul>
+            <li><strong>Recon:</strong> nmap-recon, masscan-fast, shodan-intel</li>
+            <li><strong>Enumeration:</strong> gobuster-enum, ffuf-fuzz, enum4linux-smb</li>
+            <li><strong>Scanning:</strong> nikto-scan, nuclei-scan</li>
+            <li><strong>Exploitation:</strong> sqlmap-injection, hydra-bruteforce, hashcat-crack, metasploit-exploit</li>
+            <li><strong>Post-Exploitation:</strong> proxychains-stealth, sliver-c2, aircrack-wireless</li>
+        </ul>
+
+        <p>Exploitation-class skills (<code>metasploit-exploit</code>, <code>sliver-c2</code>, <code>sqlmap-injection</code>, <code>hydra-bruteforce</code>, <code>hashcat-crack</code>) require <code>requires_approval: true</code> in the campaign plan. They will not execute without explicit human sign-off — this is a hard gate, not a configuration option.</p>
+    </section>
+
+    <section id="test-coverage">
+        <h2>Quality and Test Coverage</h2>
+
+        <p>SecurityClaw maintains a 98%+ test coverage gate on the <code>skills/</code> directory. The test strategy:</p>
+
+        <ul>
+            <li><strong>No live network dependencies</strong> — all tests use mocked requests, mocked subprocess calls, and mocked Bedrock responses. The full test suite runs offline.</li>
+            <li><strong>Parametrised dry-run tests</strong> — every class-based skill is covered by a parametrised <code>test_dry_run_*.py</code> test confirming it returns an empty list without making network calls when <code>dry_run=True</code>.</li>
+            <li><strong>Phase C component tests</strong> — dedicated test files with heavy mocking of IntelligenceStore, Bedrock clients, and Intigriti API responses.</li>
+            <li><strong>CI pipeline</strong> — isort + black + flake8 + mypy strict + radon complexity + bandit + pip-audit + pytest. Every PR must pass all gates before review.</li>
+        </ul>
+    </section>
+
+    <section id="how-campaigns-run">
+        <h2>How a Campaign Actually Runs — End to End</h2>
+
+        <p>A full SecurityClaw campaign against a bug bounty target follows this sequence:</p>
+
+        <ol>
+            <li><strong>Pre-campaign setup:</strong> IntigritiScopePuller fetches the live program scope and Rules of Engagement from the Intigriti API. ProgramScopeManager validates multi-TLD targets. ToolAvailabilityMonitor confirms all required binaries are present on the execution instance.</li>
+            <li><strong>Hypothesis generation:</strong> AdversarialHypothesisEngine generates 3–7 named attack hypotheses based on the target, prior campaign history from IntelligenceStore, and common patterns for the target's tech stack.</li>
+            <li><strong>Execution loop:</strong> AdaptiveCampaignEngine processes the skill queue. Each skill result is validated by FindingValidator, chain rules fire for matching typed findings, and the RePlanner evaluates its 7 trigger conditions after each batch.</li>
+            <li><strong>Post-campaign analysis:</strong> AttackChainAnalyser generates multi-step attack narratives. IntelligenceStore records the campaign. Gap detection runs. SpecGenerator documents any new coverage gaps.</li>
+            <li><strong>Submission:</strong> SubmissionDrafter generates Intigriti-formatted reports for all MEDIUM+ confirmed findings. Human reviews each draft before submission. OutcomeSyncJob feeds outcomes back into the intelligence store.</li>
+        </ol>
+    </section>
+
+    <section id="vs-scanners">
+        <h2>SecurityClaw vs Vulnerability Scanners</h2>
+
+        <p>The distinction matters because the bug bounty programmes SecurityClaw targets have already been scanned by automated tools. Finding something worth a payout means finding something those tools missed.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Vulnerability Scanner</th>
+                    <th>SecurityClaw</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Execution</strong></td>
+                    <td>Fixed scan sequence</td>
+                    <td>Dynamic queue, chain-rule driven</td>
+                </tr>
+                <tr>
+                    <td><strong>IP exposure</strong></td>
+                    <td>Fixed source IP</td>
+                    <td>Fresh EC2 IP per campaign</td>
+                </tr>
+                <tr>
+                    <td><strong>Finding quality</strong></td>
+                    <td>Raw output, high noise</td>
+                    <td>Bedrock-validated per finding</td>
+                </tr>
+                <tr>
+                    <td><strong>Finding chaining</strong></td>
+                    <td>None</td>
+                    <td>Typed findings + chain rules</td>
+                </tr>
+                <tr>
+                    <td><strong>Mid-campaign adaptation</strong></td>
+                    <td>None</td>
+                    <td>RePlanner (7 trigger conditions)</td>
+                </tr>
+                <tr>
+                    <td><strong>Learning across campaigns</strong></td>
+                    <td>None</td>
+                    <td>IntelligenceStore compounding</td>
+                </tr>
+                <tr>
+                    <td><strong>Attack narratives</strong></td>
+                    <td>CVE list</td>
+                    <td>Multi-step chain analysis (Sonnet)</td>
+                </tr>
+                <tr>
+                    <td><strong>Session resilience</strong></td>
+                    <td>N/A</td>
+                    <td>SSM + idempotent state machine</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="roadmap">
+        <h2>Current Status and Known Gaps</h2>
+
+        <p>As of April 2026, SecurityClaw is operationally deployed and running campaigns. Key items in active development:</p>
+
+        <ul>
+            <li><strong>Bootstrap tool coverage:</strong> The current EC2 UserData installs nmap, subfinder, httpx, nuclei, and ffuf. A second wave of bootstrap tools (nikto, gobuster, sqlmap, hydra, hashcat, masscan, cloud scanning tools) is in development to bring the full subprocess skill set online in EC2 campaigns.</li>
+            <li><strong>Intelligence store population:</strong> Phase C's AI features (hypothesis confidence, program scoring, replan heuristics) improve with each completed campaign. Initial campaigns are actively building the history that makes these features increasingly accurate.</li>
+            <li><strong>Plan generation:</strong> Campaign plan generation (target domain → structured campaign plan JSON) is handled by the security engineer prior to launch. An automated planning layer is on the roadmap.</li>
+        </ul>
+
+        <p>For the full technical deep-dive and gap analysis, see the security research documentation.</p>
+    </section>
+
+    <section id="conclusion">
+        <h2>What This Means for Bug Bounty</h2>
+
+        <p>Bug bounty programmes have been live long enough that the easy wins — exposed admin panels, default credentials, obvious SQL injection endpoints — are gone. What remains requires chaining: a subdomain found via certificate transparency that runs an old CMS, a JWT misconfiguration discovered in a JS bundle, a leaked internal hostname that enables SSRF to an internal metadata service.</p>
+
+        <p>That's exactly what SecurityClaw is built to find. The chain rules, the typed finding system, the adaptive replanning — all of it is designed for the multi-step paths that traditional scanners can't see because they don't chain.</p>
+
+        <p>The intelligence store means that knowledge compounds. A pattern found on one Intigriti programme — a particular tech stack, a class of vulnerability, a chain that worked — raises the hypothesis confidence for every future campaign that touches a similar target.</p>
+
+        <p>This is what an autonomous bug bounty researcher looks like in 2026.</p>
+    </section>
+</article>`;
+---
+<BaseLayout title={title} description={description}>
+  <Fragment set:html={html} />
+</BaseLayout>

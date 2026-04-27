@@ -1,5 +1,7 @@
 # Build output
 _site/
+dist/
+.astro/
 
 # Node dependencies
 node_modules/
