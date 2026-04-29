@@ -45,52 +45,9 @@ const pathname = Astro.url.pathname;
     <meta name="twitter:description" content={description}>
 
     <link rel="stylesheet" href="/css/style.css">
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PP6M3SZSVR"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-PP6M3SZSVR');
-    </script>
-
-    <!-- AI Agent Referrer Tracking -->
-    <script>
-      (function() {
-        var ua = navigator.userAgent || '';
-        var ref = document.referrer || '';
-        var aiSource = null;
-        if (ua.includes('ChatGPT-User') || ua.includes('ChatGPT')) {
-          aiSource = 'chatgpt';
-        } else if (ua.includes('Claude') || ua.includes('Anthropic')) {
-          aiSource = 'claude';
-        } else if (ua.includes('PerplexityBot') || ua.includes('Perplexity')) {
-          aiSource = 'perplexity';
-        } else if (ua.includes('GPTBot')) {
-          aiSource = 'openai_crawler';
-        } else if (ua.includes('ClaudeBot') || ua.includes('anthropic-ai')) {
-          aiSource = 'anthropic_crawler';
-        } else if (ua.includes('Bard') || ua.includes('Gemini')) {
-          aiSource = 'google_gemini';
-        } else if (ref.includes('chat.openai.com')) {
-          aiSource = 'chatgpt_referrer';
-        } else if (ref.includes('claude.ai')) {
-          aiSource = 'claude_referrer';
-        } else if (ref.includes('perplexity.ai')) {
-          aiSource = 'perplexity_referrer';
-        }
-        if (aiSource) {
-          gtag('event', 'ai_agent_visit', {
-            'ai_source': aiSource,
-            'page_path': window.location.pathname,
-            'user_agent': ua
-          });
-          gtag('set', {'ai_visitor': aiSource});
-          console.log('AI Agent detected:', aiSource);
-        }
-      })();
-    </script>
+    <!-- Preconnect to GA domains for faster loading -->
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.google-analytics.com">
 
     <!-- Schema.org markup -->
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -145,6 +102,51 @@ const pathname = Astro.url.pathname;
             <p>&copy; 2026 Bug Hunter Tools. All rights reserved. | <a href="/privacy/" style="color: white;">Privacy Policy</a></p>
         </div>
     </footer>
+
+    <!-- Google tag (gtag.js) — loaded after content for performance -->
+    <script defer src="https://www.googletagmanager.com/gtag/js?id=G-PP6M3SZSVR"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-PP6M3SZSVR');
+    </script>
+
+    <!-- AI Agent Referrer Tracking -->
+    <script>
+      (function() {
+        var ua = navigator.userAgent || '';
+        var ref = document.referrer || '';
+        var aiSource = null;
+        if (ua.includes('ChatGPT-User') || ua.includes('ChatGPT')) {
+          aiSource = 'chatgpt';
+        } else if (ua.includes('Claude') || ua.includes('Anthropic')) {
+          aiSource = 'claude';
+        } else if (ua.includes('PerplexityBot') || ua.includes('Perplexity')) {
+          aiSource = 'perplexity';
+        } else if (ua.includes('GPTBot')) {
+          aiSource = 'openai_crawler';
+        } else if (ua.includes('ClaudeBot') || ua.includes('anthropic-ai')) {
+          aiSource = 'anthropic_crawler';
+        } else if (ua.includes('Bard') || ua.includes('Gemini')) {
+          aiSource = 'google_gemini';
+        } else if (ref.includes('chat.openai.com')) {
+          aiSource = 'chatgpt_referrer';
+        } else if (ref.includes('claude.ai')) {
+          aiSource = 'claude_referrer';
+        } else if (ref.includes('perplexity.ai')) {
+          aiSource = 'perplexity_referrer';
+        }
+        if (aiSource && typeof gtag !== 'undefined') {
+          gtag('event', 'ai_agent_visit', {
+            'ai_source': aiSource,
+            'page_path': window.location.pathname,
+            'user_agent': ua
+          });
+          gtag('set', {'ai_visitor': aiSource});
+        }
+      })();
+    </script>
 </body>
 </html>
 
