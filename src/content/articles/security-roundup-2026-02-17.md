@@ -1,0 +1,304 @@
+---
+title: "Security Roundup Feb 10–16 2026: AI Infrastructure Under Fire, Cloud Misconfigs & $4.3M in Bug Bounties"
+description: "Weekly security roundup covering CVE-2026-22778 vLLM RCE, six n8n CVEs, Azure Functions info disclosure, a real-world AI-assisted AWS cloud breach, HackerOne's $4.3M payout week, and the best tools for bug hunters."
+date: 2026-02-17
+category: research
+---
+
+<article>
+    <h1>Security Roundup Feb 10–16 2026: AI Infrastructure Under Fire, Cloud Misconfigs &amp; $4.3M in Bug Bounties</h1>
+
+    <div class="meta">
+        <span>Published: February 17, 2026</span>
+        <span>•</span>
+        <span>Reading time: 12 minutes</span>
+        <span>•</span>
+        <span>~2,600 words</span>
+    </div>
+
+    <div class="affiliate-disclosure">
+        <p><strong>📢 Affiliate Disclosure:</strong> This site contains affiliate links to Amazon. We earn a commission when you purchase through our links at no additional cost to you.</p>
+    </div>
+
+    <div class="intro">
+        <p><strong>February 10–16 was the week AI infrastructure became the primary target for attackers, and bug hunters took notice.</strong> Two CVSS 9+ vulnerabilities dropped in rapid succession — one in a widely-used LLM serving framework, one in a popular workflow automation platform — while a real-world AWS breach demonstrated just how fast a misconfigured cloud account can be stripped bare.</p>
+
+        <p>Microsoft patched 61 vulnerabilities, HackerOne paid out $4.3M in a single Live Hacking Event, and Bugcrowd launched AI-assisted triage to help security teams keep pace with disclosure volume. Here's everything that matters, with what you should do about it.</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <section id="breaking-recap">
+        <h2>🚨 Breaking News Recap: Two Critical CVEs in 72 Hours</h2>
+
+        <h3>CVE-2026-22778 — vLLM Remote Code Execution (CVSS 9.8)</h3>
+        <p>On Tuesday February 10, Orca Security disclosed a critical unauthenticated RCE in <strong>vLLM</strong>, the most widely deployed framework for serving large language models. CVSS score: 9.8. No authentication, no user interaction, no privileges required.</p>
+
+        <p>The two-stage exploit chain is elegant and sobering: a malformed image upload triggers a PIL error message that leaks heap memory addresses (ASLR bypass), then a crafted JPEG2000 video triggers an integer-overflow heap corruption that pivots into code execution. Any internet-exposed vLLM instance running below version 0.14.1 is fully compromised in two HTTP requests.</p>
+
+        <p><strong>Why it matters for bug hunters:</strong> Thousands of AI startups, research labs, and enterprise teams deployed vLLM servers throughout 2025 with default (unauthenticated) configurations. This is exactly the kind of discovery that yields five-figure bounties when found responsibly on in-scope AI infrastructure. Version fingerprinting alone — without triggering the exploit — is sufficient for a credible bug report.</p>
+
+        <p>→ <a href="/articles/vllm-rce-cve-2026-22778/">Read the full technical breakdown</a></p>
+
+        <h3>CVE-2026-25049 — n8n: Six CVEs in 48 Hours (CVSS 9.4)</h3>
+        <p>On Wednesday February 11, the n8n workflow automation platform disclosed <strong>six vulnerabilities simultaneously</strong>, the most severe being CVE-2026-25049 (CVSS 9.4): a type-confusion sandbox escape enabling remote code execution. The full list:</p>
+
+        <ul>
+            <li><strong>CVE-2026-25049</strong> (CVSS 9.4) — Type-confusion JavaScript sandbox escape → RCE</li>
+            <li><strong>CVE-2026-25051</strong> (CVSS 8.5) — XSS in webhook responses</li>
+            <li><strong>CVE-2026-25052</strong> (CVSS 9.4) — Arbitrary file read via TOCTOU race condition</li>
+            <li><strong>CVE-2026-25053–25055</strong> — Command injection, authentication bypass, path traversal</li>
+        </ul>
+
+        <p>Root cause across all six: insufficient permission checks on internal APIs. Upwind's disclosure notes that the n8n self-hosted market has expanded rapidly as teams automate with AI agents — the same growth pattern as vLLM. Fix: upgrade to 1.123.17+ or 2.5.2+.</p>
+
+        <p>→ <a href="/articles/n8n-rce-cve-2026-25049/">Read the full n8n analysis</a></p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="cloud-serverless">
+        <h2>☁️ Cloud &amp; Serverless: The Invisible Attack Surface</h2>
+
+        <h3>CVE-2026-21532 — Azure Functions Information Disclosure (CVSS 8.5)</h3>
+        <p>Disclosed February 5 as part of Microsoft's pre-Patch-Tuesday advisories, CVE-2026-21532 allows unauthenticated remote access to secrets, configuration files, and environment variables stored within Azure Functions deployments. Attack vector: network, low complexity, no privileges. Root cause: CWE-200 (Improper Exposure of Sensitive Information).</p>
+
+        <p>Microsoft classifies this as "fully mitigated" on their end — meaning the platform fix has been applied — but strongly recommends:</p>
+        <ul>
+            <li>Integrate Functions with Azure Virtual Networks or private endpoints</li>
+            <li>Enable IP restrictions and Azure AD authentication at the function-app level</li>
+            <li>Audit environment variables for secrets (use Azure Key Vault references instead)</li>
+            <li>Monitor HTTP access logs for anomalous enumeration patterns</li>
+        </ul>
+
+        <p><strong>Bug hunter angle:</strong> Any API that exposes environment variables is a credential-harvest goldmine. When testing Azure-hosted targets, probe function app metadata endpoints and look for error responses that echo back config data. This is especially common in teams that lifted-and-shifted from on-premises environments where env-vars were considered "safe."</p>
+
+        <h3>Microsoft Patch Tuesday — 61 Vulnerabilities (February 10)</h3>
+        <p>The February 2026 Patch Tuesday patched 61 CVEs across the Microsoft portfolio. Highlights relevant to security researchers:</p>
+
+        <ul>
+            <li><strong>CVE-2026-24300</strong> — Azure Front Door elevation of privilege (fully mitigated)</li>
+            <li><strong>CVE-2026-21522</strong> — Azure Compute Gallery command injection (ACI Confidential Containers)</li>
+            <li><strong>CVE-2026-23655</strong> — Azure ACI information disclosure (secret tokens and API keys exposed)</li>
+            <li><strong>GitHub Copilot / VS Code / Visual Studio / JetBrains</strong> — RCE via command injection in AI prompt processing, exposing API keys</li>
+            <li><strong>CVE-2026-0488</strong> — SAP CRM code injection (CVSS 9.9) — notable severity even outside the Azure ecosystem</li>
+        </ul>
+
+        <p>The GitHub Copilot / IDE RCEs deserve special attention: they represent a new class of attack where malicious content in AI prompts or code suggestions triggers command execution in the developer's local environment. Responsible disclosure opportunities here are underexplored.</p>
+
+        <h3>Real-World AWS AI-Assisted Cloud Breach (February 4)</h3>
+        <p>Security researchers detailed a post-incident analysis of a cloud breach that unfolded in under 10 minutes. Attack path:</p>
+
+        <ol>
+            <li>Attacker discovers IAM credentials leaked into a public S3 bucket</li>
+            <li>Credentials used to list and read additional S3 objects, exposing Lambda function source code</li>
+            <li>Lambda code injected with privilege escalation payload → admin access to 19 AWS principals</li>
+            <li>Bedrock API (Claude, Llama models) abused to burn GPU quotas; Secrets Manager and SSM parameters exfiltrated</li>
+        </ol>
+
+        <p>Forensic analysis identified Serbian-language comments in the payload and LLM-characteristic code patterns, suggesting AI-assisted attack tooling. <strong>The breach exploited zero AWS service vulnerabilities</strong> — every step used misconfiguration and leaked credentials.</p>
+
+        <p>Defensive checklist:</p>
+        <ul>
+            <li>Run S3 bucket access analyzer monthly — assume any public bucket is already read</li>
+            <li>Store secrets in Secrets Manager or SSM, never in code or environment variables</li>
+            <li>Apply least-privilege IAM: Lambda execution roles need only the permissions they use</li>
+            <li>Enable AWS GuardDuty — the Bedrock API abuse would have triggered anomaly detection</li>
+            <li>Rotate credentials on any access pattern change, not just on breaches</li>
+        </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="framework-cves">
+        <h2>🔧 Framework &amp; Platform CVEs Worth Testing</h2>
+
+        <h3>CVE-2025-14550 — Django ASGI Denial-of-Service</h3>
+        <p>Disclosed February 3 and patched in Django 6.0.2, 5.2.11, and 4.2.28, this moderate-severity DoS affects the <code>ASGIRequest</code> handler. Sending a request with many duplicate headers triggers quadratic CPU usage through repeated string concatenation — a classic algorithmic complexity attack (ReDoS cousin).</p>
+
+        <p>Discovered by Jiyong Yang and reported via HackerOne. The fix replaces the naive concatenation with an efficient multi-value header structure. <strong>Testing approach:</strong> Send 200+ duplicate <code>X-Forwarded-For</code> or custom headers; measure response time degradation. Anything scaling super-linearly is worth reporting.</p>
+
+        <h3>CVE-2026-1504 — Chrome Background Fetch API Cross-Origin Data Leak</h3>
+        <p>Google patched this in Chrome 144.0.7559.110. The Background Fetch API could be abused to bypass same-origin policy restrictions, leaking cross-origin response data to the initiating site. Relevant for bug hunters targeting browser-based web apps: check if targets use Background Fetch for any caching or prefetch logic.</p>
+
+        <h3>SAP Commerce Cloud API Exposure (CVE-2026-24321)</h3>
+        <p>Low confidentiality-impact but high practical risk: unauthenticated access to multiple SAP Commerce Cloud API endpoints exposed private personal information not intended for frontend consumption. Root cause: CWE-359 (Exposure of Private Personal Information to Unauthorized Actor). Classic API surface area failure — enumerate undocumented endpoints and probe for missing auth headers.</p>
+
+        <h3>Chainlit AI Framework — Cloud Credential Theft</h3>
+        <p>Two CVEs in the Chainlit AI framework (previously detailed in our <a href="/articles/chainlit-ai-vulnerabilities-cve-2026-22218/">ChainLeak analysis</a>) continued to generate impact this week as new deployments were identified. CVE-2026-22218 (arbitrary file read) chains with CVE-2026-22219 (SSRF to AWS IMDS) to yield full AWS credential extraction in under two minutes on unpatched instances.</p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="bug-bounty-landscape">
+        <h2>💰 Bug Bounty Landscape: Platform Updates &amp; Key Disclosures</h2>
+
+        <h3>HackerOne: $4.3M Paid in Live Hacking Events</h3>
+        <p>HackerOne announced $4.3M in bounties paid through their Live Hacking Events program in February 2026 — the highest single-month total to date. Live Hacking Events give top-tier researchers access to in-scope assets during a concentrated window, with companies paying premium rates for time-critical findings.</p>
+
+        <p>Separately, a concerning internal incident: a HackerOne employee was caught stealing vulnerability reports — reading private disclosures and submitting duplicate claims for personal bounty payouts. HackerOne confirmed the incident, terminated the employee, and stated all affected programs were notified. This is a reminder that your private reports are not visible only to the program team.</p>
+
+        <h3>Platform Updates</h3>
+        <ul>
+            <li><strong>Bugcrowd:</strong> Launched "Security Inbox" — AI-assisted triage that pre-classifies incoming reports by severity, de-duplicates submissions, and surfaces signal from noise. Expect faster response times on managed programs going forward.</li>
+            <li><strong>Chime:</strong> Running double P1 bounties through end of February. Focus areas: authentication failures and access control issues. Strong time-to-payout reputation — worth targeting if auth/authz is your specialty.</li>
+            <li><strong>Vercel:</strong> Launched a new OSS bug bounty program on HackerOne covering the Next.js ecosystem. Cloud hosting platforms with massive OSS install bases are high-value targets — React/Next.js supply-chain bugs often affect millions of downstream deployments.</li>
+        </ul>
+
+        <h3>Notable Disclosures This Week</h3>
+        <ul>
+            <li><strong>Django user enumeration</strong> via timing attack in mod_wsgi (HackerOne, stackered)</li>
+            <li><strong>GoCD information disclosure</strong> via Logback injection (aigirl)</li>
+            <li><strong>curl MQTT packet injection</strong> (pajarori)</li>
+            <li><strong>Nextcloud WebAuthn</strong> public key validation issue (se1en)</li>
+            <li><strong>LinkedIn</strong> comment permission bypass + premium feature access control failure (two separate reports, both paid)</li>
+        </ul>
+
+        <p>The LinkedIn pair is interesting: two distinct reporters found related access control issues in the same week, suggesting their API authorization layer was in a state of flux. When one BOLA/IDOR surfaces on a target, probe adjacent API endpoints immediately — the root cause is usually systematic, not isolated.</p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="trends">
+        <h2>📈 Trends: Five Patterns Defining 2026</h2>
+
+        <p>Looking across this week's findings, five attack patterns keep surfacing:</p>
+
+        <ol>
+            <li><strong>AI infrastructure as primary attack surface.</strong> vLLM, Chainlit, GitHub Copilot, AWS Bedrock abuse — every major disclosure this week touched AI tooling. Teams deploying LLM infrastructure are skipping the security basics: authentication, network segmentation, least-privilege access.</li>
+
+            <li><strong>Cloud credentials exposed in code.</strong> The AWS breach, Azure Functions CVE, and Chainlit SSRF all hinge on secrets ending up where they shouldn't. Secrets management is still failing at scale despite years of tooling improvement.</li>
+
+            <li><strong>Insufficient permission checks on internal APIs.</strong> n8n's six CVEs, SAP Commerce, and Azure Compute Gallery all share the same root cause: internal API routes trusted by default, bypassed by external callers. Test every API endpoint you can discover, not just the documented ones.</li>
+
+            <li><strong>Serverless blind spots.</strong> Azure Functions, AWS Lambda, ACI containers — serverless architectures abstract away the server but not the vulnerabilities. They introduce new failure modes: environment variable exposure, IAM role misconfiguration, and cold-start injection windows.</li>
+
+            <li><strong>AI-assisted attacks accelerating.</strong> The AWS breach (10 minutes from cred discovery to 19 principals compromised) used what forensics identified as AI-assisted tooling. Attack automation is outpacing human-speed detection. GuardDuty, Defender for Cloud, and equivalent monitoring are no longer optional.</li>
+        </ol>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="tools">
+        <h2>🛠️ Essential Tools This Week</h2>
+
+        <p>If this week's findings motivate you to level up, these are the tools worth the investment:</p>
+
+        <div class="product-recommendation">
+            <h3>🔧 <a href="https://portswigger.net/burp/pro" target="_blank" rel="nofollow noopener">Burp Suite Professional</a></h3>
+            <p>The industry standard for web application and API security testing. This week's n8n disclosures (XSS, path traversal, auth bypass) and the Azure Functions enumeration are exactly the class of bugs Burp Suite's Repeater, Intruder, and Scanner are built to surface. Essential for anyone hunting API authorization failures.</p>
+            <p><strong>Best for:</strong> API testing, BOLA/IDOR hunting, request tampering, authentication bypass testing.</p>
+            <p><a href="https://portswigger.net/burp/pro" target="_blank" rel="nofollow noopener" style="display: inline-block; background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">View Burp Suite Pro →</a></p>
+        </div>
+
+        <div class="product-recommendation">
+            <h3>🔑 <a href="https://www.amazon.com/dp/B07HBD71HL?tag=altclaw-20" target="_blank" rel="nofollow noopener">YubiKey 5 NFC — Hardware Security Key</a></h3>
+            <p>The HackerOne employee credential abuse incident this week is a direct reminder: bug bounty accounts contain high-value private vulnerability data. Hardware MFA eliminates credential-stuffing and phishing as attack vectors against your own accounts. FIDO2/U2F support, phishing-resistant by design.</p>
+            <p><strong>Best for:</strong> Securing HackerOne/Bugcrowd accounts, GitHub, AWS console, and any platform holding sensitive security research.</p>
+            <p><a href="https://www.amazon.com/dp/B07HBD71HL?tag=altclaw-20" target="_blank" rel="nofollow noopener" style="display: inline-block; background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Check Price on Amazon →</a></p>
+        </div>
+
+        <div class="product-recommendation">
+            <h3>📡 <a href="https://www.amazon.com/dp/B00VEEBOPG?tag=altclaw-20" target="_blank" rel="nofollow noopener">Alfa AWUS036ACH — Dual-Band USB WiFi Adapter</a></h3>
+            <p>Monitor mode and packet injection on 2.4GHz and 5GHz out of the box on Kali Linux. This week's GitHub Copilot RCEs and Chrome SOP bypass highlight that developer environments are increasingly in scope for modern bug bounty programs. A reliable wireless adapter is foundational for network-layer research.</p>
+            <p><strong>Best for:</strong> Kali Linux wireless testing, home lab WPA2 research, network-layer recon.</p>
+            <p><a href="https://www.amazon.com/dp/B00VEEBOPG?tag=altclaw-20" target="_blank" rel="nofollow noopener" style="display: inline-block; background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Check Price on Amazon →</a></p>
+        </div>
+
+        <div class="product-recommendation">
+            <h3>🥧 <a href="https://www.amazon.com/dp/B089ZZ8DTV?tag=altclaw-20" target="_blank" rel="nofollow noopener">Raspberry Pi 4 Model B (8GB)</a></h3>
+            <p>A cheap, low-power Linux box to replicate vulnerable environments. This week: spin up vLLM 0.13.0 or n8n 1.123.16 locally to study the patch diffs without touching production systems. 8GB RAM handles most containers comfortably, and the form factor fits in a lab drawer.</p>
+            <p><strong>Best for:</strong> Local vulnerable-environment lab, CTF challenges, network monitoring appliance, lightweight scanning platform.</p>
+            <p><a href="https://www.amazon.com/dp/B089ZZ8DTV?tag=altclaw-20" target="_blank" rel="nofollow noopener" style="display: inline-block; background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Check Price on Amazon →</a></p>
+        </div>
+
+        <div class="product-recommendation">
+            <h3>🐬 <a href="https://www.amazon.com/dp/B0BL6JV767?tag=altclaw-20" target="_blank" rel="noopener nofollow">Flipper Zero — Multi-Protocol Security Testing Device</a></h3>
+            <p>RFID/NFC emulation, Sub-GHz transceiver, infrared, BadUSB keystroke injection — one device, open-source firmware. Physical security testing is increasingly in scope as enterprise bug bounty programs expand beyond web/API. The Flipper Zero is the fastest way to start exploring hardware attack surfaces.</p>
+            <p><strong>Best for:</strong> Physical security research, NFC/RFID badge testing, BadUSB demonstrations, IR device testing.</p>
+            <p><a href="https://www.amazon.com/dp/B0BL6JV767?tag=altclaw-20" target="_blank" rel="noopener nofollow" style="display: inline-block; background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Check Price on Amazon →</a></p>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="books">
+        <h2>📚 Books to Go Deeper</h2>
+
+        <p>The CVE classes covered this week map directly to these titles. If any section of this roundup surfaced a gap in your knowledge, these are the books that fill it:</p>
+
+        <div class="product-recommendation">
+            <h3>📖 <a href="https://www.amazon.com/dp/B005LVQA9S?tag=altclaw-20" target="_blank" rel="nofollow noopener">The Web Application Hacker's Handbook, 2nd Edition</a></h3>
+            <p>The canonical reference for web security. Every authorization failure, API misconfiguration, and XSS pattern from this week's roundup has its root cause explained here. Essential for n8n-style API hunting, LinkedIn BOLA bugs, and Azure Functions enumeration.</p>
+            <p><a href="https://www.amazon.com/dp/B005LVQA9S?tag=altclaw-20" target="_blank" rel="nofollow noopener" style="display: inline-block; background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Buy on Amazon →</a></p>
+        </div>
+
+        <div class="product-recommendation">
+            <h3>📖 <a href="https://www.amazon.com/dp/1718501129?tag=altclaw-20" target="_blank" rel="nofollow noopener">Black Hat Python, 2nd Edition</a></h3>
+            <p>Python 3 offensive security tooling — network sniffers, exploit scaffolding, automation frameworks. The AI-assisted AWS breach this week used custom tooling; understanding how to build (and detect) such tooling is table stakes for modern offensive and defensive research. Updated for Python 3.</p>
+            <p><a href="https://www.amazon.com/dp/1718501129?tag=altclaw-20" target="_blank" rel="nofollow noopener" style="display: inline-block; background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Buy on Amazon →</a></p>
+        </div>
+
+        <div class="product-recommendation">
+            <h3>📖 <a href="https://www.amazon.com/dp/159327288X?tag=altclaw-20" target="_blank" rel="nofollow noopener">Metasploit: The Penetration Tester's Guide</a></h3>
+            <p>Exploitation fundamentals from the creators of Metasploit. Understanding how exploitation frameworks are structured makes you better at recognizing exploitable patterns — like the two-stage vLLM exploit chain. Covers post-exploitation, pivoting, and custom module development.</p>
+            <p><a href="https://www.amazon.com/dp/159327288X?tag=altclaw-20" target="_blank" rel="nofollow noopener" style="display: inline-block; background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Buy on Amazon →</a></p>
+        </div>
+
+        <div class="product-recommendation">
+            <h3>📖 <a href="https://www.amazon.com/dp/1394180071?tag=altclaw-20" target="_blank" rel="nofollow noopener">CompTIA Security+ Study Guide (SY0-701)</a></h3>
+            <p>If cloud security, serverless misconfigurations, and cryptography fundamentals feel shaky after this week's roundup, Security+ closes those gaps systematically. Solid foundation for understanding why Azure Functions exposes secrets, how IAM privilege escalation works, and what defence-in-depth actually means in practice.</p>
+            <p><a href="https://www.amazon.com/dp/1394180071?tag=altclaw-20" target="_blank" rel="nofollow noopener" style="display: inline-block; background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Buy on Amazon →</a></p>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="conclusion">
+        <h2>Key Takeaways for the Week</h2>
+
+        <ul>
+            <li><strong>AI infrastructure is the 2026 gold rush target.</strong> vLLM, Chainlit, Copilot — study the patterns. Default-unauthenticated deployments = high-probability finds in AI-focused programs.</li>
+            <li><strong>Cloud misconfigurations continue to enable full compromises.</strong> The 10-minute AWS breach is reproducible on thousands of targets today. If you're hunting cloud programs, IAM enumeration and S3 bucket analysis deliver consistent results.</li>
+            <li><strong>n8n and workflow automation platforms are the new attack surface.</strong> Upgrade to 1.123.17+ / 2.5.2+ immediately if self-hosting. If hunting, check for older pinned versions in CI/CD environments.</li>
+            <li><strong>Protect your own accounts first.</strong> The HackerOne internal breach is a reminder that your private vulnerability reports have real value. Hardware MFA on every platform that holds research data is non-negotiable.</li>
+            <li><strong>$4.3M in a single Live Hacking Event week signals that bounty budgets are growing.</strong> Chime's double P1 offer and Vercel's new OSS program are time-sensitive opportunities worth acting on now.</li>
+        </ul>
+
+        <p>New roundup every Monday. If you found this useful, bookmark <a href="/articles/">the articles index</a> or share the specific CVE breakdowns with your team.</p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="references">
+        <h2>References &amp; Further Reading</h2>
+        <ul>
+            <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-22778" target="_blank" rel="noopener">CVE-2026-22778 — NVD</a></li>
+            <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-25049" target="_blank" rel="noopener">CVE-2026-25049 — NVD</a></li>
+            <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-21532" target="_blank" rel="noopener">CVE-2026-21532 — NVD</a></li>
+            <li><a href="https://msrc.microsoft.com/update-guide/" target="_blank" rel="noopener">Microsoft Security Response Center — February 2026 Patch Tuesday</a></li>
+            <li><a href="https://www.djangoproject.com/weblog/" target="_blank" rel="noopener">Django Security Releases</a></li>
+            <li><a href="https://docs.hackerone.com/en/articles/8475836-live-hacking-events" target="_blank" rel="noopener">HackerOne Live Hacking Events</a></li>
+            <li><a href="https://owasp.org/www-project-api-security/" target="_blank" rel="noopener">OWASP API Security Top 10</a></li>
+        </ul>
+    </section>
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Security Roundup Feb 10–16 2026: AI Infrastructure Under Fire, Cloud Misconfigs & $4.3M in Bug Bounties",
+      "description": "Weekly security roundup: CVE-2026-22778 vLLM RCE, six n8n CVEs, Azure Functions info disclosure, AWS cloud breach, HackerOne $4.3M payout, and essential tools for bug hunters.",
+      "author": {
+        "@type": "Organization",
+        "name": "Bug Hunter Tools"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Bug Hunter Tools",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://bughuntertools.com/images/logos/altclaw-logo-512.png"
+        }
+      },
+      "datePublished": "2026-02-17",
+      "dateModified": "2026-02-17",
+      "keywords": "CVE-2026-22778, vLLM RCE, n8n vulnerabilities, Azure Functions, bug bounty, cloud security, AI infrastructure security",
+      "articleSection": "Security Roundup"
+    }
+    </script>
+
+    
+</article>
