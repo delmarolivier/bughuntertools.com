@@ -81,7 +81,7 @@ header h1 {
 .breadcrumb li:not(:last-child)::after {
     content: "›";
     margin: 0 8px;
-    color: #6c757d;
+    color: #545b62;
     font-size: 1.1rem;
 }
 
@@ -97,7 +97,7 @@ header h1 {
 }
 
 .breadcrumb li:last-child span {
-    color: #6c757d;
+    color: #545b62;
     font-weight: 500;
 }
 
@@ -518,7 +518,7 @@ footer p {
 
 .scorecard-pending {
     font-size: 0.8rem;
-    color: #aaa;
+    color: #666;
     font-style: italic;
     margin-top: 4px;
 }
@@ -545,7 +545,7 @@ footer p {
 
 .demo-item-meta {
     font-size: 0.82rem;
-    color: #888;
+    color: #666;
     margin-bottom: 6px;
 }
 
