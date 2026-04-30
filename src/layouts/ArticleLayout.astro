@@ -1,0 +1,257 @@
+---
+/**
+ * ArticleLayout.astro
+ * Shared layout for all bughuntertools.com articles sourced from Content Collections.
+ * Wraps BaseLayout with article-specific head metadata, OG tags, canonical URL,
+ * breadcrumb, affiliate disclosure header, and a <slot /> for the article body.
+ *
+ * Usage (from a [slug].astro page):
+ *   import ArticleLayout from '../../layouts/ArticleLayout.astro';
+ *   const { entry } = Astro.props;
+ *   const { Content } = await entry.render();
+ *   <ArticleLayout {...entry.data} slug={entry.slug}>
+ *     <Content />
+ *   </ArticleLayout>
+ */
+
+import BaseLayout from './BaseLayout.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  date: Date;
+  category: 'security-news' | 'bug-bounty' | 'tools' | 'research';
+  tags?: string[];
+  slug?: string;
+}
+
+const { title, description, date, category, tags = [], slug } = Astro.props;
+
+// ISO date string for schema/meta
+const isoDate = date instanceof Date ? date.toISOString() : new Date(date).toISOString();
+// Human-readable date
+const displayDate = new Date(date).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+// Reading time estimate (rough: 200 wpm)
+// We don't have word count here, so omit or let parent override if needed.
+
+// Category display names
+const categoryLabels: Record<string, string> = {
+  'security-news':  'Security News',
+  'bug-bounty':     'Bug Bounty',
+  'tools':          'Tools',
+  'research':       'Research',
+};
+const categoryLabel = categoryLabels[category] ?? category;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  schemaType="Article"
+  isArticle={true}
+  articleTitle={title}
+>
+  <!-- Article-specific structured data (overwrites BaseLayout's generic schema) -->
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": title,
+      "description": description,
+      "datePublished": isoDate,
+      "dateModified": isoDate,
+      "author": {
+        "@type": "Organization",
+        "name": "Bug Hunter Tools"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Bug Hunter Tools",
+        "url": "https://bughuntertools.com"
+      }
+    })}
+    slot="head-extra"
+  />
+
+  <article class="article-content">
+    <!-- Article header -->
+    <header class="article-header">
+      <div class="article-meta">
+        <span class="category-badge">{categoryLabel}</span>
+        <time datetime={isoDate}>{displayDate}</time>
+      </div>
+      <h1>{title}</h1>
+      <p class="article-description">{description}</p>
+      {tags.length > 0 && (
+        <div class="article-tags" aria-label="Tags">
+          {tags.map(tag => <span class="tag">{tag}</span>)}
+        </div>
+      )}
+    </header>
+
+    <!-- Affiliate disclosure -->
+    <div class="affiliate-disclosure">
+      <p>
+        <strong>📢 Affiliate Disclosure:</strong> This site contains affiliate links to Amazon.
+        We earn a commission when you purchase through our links at no additional cost to you.
+      </p>
+    </div>
+
+    <!-- Article body -->
+    <div class="article-body">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .article-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 0;
+  }
+
+  .article-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .article-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #64748b;
+  }
+
+  .category-badge {
+    background: #2563eb;
+    color: #fff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .article-header h1 {
+    font-size: 2rem;
+    line-height: 1.25;
+    margin: 0.5rem 0 1rem;
+    color: #1e293b;
+  }
+
+  .article-description {
+    font-size: 1.1rem;
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  .affiliate-disclosure {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .affiliate-disclosure p {
+    margin: 0;
+    color: #856404;
+  }
+
+  .article-body {
+    line-height: 1.7;
+    color: #334155;
+  }
+
+  .article-body h2 {
+    font-size: 1.5rem;
+    margin: 2rem 0 1rem;
+    color: #1e293b;
+  }
+
+  .article-body h3 {
+    font-size: 1.25rem;
+    margin: 1.5rem 0 0.75rem;
+    color: #1e293b;
+  }
+
+  .article-body p {
+    margin-bottom: 1rem;
+  }
+
+  .article-body ul,
+  .article-body ol {
+    margin: 1rem 0 1rem 1.5rem;
+  }
+
+  .article-body li {
+    margin-bottom: 0.4rem;
+  }
+
+  .article-body code {
+    background: #f1f5f9;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  .article-body pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+
+  .article-body pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+  }
+
+  .article-body blockquote {
+    border-left: 4px solid #2563eb;
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    color: #475569;
+    font-style: italic;
+  }
+
+  @media (max-width: 640px) {
+    .article-content {
+      padding: 1rem 0;
+    }
+
+    .article-header h1 {
+      font-size: 1.5rem;
+    }
+  }
+</style>
