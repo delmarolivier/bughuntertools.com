@@ -78,46 +78,8 @@ function formatDate(date: Date): string {
     </ul>
   </div>
 <script>
-  (function () {
-    function getActiveCat() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('cat') || 'all';
-    }
-
-    function applyFilter(cat) {
-      const cards = document.querySelectorAll('#article-list .article-card');
-      cards.forEach(function (card) {
-        if (cat === 'all' || card.dataset.category === cat) {
-          card.style.display = '';
-        } else {
-          card.style.display = 'none';
-        }
-      });
-
-      document.querySelectorAll('.filter-btn').forEach(function (btn) {
-        btn.classList.toggle('active', btn.dataset.cat === cat);
-      });
-    }
-
-    // Apply on page load
-    applyFilter(getActiveCat());
-
-    // Intercept filter clicks — update URL and filter without navigation
-    document.querySelectorAll('.filter-btn').forEach(function (btn) {
-      btn.addEventListener('click', function (e) {
-        e.preventDefault();
-        const cat = btn.dataset.cat || 'all';
-        const url = cat === 'all' ? '/articles/' : '/articles/?cat=' + cat;
-        window.history.pushState({}, '', url);
-        applyFilter(cat);
-      });
-    });
-
-    // Handle back/forward
-    window.addEventListener('popstate', function () {
-      applyFilter(getActiveCat());
-    });
-  })();
+  import { initFilter } from '../../scripts/articleFilter.js';
+  initFilter();
 </script>
 
 </BaseLayout>
