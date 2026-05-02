@@ -12,6 +12,8 @@
         "categories:best-practices": ["warn",  {"minScore": 0.75}],
         "categories:seo":            ["error", {"minScore": 0.9}],
         "color-contrast":             ["warn",  {"minScore": 0}],
+        "inspector-issues":           ["warn",  {"minScore": 0}],
+        "third-party-cookies":        ["warn",  {"minScore": 0}],
         "unused-javascript":         ["warn",  {"maxLength": 3}],
         "network-dependency-tree-insight": ["warn", {"maxLength": 3}],
         "legacy-javascript":         ["warn",  {"maxLength": 3}],
