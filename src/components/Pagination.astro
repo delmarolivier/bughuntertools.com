@@ -1,0 +1,77 @@
+---
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl?: string; // default: '/articles/'
+}
+
+const { currentPage, totalPages, baseUrl = '/articles/' } = Astro.props;
+
+function pageUrl(page: number): string {
+  if (page === 1) return baseUrl;
+  return `${baseUrl}page/${page}/`;
+}
+---
+
+{totalPages > 1 && (
+  <nav class="pagination" aria-label="Article pages">
+    {currentPage > 1 ? (
+      <a href={pageUrl(currentPage - 1)} class="page-link prev" rel="prev">← Previous</a>
+    ) : (
+      <span class="page-link prev disabled" aria-disabled="true">← Previous</span>
+    )}
+
+    <span class="page-info">
+      Page {currentPage} of {totalPages}
+    </span>
+
+    {currentPage < totalPages ? (
+      <a href={pageUrl(currentPage + 1)} class="page-link next" rel="next">Next →</a>
+    ) : (
+      <span class="page-link next disabled" aria-disabled="true">Next →</span>
+    )}
+  </nav>
+)}
+
+<style>
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .page-link {
+    padding: 0.45rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    background: #667eea;
+    color: #fff;
+    border: 1px solid #667eea;
+    transition: background 0.15s;
+  }
+
+  .page-link:hover {
+    background: #5a67d8;
+    border-color: #5a67d8;
+  }
+
+  .page-link.disabled {
+    background: #f1f5f9;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+    cursor: default;
+  }
+
+  .page-info {
+    font-size: 0.9rem;
+    color: #64748b;
+    min-width: 100px;
+    text-align: center;
+  }
+</style>

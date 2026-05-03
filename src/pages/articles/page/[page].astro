@@ -1,23 +1,35 @@
 ---
 import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Pagination from '../../components/Pagination.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Pagination from '../../../components/Pagination.astro';
 
-const title = 'Articles - Bug Hunter Tools';
-const description = 'Complete collection of bug bounty hunting guides, CVE analysis, security tool reviews, and penetration testing tutorials.';
+export async function getStaticPaths() {
+  const ARTICLES_PER_PAGE = 12;
 
-const ARTICLES_PER_PAGE = 12;
-const currentPage = 1;
+  const allArticles = await getCollection('articles');
+  const sorted = allArticles.sort(
+    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  );
 
-const allArticles = await getCollection('articles');
+  const totalPages = Math.ceil(sorted.length / ARTICLES_PER_PAGE);
 
-// Sort by date descending
-const articles = allArticles.sort(
-  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-);
+  // Generate pages 2, 3, … (page 1 is handled by articles/index.astro)
+  const paths = [];
+  for (let page = 2; page <= totalPages; page++) {
+    const start = (page - 1) * ARTICLES_PER_PAGE;
+    const pageArticles = sorted.slice(start, start + ARTICLES_PER_PAGE);
+    paths.push({
+      params: { page: String(page) },
+      props: { pageArticles, currentPage: page, totalPages, totalArticles: sorted.length },
+    });
+  }
+  return paths;
+}
 
-const totalPages = Math.ceil(articles.length / ARTICLES_PER_PAGE);
-const pagedArticles = articles.slice(0, ARTICLES_PER_PAGE);
+const { pageArticles, currentPage, totalPages, totalArticles } = Astro.props;
+
+const title = `Articles (Page ${currentPage}) - Bug Hunter Tools`;
+const description = `Bug bounty guides, CVE analysis, security tool reviews — page ${currentPage} of ${totalPages}.`;
 
 // Category display info
 const categoryMeta: Record<string, { label: string; icon: string; color: string }> = {
@@ -39,25 +51,15 @@ function formatDate(date: Date): string {
     <header class="page-header">
       <h1>All Articles</h1>
       <p class="page-subtitle">
-        {articles.length} guides, CVE analyses, and security research articles — updated weekly.
+        {totalArticles} guides, CVE analyses, and security research articles — page {currentPage} of {totalPages}.
       </p>
-
-      <nav class="category-filter" aria-label="Filter by category">
-        <span class="filter-label">Filter:</span>
-        <a href="/articles/" class="filter-btn" data-cat="all">All ({articles.length})</a>
-        {Object.entries(categoryMeta).map(([cat, meta]) => {
-          const count = articles.filter(a => a.data.category === cat).length;
-          return count > 0 ? (
-            <a href={`/articles/?cat=${cat}`} class="filter-btn" data-cat={cat}>
-              {meta.icon} {meta.label} ({count})
-            </a>
-          ) : null;
-        })}
-      </nav>
+      <p class="back-to-first">
+        <a href="/articles/">← Back to page 1</a>
+      </p>
     </header>
 
     <ul class="article-list" role="list" id="article-list">
-      {pagedArticles.map((article) => {
+      {pageArticles.map((article) => {
         const meta = categoryMeta[article.data.category] ?? { label: article.data.category, icon: '📄', color: '#666' };
         return (
           <li class="article-card" data-category={article.data.category}>
@@ -86,11 +88,6 @@ function formatDate(date: Date): string {
 
     <Pagination currentPage={currentPage} totalPages={totalPages} />
   </div>
-<script>
-  import { initFilter } from '../../scripts/articleFilter.mjs';
-  initFilter();
-</script>
-
 </BaseLayout>
 
 <style>
@@ -115,39 +112,21 @@ function formatDate(date: Date): string {
   .page-subtitle {
     color: #64748b;
     font-size: 1.05rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.5rem;
   }
 
-  .category-filter {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: center;
+  .back-to-first {
+    margin: 0;
+    font-size: 0.9rem;
   }
 
-  .filter-label {
-    font-size: 0.85rem;
-    color: #64748b;
-    font-weight: 600;
-    margin-right: 0.25rem;
-  }
-
-  .filter-btn {
-    padding: 0.3rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.85rem;
+  .back-to-first a {
+    color: #667eea;
     text-decoration: none;
-    color: #475569;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-    transition: background 0.15s;
   }
 
-  .filter-btn:hover,
-  .filter-btn.active {
-    background: #667eea;
-    color: #fff;
-    border-color: #667eea;
+  .back-to-first a:hover {
+    text-decoration: underline;
   }
 
   .article-list {
